@@ -40,4 +40,20 @@ function getPostgresClient() {
   return client
 }
 
-export const db = drizzle(getPostgresClient(), { schema })
+type PandaDb = ReturnType<typeof drizzle<typeof schema>>
+
+let realDb: PandaDb | undefined
+
+/** Connect on first use, so `next build` works without database settings. */
+function getDb(): PandaDb {
+  realDb ??= drizzle(getPostgresClient(), { schema })
+  return realDb
+}
+
+export const db = new Proxy({} as PandaDb, {
+  get(_target, prop) {
+    const target = getDb()
+    const value = Reflect.get(target as object, prop)
+    return typeof value === "function" ? value.bind(target) : value
+  },
+})
