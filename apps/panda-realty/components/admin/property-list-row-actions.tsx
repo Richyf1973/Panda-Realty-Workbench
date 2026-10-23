@@ -1,6 +1,6 @@
 "use client"
 
-import { Bell, CalendarPlus, Inbox, Mail, NotebookText, Phone } from "lucide-react"
+import { Bell, CalendarPlus, Inbox, ListChecks, Mail, NotebookText, Phone } from "lucide-react"
 import type { ReactNode } from "react"
 
 import type { AdminEntityRowActionDescriptor } from "@repo/admin/components/admin/admin-entity-row-action-descriptor"
@@ -175,6 +175,13 @@ export function buildPropertyListRowActions(
       label: "Add meeting",
       onSelect: () => controls.openMeeting(),
       testId: `property-list-add-calendar-event-button--${propertyListId}`,
+    },
+    {
+      key: "sale-timeline",
+      icon: ListChecks,
+      label: "Sale timeline",
+      href: `/admin/sale-timeline?propertyListId=${propertyListId}`,
+      testId: `property-list-sale-timeline-button--${propertyListId}`,
     },
   ]
 

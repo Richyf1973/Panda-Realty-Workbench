@@ -1,0 +1,2196 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Property Sale Timeline</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Noto+Sans:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single working column; sale switcher on top, summary strip, then stage groups */
+:root{
+  --bg:#f5f6f4; --surface:#ffffff; --ink:#1d2421; --muted:#66706b; --line:#dfe3df;
+  --accent:#2f6b57; --accent-soft:#e3efe9;
+  --ok:#2f6b57; --ok-bg:#e3efe9; --warn:#a1620a; --warn-bg:#fbf0dc;
+  --bad:#b23a2e; --bad-bg:#fbe5e1; --info:#3d5a8a; --info-bg:#e6ecf6; --idle:#6c7470; --idle-bg:#eceeec;
+  --sans:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141917; --surface:#1c2320; --ink:#e7ece9; --muted:#9aa49f; --line:#2e3833;
+  --accent:#7cc4a6; --accent-soft:#21332b;
+  --ok:#7cc4a6; --ok-bg:#21332b; --warn:#e8b25a; --warn-bg:#3a2e1a; --bad:#f08a7d; --bad-bg:#3d2220;
+  --info:#9db6e3; --info-bg:#232c3d; --idle:#a3aca7; --idle-bg:#262d2a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --surface:#1c2320; --ink:#e7ece9; --muted:#9aa49f; --line:#2e3833;
+  --accent:#7cc4a6; --accent-soft:#21332b;
+  --ok:#7cc4a6; --ok-bg:#21332b; --warn:#e8b25a; --warn-bg:#3a2e1a; --bad:#f08a7d; --bad-bg:#3d2220;
+  --info:#9db6e3; --info-bg:#232c3d; --idle:#a3aca7; --idle-bg:#262d2a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45}
+.wrap{max-width:920px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1{font-size:22px;margin:0;font-weight:700;text-wrap:balance}
+.topbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between}
+.picker{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
+.picker select{max-width:min(420px,100%);padding:6px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px}
+.savestate{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.savestate .d{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.savestate.busy .d{background:var(--warn)}
+.savestate.err{color:var(--bad)} .savestate.err .d{background:var(--bad)}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
+.meta b{color:var(--ink);font-weight:600}
+.pipeline{color:var(--warn);font-weight:600}
+.banner{font-size:13px;padding:9px 12px;border-radius:8px;background:var(--warn-bg);color:var(--warn)}
+.banner.bad{background:var(--bad-bg);color:var(--bad)}
+.panel{background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.panel h2{margin:0;font-size:15px}
+.pfields{display:flex;flex-wrap:wrap;gap:10px}
+.pfields label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;flex:1 1 180px}
+.pfields input{padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;text-transform:none;letter-spacing:0}
+.prow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.prow .grow{flex:1}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:28px 18px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+.empty b{color:var(--ink);font-size:15px}
+.summary{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.sumrow{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:baseline}
+.stat{display:flex;flex-direction:column}
+.stat .n{font-family:var(--mono);font-size:20px;font-variant-numeric:tabular-nums}
+.stat .l{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.rail{display:flex;gap:3px}
+.rail span{flex:1;height:8px;border-radius:2px;background:var(--idle-bg);position:relative;cursor:pointer}
+.rail span i{position:absolute;inset:0;border-radius:2px;background:var(--accent);transform-origin:left}
+.rail span.attn i{background:var(--warn)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 12px;font:inherit;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:7px;padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.small{padding:3px 8px;font-size:12px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--surface);border-color:var(--accent);font-weight:600}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.danger.solid{background:var(--bad);color:var(--surface)}
+.linkbtn{border:0;background:none;color:var(--accent);font:inherit;font-size:13px;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stage{display:flex;flex-direction:column;gap:6px}
+.stage-h{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;background:none;border:0;padding:4px 0;font:inherit;color:inherit;text-align:left}
+.stage-h h2{margin:0;font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.stage-h .cnt{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.stage-h .chev{width:10px;color:var(--muted);transition:transform .15s}
+.stage.closed .chev{transform:rotate(-90deg)}
+.stage.closed .items{display:none}
+.stage-h .dot{width:9px;height:9px;border-radius:50%;background:var(--idle-bg);border:2px solid var(--idle)}
+.stage.done .dot{background:var(--ok);border-color:var(--ok)}
+.stage.attn .dot{background:var(--warn-bg);border-color:var(--warn)}
+.items{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.item{display:grid;grid-template-columns:28px 1fr auto;gap:2px 10px;padding:12px 14px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .body{min-width:0;display:flex;flex-direction:column;gap:3px}
+.title{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-weight:500}
+.sub{font-size:12px;color:var(--muted)}
+.sub .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.icon{width:20px;height:20px;display:grid;place-items:center;margin-top:1px}
+.cb{width:18px;height:18px;border:1.5px solid var(--idle);border-radius:4px;background:var(--surface);cursor:pointer;display:grid;place-items:center;padding:0}
+.cb.on{background:var(--ok);border-color:var(--ok)}
+.cb.on::after{content:"";width:5px;height:9px;border:solid var(--surface);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.money{font-family:var(--mono);font-weight:600;color:var(--muted);font-size:15px}
+.pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.s-completed{background:var(--ok-bg);color:var(--ok)}
+.s-pending{background:var(--warn-bg);color:var(--warn)}
+.s-upcoming{background:var(--info-bg);color:var(--info)}
+.s-overdue{background:var(--bad-bg);color:var(--bad)}
+.s-review{background:var(--warn-bg);color:var(--warn)}
+.s-partial{background:var(--warn-bg);color:var(--warn)}
+.s-na{background:var(--idle-bg);color:var(--idle)}
+.actions{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.nested{grid-column:2/4;margin-top:8px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.nested .head{font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.spin{display:inline-block;width:10px;height:10px;border:1.5px solid var(--muted);border-top-color:transparent;border-radius:50%;animation:sp 1s linear infinite;vertical-align:-1px;margin-right:5px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+details>summary{cursor:pointer;font-size:12px;font-weight:600;list-style:none;display:flex;gap:6px;align-items:center}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▸";color:var(--muted)}
+details[open]>summary::before{content:"▾"}
+.subtasks{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.strow{display:flex;align-items:center;gap:6px}
+.subtasks label{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer;flex:1;min-width:0}
+.subtasks input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+.st-add{display:flex;gap:6px;margin-top:4px}
+.st-add input{flex:1;min-width:0;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px}
+.notes{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.notes .warnline{color:var(--warn)}
+.amt-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px}
+.amt-form input,.fld-num{width:110px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-family:var(--mono);font-size:12px}
+.fields{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12px;color:var(--muted)}
+.fields label{display:inline-flex;align-items:center;gap:6px}
+.fld-date{padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-family:var(--mono);font-size:12px}
+.fld-text{width:120px;padding:2px 7px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-family:var(--mono);font-size:12px}
+.na-box{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:10px 14px}
+.na-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:6px 0;font-size:13px;color:var(--muted)}
+.dev{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.dev pre{margin:10px 0 0;max-height:360px;overflow:auto;font-family:var(--mono);font-size:11.5px;background:var(--bg);padding:10px;border-radius:6px}
+.legend{font-size:12px;color:var(--muted)}
+.type-cell{display:flex;padding-right:10px}
+.ad-type,.ad-new{width:100%;max-width:260px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px}
+.ad-type:hover{border-color:var(--accent)}
+.ad-new{border-color:var(--accent)}
+.ad-box{gap:8px}
+.ad-table{width:100%;border-collapse:collapse;font-size:13px}
+.ad-table th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:0 0 6px}
+.ad-table td{padding:5px 0;border-top:1px solid var(--line)}
+.ad-table .r{text-align:right}
+.ad-table .tick{width:30px}
+.ad-table .by-cell{padding-right:10px}
+.ad-table .by-cell .ad-type{max-width:220px}
+.ad-table tr.by-split td{font-weight:400;font-size:12px;color:var(--muted);border-top:0}
+.com-sum{margin-top:4px}
+.com-wrap{overflow-x:auto}
+.com-rows{width:100%;border-collapse:collapse;font-size:12.5px}
+.com-rows td{padding:3px 0;vertical-align:bottom}
+.com-rows td.uc{text-transform:uppercase;letter-spacing:.02em}
+.com-rows td.s{padding-right:18px;color:var(--muted);white-space:nowrap}
+.com-rows td.t{white-space:nowrap;width:1%}
+.com-rows td.s.rule{border-bottom:1.5px solid var(--line)}
+.com-rows td.t.rule-a,.com-rows tr.b td.t{border-top:1.5px solid var(--line)}
+.com-rows tr.gap td{padding-top:12px}
+.com-rows tr.h td,.com-rows tr.b td,.com-rows tr.g td{font-weight:700}
+.com-rows tr.h td.uc{font-size:11.5px}
+.com-rows tr.g td{border-top:2px solid var(--ink);padding-top:8px}
+.com-rows tr.g td.s{color:var(--ink)}
+.com-sum .sub-col{color:var(--muted);padding-right:18px}
+.com-sum tr.subtot td{font-weight:600}
+.com-sum tr.subtot td:last-child{border-top:1px solid var(--line)}
+.mx-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.mx-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;border-top:1px solid var(--line);min-height:40px}
+.mx-row:first-child{border-top:0}
+.mx-row.on{background:var(--accent-soft)}
+.mx-name{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;min-width:0}
+.mx-chk{accent-color:var(--accent);width:16px;height:16px}
+.mx-total{display:flex;justify-content:space-between;font-weight:600;font-size:13px;border-top:1.5px solid var(--ink);padding-top:6px}
+.settle-box .item-row td:first-child{padding-left:14px;color:var(--muted)}
+.settle-box{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.adj-list{display:flex;flex-direction:column;gap:8px}
+.adj-row{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.adj-head{font-size:13px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.com-sum tr.tot td{font-weight:700;border-top:1.5px solid var(--ink)}
+.fld-chk{accent-color:var(--accent);width:15px;height:15px}
+.fields .grow{flex:1}
+.types-box{border:1px solid var(--accent);border-radius:8px;background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.types-head{display:flex;flex-direction:column;gap:2px;font-size:13px}
+.types-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 12px}
+.types-list li{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px;padding:2px 0 2px 8px;border-radius:6px;background:var(--bg);min-width:0}
+.types-list li span{overflow-wrap:anywhere}
+.ln-done{accent-color:var(--accent);width:16px;height:16px;cursor:pointer;vertical-align:middle}
+.ad-table tr.is-done .type-cell .ad-type{color:var(--muted);text-decoration:line-through}
+.ad-table tfoot td{font-weight:600;border-top:1.5px solid var(--ink)}
+.cost-in{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);color:var(--muted)}
+.ad-cost{width:96px;text-align:right;padding:3px 6px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink);font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.xbtn{border:0;background:none;color:var(--muted);font-size:17px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:4px}
+.xbtn:hover{color:var(--bad);background:var(--bad-bg)}
+.ad-warn{font-size:12px;color:var(--warn);background:var(--warn-bg);padding:5px 9px;border-radius:6px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.flowcount{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.flowrow{grid-column:2/4;margin-top:8px;display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px}
+.arrow{color:var(--muted);align-self:center;padding-top:2px}
+.fstep{border:1px solid var(--line);border-radius:8px;padding:7px 8px 7px 10px;display:flex;flex-direction:column;gap:5px;background:var(--surface);min-width:0}
+.fstep.on{background:var(--ok-bg);border-color:transparent}
+.ftop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.flabel{font-weight:500}
+.rbtn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:3px 8px;font:inherit;font-size:12px;cursor:pointer}
+.rbtn:hover,.rbtn[aria-expanded="true"]{border-color:var(--accent)}
+.rbtn.set{color:var(--accent);border-color:var(--accent)}
+.fmeta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--muted);align-items:center}
+.rchip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px}
+.r-up{background:var(--info-bg);color:var(--info)}
+.r-today{background:var(--warn-bg);color:var(--warn)}
+.r-over{background:var(--bad-bg);color:var(--bad)}
+.r-done{background:var(--idle-bg);color:var(--idle);font-weight:500}
+.rem-form{grid-column:2/4;margin-top:8px;border:1px solid var(--accent);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.rem-form .head{display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px}
+.rem-fields{display:flex;flex-wrap:wrap;gap:10px}
+.rem-fields label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.rem-fields label.grow{flex:1 1 200px}
+.rem-fields input{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;text-transform:none;letter-spacing:0}
+.rem-quick,.rem-btns{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.pgroup{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.inv-list{display:flex;flex-direction:column;border-top:1px solid var(--line);padding-top:8px;gap:6px}
+.inv-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:13px}
+.inv-row .no{font-family:var(--mono);font-weight:500}
+.inv-row .grow{flex:1}
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(10,14,12,.55);overflow-y:auto;
+  padding-top:calc(24px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sheet{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.sheet-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.sheet-bar .grow{flex:1}
+.sheet-bar b{font-family:var(--mono)}
+.paper{background:#fff;color:#1d2421;border-radius:6px;overflow-x:auto;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.mailbox{background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.mailbox textarea{width:100%;min-height:150px;padding:8px 9px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;resize:vertical}
+.okline{font-size:12px;color:var(--ok);background:var(--ok-bg);padding:5px 9px;border-radius:6px}
+@media (max-width:520px){.flowrow,.rem-form{grid-column:1/3}.arrow{display:none}.fstep{flex:1 1 100%}}
+@media (max-width:520px){.item{grid-template-columns:24px 1fr}.actions{grid-column:2;justify-content:flex-start;margin-top:6px}.nested{grid-column:1/3}}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <div class="topbar">
+      <h1>Property timeline</h1>
+      <div class="picker">
+        <label for="sale-pick" class="vh">Sale</label>
+        <select id="sale-pick" hidden></select>
+        <button class="btn" data-act="agency" id="agency-btn">Agency &amp; trust account</button>
+        <button class="btn primary" data-act="newsale" id="new-btn">+ New sale</button>
+        <span class="savestate" id="savestate" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <div id="banner"></div>
+  <div id="panel"></div>
+
+  <div id="main" hidden>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <section class="summary" aria-label="Progress summary">
+        <div class="sumrow" id="stats"></div>
+        <div class="rail" id="rail" aria-label="Progress by stage"></div>
+      </section>
+
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Filter">
+          <button id="f-all" data-f="all" aria-pressed="true">All</button>
+          <button id="f-open" data-f="open" aria-pressed="false">Open</button>
+          <button id="f-attn" data-f="attn" aria-pressed="false">Needs attention</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="expand">Expand all</button>
+          <button class="btn" id="collapse">Collapse done</button>
+        </div>
+      </div>
+
+      <div id="na"></div>
+      <div id="stages" style="display:flex;flex-direction:column;gap:18px"></div>
+
+      <section class="dev">
+        <details id="dev-d">
+          <summary>Data model (JSON your app would store)</summary>
+          <p class="legend">Each step has a <code>kind</code> (check, flow, advertising, payment, condition, review) that decides how its status is worked out. This is the record saved for the sale you're viewing.</p>
+          <button class="btn small" id="copy">Copy JSON</button>
+          <pre id="json"></pre>
+        </details>
+      </section>
+    </div>
+  </div>
+
+  <div id="empty"></div>
+</div>
+<div id="overlay"></div>
+
+<script>
+const TODAY = new Date().toLocaleDateString("en-CA");
+const DEFAULT_AD_OPTIONS = ["realestate.com.au","domain.com.au","Facebook","Flyer drop","Signboard","Print brochures","Instagram"];
+
+/* ---------- Template for a new sale ---------- */
+function blankSale(info){
+  const ck = (id,title,extra={}) => ({id,kind:"check",title,doneOn:null,method:"manual",...extra});
+  const cond = (id,title) => ({id,kind:"condition",title,due:null,doneOn:null});
+  return {
+    vendor: info.vendor, address: info.address || "", startedOn: info.startedOn || TODAY,
+    createdAt: new Date().toISOString(),
+    stages: [
+      { id:"prospecting", name:"Prospecting and appraisal", steps:[
+        { id:"prospect_ack", kind:"flow", title:"Prospecting", completesOn:"appraisal_booked", flow:[
+          { id:"initial_contact", t:"Initial contact", doneOn:null },
+          { id:"recontact", t:"To be contacted again", doneOn:null, canRemind:true, reminder:null },
+          { id:"appraisal_booked", t:"Appraisal booked", doneOn:null, canRemind:true, reminder:null } ]},
+        ck("appraisal","Appraisal completed"),
+        ck("cma","Comparative market analysis sent",{allowNotRequired:true}) ]},
+      { id:"appointment", name:"Appointment", steps:[
+        { id:"advertising", kind:"advertising", title:"Advertising", linked:null, authorised:null, lines:[] },
+        ck("form6","Form 6 signed") ]},
+      { id:"presale", name:"Pre-sale preparation", steps:[
+        { id:"maintenance", kind:"maintenance", title:"Maintenance and repairs ready", doneOn:null, allowNotRequired:true, linked:null, authorised:null, lines:[] },
+        ck("smoke","Smoke alarm compliance checked"),
+        ck("disclosure","Disclosure document ready") ]},
+      { id:"marketing", name:"Marketing and listing", steps:[
+        mediaStep(),
+        ck("listed","Property on the market") ]},
+      { id:"offer", name:"Offer and contract", steps:[
+        ck("offer_ack","Offer acknowledged"),
+        ck("contract","Contract signed"),
+        ck("contract_sent","Signed contract sent to the parties and solicitors") ]},
+      { id:"initial_deposit", name:"Initial deposit", steps:[
+        depositStep("init_dep") ]},
+      { id:"conditions", name:"Conditions", steps:[
+        cond("cooling","Cooling off"), cond("bnp","Building and pest"), cond("finance","Finance") ]},
+      { id:"balance_deposit", name:"Balance deposit", steps:[
+        depositStep("bal_dep") ]},
+      { id:"settlement", name:"Settlement", steps:[
+        commissionStep(),
+        disburseStep(),
+        cond("settle","Settlement") ]}
+    ]
+  };
+}
+
+/* ---------- App state ---------- */
+let DB = null, mode = "loading";       // loading | db | local
+let readOnly = false;
+let sales = new Map();                 // id -> stored body
+let adOptions = [...DEFAULT_AD_OPTIONS];
+const DEFAULT_MAINT_OPTIONS = ["Plastering","Tiling","Painting","Air conditioning service","Plumbing","Electrical","Doors and windows","Gardening and landscaping","Pressure cleaning","Cleaning","Pest control","Handyman"];
+let maintOptions = [...DEFAULT_MAINT_OPTIONS];
+const DEFAULT_MEDIA_OPTIONS = ["Photography","Twilight photography","Drone photography","Drone video","Virtual tour","Floor plan","Video","Copywriting"];
+let mediaOptions = [...DEFAULT_MEDIA_OPTIONS];
+// Steps made of priced lines. Both share the table, dropdown and invoice; maintenance lines also tick off.
+const LINE_KINDS = {
+  advertising: { noun:"advertising", Noun:"Advertising", authLabel:"Authorised on Form 6 $", authWord:"authorised on the Form 6",
+    invTitle:"Advertising and marketing", invNote:"Advertising authorised on your Form 6", ticks:false },
+  maintenance: { noun:"maintenance", Noun:"Maintenance", authLabel:"Approved by vendor $", authWord:"approved by the vendor",
+    invTitle:"Maintenance and repairs", invNote:"Maintenance approved by you", ticks:true, payer:true },
+  // Photos, drone and tour: priced like advertising, with its own authorised amount and settlement agreement,
+  // but the step itself is ticked off by hand when the media is ready.
+  media: { noun:"media", Noun:"Media", authLabel:"Authorised $", authWord:"authorised",
+    invTitle:"Photos, drone and tour", invNote:"Photos, drone and tour authorised by you", ticks:false, manual:true, settle:true, multi:true }
+};
+LINE_KINDS.advertising.settle = true;
+// Documents keep the agency details they were made with, except the logo (large), which always comes from settings.
+const agencySnap = () => { const a = clone(settings.agency || {}); delete a.logo; return a; };
+const docAgency = d => ({ ...(d.agency || {}), logo: (d.agency && d.agency.logo) || (settings.agency && settings.agency.logo) || "" });
+const vendorDirect = l => l.by === "vendor";
+const chargeLines = st => (st.lines||[]).filter(l => !(LINE_KINDS[st.kind] && LINE_KINDS[st.kind].payer && vendorDirect(l)));
+const chargeTotal = st => r2(chargeLines(st).reduce((t,l)=>t+(Number(l.cost)||0),0));
+function mediaStep(){
+  return { id:"media", kind:"media", title:"Photos, drone and tour ready", doneOn:null, linked:null, authorised:null, lines:[], invoices:[] };
+}
+// Steps whose completion reads as "Linked" rather than "Manually acknowledged"
+const LINKED_STEPS = ["listed","offer_ack"];
+const SERIES_DEFAULTS = { advertising:{prefix:"ADV-", next:1}, maintenance:{prefix:"MNT-", next:1}, media:{prefix:"MED-", next:1}, commission:{prefix:"COM-", next:1} };
+const optsFor = kind => kind === "maintenance" ? maintOptions : kind === "media" ? mediaOptions : adOptions;
+const lid = (part, sid, i) => `ln-${part}-${sid}-${i}`;
+// Agency-wide settings (one shared document): trust account details and invoice numbering
+let settings = { agency:{}, dueDays:7 };
+function normalizeSettings(){
+  settings.series = settings.series || {};
+  if (!settings.series.advertising) settings.series.advertising = { prefix: settings.invoicePrefix ?? "ADV-", next: settings.nextInvoice || 1 };
+  if (!settings.series.maintenance) settings.series.maintenance = clone(SERIES_DEFAULTS.maintenance);
+  if (!settings.series.commission) settings.series.commission = clone(SERIES_DEFAULTS.commission);
+  if (!settings.series.media) settings.series.media = clone(SERIES_DEFAULTS.media);
+  delete settings.invoicePrefix; delete settings.nextInvoice;
+}
+/* ---------- Deposits: one step per deposit, flowing request → receipt → buyer trust receipt → solicitor letter ---------- */
+const DEP_LABEL = { init_dep:"initial deposit", bal_dep:"balance deposit" };
+const DEP_FLOW = [
+  { k:"request",      t: L => `${cap(L)} request`,                       doc:"request" },
+  { k:"receipt",      t: L => `${cap(L.replace(" deposit",""))} receipt`, doc:null },
+  { k:"trustReceipt", t: () => "Buyer trust receipt sent",                doc:"trustreceipt" },
+  { k:"letter",       t: () => "Solicitor letter sent",                   doc:"letter" }
+];
+const DOC_MARK = { request:"request", trustreceipt:"trustReceipt", letter:"letter" };
+function depositStep(id){
+  return { id, kind:"deposit", title: cap(DEP_LABEL[id]), expected:null, due:null, linked:null, receivedOn:null, receiptNo:"",
+           marks:{ request:null, receipt:null, trustReceipt:null, letter:null }, autoReceipt:false };
+}
+// Older sales had a payment step plus a separate "receipt and solicitor letter sent" step; fold them together.
+function migrateDeposits(b){
+  let did = false;
+  [["initial_deposit","init_dep","init_receipt"],["balance_deposit","bal_dep","bal_receipt"]].forEach(([gid,pid,rid])=>{
+    const g = b.stages.find(x=>x.id===gid); if (!g) return;
+    const pay = g.steps.find(x=>x.id===pid); if (!pay || pay.kind === "deposit") return;
+    const rec = g.steps.find(x=>x.id===rid) || {};
+    const n = depositStep(pid);
+    Object.assign(n, { expected: pay.expected ?? null, linked: pay.linked ?? null, due: pay.due || null, receivedOn: pay.receivedOn || null,
+      receiptNo: (rec.receipt && rec.receipt.no) || "", invoices: pay.invoices || [], notRequired: pay.notRequired });
+    if (n.linked){ n.marks.receipt = n.receivedOn || rec.doneOn || TODAY; n.autoReceipt = true; }
+    if (rec.doneOn) n.marks.trustReceipt = rec.doneOn;
+    if (rec.receipt && rec.receipt.state === "sent") n.marks.letter = rec.doneOn || TODAY;
+    (n.invoices||[]).forEach(d=>{ if (d.emailedOn && DOC_MARK[d.doc] && !n.marks[DOC_MARK[d.doc]]) n.marks[DOC_MARK[d.doc]] = d.emailedOn; });
+    if (!n.notRequired) delete n.notRequired;
+    g.steps = [n];
+    did = true;
+  });
+  return did;
+}
+/* ---------- Commission at settlement ---------- */
+function commissionStep(){
+  return { id:"commission", kind:"commission", title:"Commission tax invoice", doneOn:null,
+           salePrice:null, rate:null, rateInclGst:false, outgoings:[], invoices:[] };
+}
+function disburseStep(){
+  return { id:"disburse", kind:"disburse", title:"Trust funds disbursed", doneOn:null, autoDone:false, disbursedOn:null, solicitorPaidOn:null };
+}
+// Settlement stage order: commission tax invoice, trust funds disbursed, then settlement itself last.
+function migrateSettlement(b){
+  const g = b.stages.find(x=>x.id==="settlement"); if (!g) return false;
+  let did = false;
+  const i = g.steps.findIndex(x=>x.id==="proceeds");
+  if (i >= 0){ g.steps[i] = disburseStep(); did = true; }
+  if (!g.steps.some(x=>x.id==="disburse")){ g.steps.push(disburseStep()); did = true; }
+  const order = ["commission","disburse","settle"];
+  const sorted = [...g.steps].sort((a,c)=>(order.indexOf(a.id)+99*(order.indexOf(a.id)<0)) - (order.indexOf(c.id)+99*(order.indexOf(c.id)<0)));
+  if (sorted.some((x,k)=>x !== g.steps[k])){ g.steps = sorted; did = true; }
+  return did;
+}
+// What happens to the money in trust, from the latest tax invoice (or today's figures if none has been made).
+function disburseFigures(sale){
+  const com = sale.stages.flatMap(g=>g.steps).find(x=>x.id==="commission");
+  const inv = com && (com.invoices||[]).filter(d=>d.doc==="commission" && d.incurred).slice(-1)[0];
+  const c = inv || (com && Number(com.salePrice) && Number(com.rate) ? commissionCalc(com, sale) : null);
+  if (!c) return null;
+  const toBuyer = c.buyerRefundTotal || 0;
+  const available = r2(c.held - toBuyer);
+  const retained = r2(Math.max(Math.min(c.totalAfter, available), 0));
+  return { source: inv ? inv.no : "", held: c.held, toBuyer, retained,
+           toVendor: r2(Math.max(-c.payable, 0)), dueFromSolicitor: r2(Math.max(c.payable, 0)) };
+}
+function syncDisburse(s){
+  const f = disburseFigures(cur); if (!f) return;
+  const ready = s.disbursedOn && (!f.dueFromSolicitor || s.solicitorPaidOn);
+  if (ready && !s.doneOn){ s.doneOn = [s.disbursedOn, s.solicitorPaidOn].filter(Boolean).sort().pop(); s.autoDone = true; }
+  else if (!ready && s.doneOn && s.autoDone){ s.doneOn = null; s.autoDone = false; }
+}
+function migrateCommission(b){
+  const g = b.stages.find(x=>x.id==="settlement"); if (!g) return false;
+  const i = g.steps.findIndex(x=>x.id==="commission");
+  if (i < 0 || g.steps[i].kind === "commission") return false;
+  g.steps[i] = commissionStep();
+  return true;
+}
+const r2 = n => Math.round((Number(n)||0) * 100) / 100;
+// Deposits held in trust, commission (GST worked out either way), outgoings, and what is left for the vendor.
+function commissionCalc(s, sale){
+  const steps = sale.stages.flatMap(g=>g.steps);
+  const deposits = ["init_dep","bal_dep"].map(id=>steps.find(x=>x.id===id)).filter(x=>x && Number(x.linked))
+    .map(x=>({ label: cap(DEP_LABEL[x.id]), amount: r2(x.linked), receiptNo: x.receiptNo || "" }));
+  const held = r2(deposits.reduce((t,d)=>t+d.amount,0));
+  const base = r2((Number(s.salePrice)||0) * (Number(s.rate)||0) / 100);
+  let commEx, gst, commInc;
+  if (s.rateInclGst){ commInc = base; gst = r2(commInc/11); commEx = r2(commInc - gst); }
+  else { commEx = base; gst = r2(commEx * 0.1); commInc = r2(commEx + gst); }
+  // Advertising and maintenance, read from their own sections, settled as the user chooses:
+  //  deduct – taken from the deposit (full unpaid amount, or a part amount typed in)
+  //  upfront – already paid, nothing to adjust
+  //  refund – paid up front by the vendor or buyer and refunded at settlement out of the commission
+  const sections = ADJ_SECTIONS.map(([key,label])=>{
+    const st = steps.find(x=>x.id===key);
+    if (!st || st.notRequired) return null;
+    if (LINE_KINDS[key] && LINE_KINDS[key].settle){
+      const z = adSettle(st);
+      return { key, label, st, lines:z.lines, excess:z.excess, total:z.base, paid:z.paid, unpaid:z.unpaid, mode:"custom", amount:z.applied, dflt:z.unpaid,
+               refundAmt:z.refund, payer:z.payer, applyNote:z.applyNote, refundNote:z.refundNote };
+    }
+    // Maintenance: every item is listed; what the vendor paid contractors directly counts as their payment.
+    const isPayer = LINE_KINDS[key] && LINE_KINDS[key].payer;
+    const total = r2(adTotal(st));
+    const paid = isPayer ? r2(total - chargeTotal(st)) : r2(st.linked), unpaid = r2(Math.max(total - paid, 0));
+    const a = (s.adj && s.adj[key]) || {};
+    const mode = a.mode || (unpaid > 0 ? "deduct" : "upfront");
+    const dflt = mode === "deduct" ? unpaid : mode === "refund" ? paid : 0;
+    const amount = mode === "upfront" ? 0 : r2(a.amount ?? dflt);
+    return { key, label, st, lines: total, total, paid, unpaid, mode, amount, dflt, payer: a.payer || "vendor" };
+  }).filter(Boolean);
+  const deductions = sections.filter(x=>(x.mode==="deduct" || x.mode==="custom") && x.amount)
+    .map(x=>({desc: x.mode==="custom" ? `${x.label} applied at settlement${x.applyNote?` (${x.applyNote})`:""}`
+                                      : `${x.label}${x.amount < x.unpaid ? " (agreed part)" : x.paid ? " (unpaid balance)" : ""}`, amt:x.amount}));
+  const refunds = sections.filter(x=>(x.mode==="refund" && x.amount) || (x.mode==="custom" && x.refundAmt))
+    .map(x=>({desc: `Refund of ${x.label.toLowerCase()} paid up front by the ${x.payer}${x.refundNote?` (${x.refundNote})`:""}`, amt: x.mode==="custom" ? x.refundAmt : x.amount, payer:x.payer,
+              what: x.label.toLowerCase(), note: x.refundNote || ""}));
+  const refundTotal = r2(refunds.reduce((t,r)=>t+r.amt,0));
+  const buyerRefunds = refunds.filter(r=>r.payer==="buyer");
+  const buyerRefundTotal = r2(buyerRefunds.reduce((t,r)=>t+r.amt,0));
+  const commNet = r2(commInc - refundTotal);
+  // "Other outgoings" was retired: every cost now belongs to advertising, media or maintenance.
+  const outgoings = [];
+  const outTotal = r2(outgoings.reduce((t,o)=>t+o.amt,0));
+  const dedTotal = r2(deductions.reduce((t,o)=>t+o.amt,0));
+  // The agency's tax-invoice layout: commission, plus outgoings the agency incurred, less what the sellers
+  // paid up front and any agreed reimbursements, less the buyer's deposits = amount payable to the agency.
+  const incurred = [], agencyMaint = [], vendorMaint = [];
+  let noCharge = 0;
+  sections.forEach(x=>{
+    const isPayer = LINE_KINDS[x.key] && LINE_KINDS[x.key].payer;
+    const items = (x.st.lines||[]).filter(l=>l.opt && Number(l.cost));
+    // Maintenance gets its own groups: what the agency paid (reimbursed at settlement) and what the vendor paid directly (record only)
+    if (isPayer){ items.forEach(l=>(vendorDirect(l) ? vendorMaint : agencyMaint).push({label:l.opt, amt:r2(l.cost)})); return; }
+    // Only advertising and media are capped by an authorised amount; others, or no amount entered, are listed as they are.
+    if (x.st.authorised == null || !(LINE_KINDS[x.key] && LINE_KINDS[x.key].settle)){ items.forEach(l=>incurred.push({label:l.opt, amt:r2(l.cost)})); return; }
+    // Fill the authorised amount in table order: items inside it are (authorised), items beyond it (complimentary).
+    let room = r2(x.lines);
+    items.forEach(l=>{
+      const amt = r2(l.cost), within = r2(Math.max(Math.min(amt, room), 0)); room = r2(room - within);
+      incurred.push({label: within >= amt ? `${l.opt} (authorised)` : within > 0 ? `${l.opt} (part complimentary)` : `${l.opt} (complimentary)`, amt});
+    });
+    noCharge = r2(noCharge + (x.excess || 0));
+  });
+  outgoings.forEach(o=>incurred.push({label:o.desc, amt:o.amt}));
+  // anything not authorised comes off once, as the last line under all the stated amounts
+  if (noCharge) incurred.push({label:"Less: provided at no charge", amt:-noCharge, noCharge:true});
+  const otherTotal = r2(incurred.reduce((t,x)=>t+x.amt,0));
+  const agencyMaintTotal = r2(agencyMaint.reduce((t,x)=>t+x.amt,0));
+  const vendorMaintTotal = r2(vendorMaint.reduce((t,x)=>t+x.amt,0));
+  const incurredTotal = r2(otherTotal + agencyMaintTotal);
+  // vendor-direct maintenance is neither charged nor credited, so it is left out of payments too
+  const payments = sections.filter(x=>x.paid && !(LINE_KINDS[x.key] && LINE_KINDS[x.key].payer)).map(x=>({label:`${x.label} – received from vendor`, amt:x.paid}));
+  const paymentsTotal = r2(payments.reduce((t,x)=>t+x.amt,0));
+  const reimb = [];
+  sections.forEach(x=>{
+    const applied = (x.mode==="deduct" || x.mode==="custom") ? x.amount : 0;
+    // for maintenance the vendor's direct payments cancel out their own items, so only the agency-paid part counts
+    const adjust = r2(x.lines - x.paid - applied);
+    if (Math.abs(adjust) > 0.004) reimb.push({label:`${x.label} – ${adjust>0?"agreed reduction":"additional charge"}${x.applyNote?` (${x.applyNote})`:""}${x.mode==="custom" && x.amount < 0 ? `, ${money(-x.amount)} refunded to the vendor` : ""}`, amt:adjust});
+  });
+  refunds.forEach(r=>reimb.push({label:`${cap(r.what)} – agreed refund to the ${r.payer}${r.note?` (${r.note})`:""}`, amt:r.amt}));
+  const reimbTotal = r2(reimb.reduce((t,x)=>t+x.amt,0));
+  const totalAfter = r2(commInc + incurredTotal - paymentsTotal - reimbTotal);
+  const buyersTotal = r2(held - buyerRefundTotal);
+  const payable = r2(totalAfter - buyersTotal);
+  return { deposits, held, commEx, gst, commInc, sections:sections.map(({st,...x})=>x), deductions, dedTotal, refunds, refundTotal, buyerRefunds, buyerRefundTotal, commNet,
+           outgoings, outTotal, balance: r2(held - commNet - dedTotal - buyerRefundTotal - outTotal),
+           incurred, otherTotal, agencyMaint, agencyMaintTotal, vendorMaint, vendorMaintTotal, incurredTotal, payments, paymentsTotal, reimb, reimbTotal, totalAfter, buyersTotal, payable };
+}
+function commissionRows(c, o){
+  const A = (o.agency || "the agency").toUpperCase(), rows = [], push = r => rows.push(r);
+  push({label:"Sale price", sub:o.salePrice});
+  push({label:"Commission %", subText:`${o.rate}%${o.rateInclGst?" incl. GST":""}`});
+  push({label:"Total", sub:c.commEx});
+  push({label:"GST 10%", sub:c.gst, rule:true});
+  push({label:"Total commission inc GST", tot:c.commInc, gap:true});
+  const agencyM = c.agencyMaint || [], vendorM = c.vendorMaint || [];
+  const otherTot = c.otherTotal != null ? c.otherTotal : c.incurredTotal;
+  if (c.incurred.length){
+    push({label:`Outgoings incurred (${A})`, head:true, gap:true});
+    c.incurred.forEach((x,i)=>push({label:x.label, sub:x.amt, tot: i===c.incurred.length-1 ? otherTot : undefined, rule:i===c.incurred.length-1}));
+  }
+  if (agencyM.length){
+    push({label:`Maintenance paid by ${A} (to be reimbursed at settlement)`, head:true, gap:true});
+    agencyM.forEach((x,i)=>push({label:x.label, sub:x.amt, tot: i===agencyM.length-1 ? c.agencyMaintTotal : undefined, rule:i===agencyM.length-1}));
+  }
+  if (c.incurred.length || agencyM.length) push({label:`Total outgoings incurred (${A})`, tot:r2(c.commInc + c.incurredTotal), bold:true});
+  if (c.payments.length){
+    push({label:"Payments received (sellers)", head:true, gap:true});
+    c.payments.forEach((x,i)=>push({label:x.label, sub:-x.amt, rule:i===c.payments.length-1}));
+    push({label:"Total payments received (sellers)", tot:-c.paymentsTotal});
+  }
+  if (vendorM.length){
+    push({label:"Maintenance paid by vendor direct to contractors (no charge to the vendor)", head:true, gap:true, plain:true});
+    vendorM.forEach((x,i)=>push({label:x.label, sub:x.amt, rule:i===vendorM.length-1}));
+    push({label:"Total paid by vendor direct", mid:money(c.vendorMaintTotal), note:true});
+  }
+  c.reimb.forEach((x,i)=>push({label:x.label, sub:-x.amt, gap:i===0, rule:i===c.reimb.length-1}));
+  push({label:`Total agreed reimbursements${c.buyerRefunds.length?"":" (sellers)"}`, tot:-c.reimbTotal, gap:!c.reimb.length, ruleAbove:!c.reimb.length});
+  push({label:"Total commission after payments & receipts (inc GST)", tot:c.totalAfter, bold:true});
+  push({label:"Amounts received from (buyers)", head:true, gap:true, plain:true});
+  c.deposits.forEach(x=>push({label:x.label + (x.receiptNo?` (receipt ${x.receiptNo})`:""), sub:-x.amount, keepCase:true}));
+  c.buyerRefunds.forEach(x=>push({label:`Refund to the buyer – ${x.what}`, sub:x.amt, keepCase:true}));
+  if (rows.length) rows[rows.length-1].rule = true;
+  push({label:"Total amounts received from (buyers)", tot:-c.buyersTotal, bold:true});
+  push({label: c.payable >= 0 ? `Amount payable (to ${A}) on settlement:` : "Amount payable to the seller on settlement:", mid:o.settlement ? fmtNum(o.settlement) : "", tot:Math.abs(c.payable), grand:true, gap:true});
+  return rows;
+}
+const acc = n => { const v = Math.abs(Number(n)||0).toLocaleString("en-AU",{minimumFractionDigits:2,maximumFractionDigits:2}); return Number(n) < 0 ? `(${v})` : v; };
+// Advertising at settlement: one agreement, the vendor's share of the advertising incurred
+// (all of it, a percentage, or a set amount). Compared with what the vendor paid up front, the
+// difference is either payable by the vendor at settlement or refunded to them. Whatever the
+// vendor doesn't bear is the agency's agreed reduction, shown under agreed reimbursements.
+function adSettle(st){
+  // Only advertising authorised on the Form 6 can be charged; anything above it is provided at no charge.
+  const fullLines = r2(adTotal(st)), auth = st.authorised;
+  const lines = auth != null ? r2(Math.min(fullLines, auth)) : fullLines, excess = r2(fullLines - lines);
+  const paid = r2(st.linked), a = st.settle || {};
+  const v = a.shareValue;
+  let share = lines, shareNote = "";
+  if (a.shareType === "percent" && v != null){ share = r2(lines * v / 100); shareNote = `vendor's share ${Number(v)}% of ${money(lines)}`; }
+  else if (a.shareType === "amount" && v != null){ share = r2(Math.min(v, lines)); shareNote = `vendor's share ${money(share)} of ${money(lines)}`; }
+  const reduction = r2(lines - share);
+  const net = r2(share - paid);                       // + payable at settlement, − refunded at settlement
+  return { lines, fullLines, excess, base: lines, paid, unpaid: r2(Math.max(lines - paid, 0)), share, reduction, net,
+           atSettle: Math.max(net, 0), refund: 0, settleRefund: Math.max(-net, 0),
+           applied: net, applyNote: shareNote, refundNote: "", hasApply: false, payer: "vendor", balance: net, a };
+}
+const ADJ_SECTIONS = [["advertising","Advertising"],["media","Photos, drone and tour"],["maintenance","Maintenance and repairs"]];
+const SECTION_STAGE = { advertising:"appointment", media:"marketing", maintenance:"presale" };
+// Older sales kept maintenance as a simple tick list; turn it into priced lines.
+function migrateSale(b){
+  let did = migrateDeposits(b);
+  did = migrateCommission(b) || did;
+  did = migrateSettlement(b) || did;
+  // shrink older records: drop the copy of the logo stored inside each document
+  b.stages.forEach(g=>g.steps.forEach(st=>(st.invoices||[]).forEach(d=>{ if (d.agency && d.agency.logo){ delete d.agency.logo; did = true; } })));
+  b.stages.forEach(g=>g.steps.forEach((st,i)=>{
+    if (st.id === "media" && st.kind !== "media"){ g.steps[i] = { ...mediaStep(), doneOn: st.doneOn || null }; did = true; }
+  }));
+  b.stages.forEach(g=>g.steps.forEach(st=>{
+    if (st.id === "maintenance" && st.kind !== "maintenance"){
+      st.kind = "maintenance";
+      st.lines = (st.subtasks||[]).map(x=>({opt:x.t, cost:null, d:!!x.d}));
+      delete st.subtasks; delete st.method;
+      if (st.linked === undefined) st.linked = null;
+      if (st.authorised === undefined) st.authorised = null;
+      did = true;
+    }
+  }));
+  return did;
+}
+let viewInv = null;                    // {id, i} invoice open in the overlay
+let mailOpen = false, mailNote = "";
+let DL = null;                         // downloads capability
+let curId = null, cur = null, curKey = "";
+let filter = "all";
+const closed = new Set();
+const openDetails = new Set();
+let editing = null;                    // reminder being edited {id,i}
+let panel = null;                      // null | "new" | "edit" | "confirmdel"
+let notice = "";                       // banner text
+let saveState = "";                    // "", "saving", "saved", "error"
+
+const clone = o => JSON.parse(JSON.stringify(o));
+function stable(v){ // key-order independent JSON, for change detection
+  if (Array.isArray(v)) return "[" + v.map(stable).join(",") + "]";
+  if (v && typeof v === "object") return "{" + Object.keys(v).sort().map(k=>JSON.stringify(k)+":"+stable(v[k])).join(",") + "}";
+  return JSON.stringify(v ?? null);
+}
+const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
+const lsSet = (k,v) => { try { localStorage.setItem(k,v); } catch {} };
+
+/* ---------- Status rules ---------- */
+const adTotal = s => s.lines.reduce((t,l)=>t+(Number(l.cost)||0),0);
+const days = (a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+function statusOf(s){
+  if (s.notRequired) return "na";
+  switch(s.kind){
+    case "deposit": {
+      if (DEP_FLOW.every(f=>s.marks && s.marks[f.k])) return "completed";
+      if (s.linked && s.expected && s.linked < s.expected) return "partial";
+      return "pending";
+    }
+    case "payment":
+      if (!s.linked) return "pending";
+      return s.linked >= (s.expected||0) ? "completed" : "partial";
+    case "condition":
+      if (s.doneOn) return "completed";
+      if (!s.due) return "pending";
+      return days(TODAY, s.due) < 0 ? "overdue" : "upcoming";
+    case "disburse":
+      return s.doneOn ? "completed" : "pending";
+    case "commission":
+      return s.doneOn ? "completed" : "pending";
+    case "review":
+      return s.reviewed ? "completed" : "review";
+    case "advertising": {
+      const total = adTotal(s);
+      if (!s.lines.length || !s.linked) return "pending";
+      return s.linked >= total ? "completed" : "partial";
+    }
+    case "flow":
+      return s.flow.find(f=>f.id===s.completesOn).doneOn ? "completed" : "pending";
+    default:
+      return s.doneOn ? "completed" : "pending";
+  }
+}
+const LABEL = {completed:"Completed",pending:"Pending",upcoming:"Upcoming",overdue:"Overdue",review:"Needs review",partial:"Part paid",na:"Not required"};
+const needsAttention = st => ["overdue","review","partial","pending"].includes(st);
+const money = n => n==null ? "—" : "$" + Number(n).toLocaleString("en-AU",{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = v => { const n = parseFloat(String(v).replace(/[$,\s]/g,"")); return isNaN(n) ? null : n; };
+const fmtDay = d => new Date(d+"T00:00").toLocaleDateString("en-AU",{weekday:"short",day:"numeric",month:"short"});
+const fmtDate = d => d ? new Date(d+"T00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}) : "—";
+const saleLabel = b => (b.address ? b.address + " · " : "") + (b.vendor || "Unnamed vendor");
+
+const BELL = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>`;
+function reminderState(f){
+  if (!f.reminder) return null;
+  if (f.doneOn) return "done";
+  const d = days(TODAY, f.reminder.on);
+  return d<0 ? "over" : d===0 ? "today" : "up";
+}
+function flowStepHTML(s,f,i){
+  const rs = reminderState(f);
+  const open = editing && editing.id===s.id && editing.i===i;
+  const rText = {done:"Reminder cleared", over:"Overdue", today:"Due today", up:"Reminder"}[rs];
+  const meta = [];
+  if (f.doneOn) meta.push(`Done <span class="mono">${fmtDay(f.doneOn)}</span>`);
+  if (f.reminder) meta.push(`<span class="rchip r-${rs}" title="${esc(f.reminder.note||"")}">${BELL}${rText} · ${fmtDay(f.reminder.on)}${f.reminder.time?" "+f.reminder.time:""}</span>`);
+  return `<div class="fstep ${f.doneOn?"on":""}">
+    <div class="ftop">
+      <button class="cb ${f.doneOn?"on":""}" data-act="ftoggle" data-id="${s.id}" data-i="${i}" aria-label="${f.doneOn?"Undo":"Mark done"}: ${esc(f.t)}"></button>
+      <span class="flabel">${esc(f.t)}</span>
+      ${f.canRemind?`<button class="rbtn ${f.reminder&&!f.doneOn?"set":""}" data-act="rem" data-id="${s.id}" data-i="${i}" aria-expanded="${open}">${BELL}<span>Reminder</span></button>`:""}
+    </div>
+    ${meta.length?`<div class="fmeta">${meta.join("")}</div>`:""}
+  </div>`;
+}
+function reminderForm(s,f,i){
+  const r = f.reminder || {on:TODAY,time:"09:00",note:""};
+  return `<form class="rem-form" data-rem="${s.id}|${i}">
+    <div class="head">${BELL} Reminder for “${esc(f.t)}”</div>
+    <div class="rem-fields">
+      <label>Date<input type="date" id="rem-date" value="${r.on}" required></label>
+      <label>Time<input type="time" id="rem-time" value="${r.time||""}"></label>
+      <label class="grow">Note<input type="text" id="rem-note" value="${esc(r.note||"")}" placeholder="e.g. Call back about appraisal"></label>
+    </div>
+    <div class="rem-quick">Quick set:
+      <button type="button" class="btn small" data-act="quick" data-d="1">Tomorrow</button>
+      <button type="button" class="btn small" data-act="quick" data-d="3">In 3 days</button>
+      <button type="button" class="btn small" data-act="quick" data-d="7">Next week</button>
+    </div>
+    <div class="rem-btns">
+      <button class="btn small primary" type="submit">Save reminder</button>
+      ${f.reminder?`<button type="button" class="btn small" data-act="remclear" data-id="${s.id}" data-i="${i}">Remove</button>`:""}
+      <button type="button" class="btn small" data-act="remcancel">Cancel</button>
+    </div>
+  </form>`;
+}
+const numField = (s,k,label) => `<label>${label} <input class="fld fld-num" id="fld-${s.id}-${k}" data-id="${s.id}" data-k="${k}" inputmode="decimal" placeholder="0.00" value="${s[k]??""}"></label>`;
+
+function adSettleHTML(s){
+  const z = adSettle(s), a = z.a, dis = readOnly ? "disabled" : "", t = a.shareType || "all";
+  const what = s.kind === "media" ? "photos, drone and tour" : "advertising", What = cap(what);
+  const accRow = (k, v, cls="") => `<tr class="${cls}"><td>${k}</td><td class="r mono">${v}</td></tr>`;
+  const outcome = z.net > 0 ? ["Payable by the vendor at settlement", money(z.net)]
+                : z.net < 0 ? ["Refunded to the vendor at settlement", money(-z.net)]
+                : ["Nothing further at settlement", money(0)];
+  return `<div class="settle-box">
+    <div class="types-head"><b>At settlement</b><span class="sub">Agree how much of the ${what} the vendor bears. Compared with what they've paid up front, the difference is payable at settlement or refunded to them.</span></div>
+    <div class="fields">
+      <span>Vendor's agreed share of the ${what}</span>
+      <select class="as-fld ad-type" style="width:auto" id="as-shareType" data-id="${s.id}" data-k="shareType" ${dis} aria-label="Vendor's share">
+        <option value="all" ${t==="all"?"selected":""}>All of it</option>
+        <option value="percent" ${t==="percent"?"selected":""}>A percentage</option>
+        <option value="amount" ${t==="amount"?"selected":""}>A set amount</option></select>
+      ${t!=="all" ? `<input class="as-fld fld-num" id="as-shareValue" data-id="${s.id}" data-k="shareValue" inputmode="decimal" value="${a.shareValue ?? ""}" ${dis}
+          aria-label="${t==="percent"?"Percentage":"Amount"}" style="${a.shareValue==null?"border-color:var(--warn)":""}"> ${t==="percent"?"%":""}
+        <span class="sub">${a.shareValue==null?"Enter the agreed "+(t==="percent"?"percentage":"amount"):""}</span>` : ""}
+    </div>
+    <table class="ad-table com-sum"><tbody>
+      ${LINE_KINDS[s.kind].multi ? s.lines.filter(l=>l.opt && Number(l.cost)).map(l=>accRow(esc(l.opt), money(l.cost), "item-row")).join("") : ""}
+      ${accRow(`${What} incurred`, money(z.excess ? z.fullLines : z.lines), LINE_KINDS[s.kind].multi ? "subtot" : "")}
+      ${z.excess ? accRow("Less: provided at no charge", acc(-z.excess)) : ""}
+      ${z.reduction ? accRow(`Less: agreed reduction <span class="sub">(${esc(z.applyNote)})</span>`, acc(-z.reduction)) : ""}
+      ${z.reduction ? accRow("Vendor's share", money(z.share), "subtot") : ""}
+      ${accRow("Less: paid up front by the vendor", acc(-z.paid))}
+      ${accRow(outcome[0], outcome[1], "tot")}
+    </tbody></table>
+  </div>`;
+}
+// Tick any number of media types and give each a price; ticked items become the section's lines.
+function mediaPickerHTML(s, total){
+  const chosen = new Map(s.lines.filter(l=>l.opt).map(l=>[l.opt, l]));
+  const list = [...optsFor(s.kind), ...[...chosen.keys()].filter(o=>!optsFor(s.kind).includes(o))];
+  const dis = readOnly ? "disabled" : "";
+  return `<div class="mx-list" role="group" aria-label="Media items">
+    ${list.map((o,i)=>{ const l = chosen.get(o), on = !!l;
+      return `<div class="mx-row ${on?"on":""}">
+        <label class="mx-name"><input type="checkbox" class="mx-chk" id="mx-chk-${i}" data-id="${s.id}" data-opt="${esc(o)}" ${on?"checked":""} ${dis}> ${esc(o)}</label>
+        ${on ? `<span class="cost-in">$<input class="mx-cost ad-cost" id="mx-cost-${i}" data-id="${s.id}" data-opt="${esc(o)}" inputmode="decimal" value="${l.cost??""}" placeholder="0.00" aria-label="Price for ${esc(o)}" ${dis}
+                style="${l.cost==null?"border-color:var(--warn)":""}"></span>` : `<span class="sub">Not included</span>`}
+      </div>`; }).join("")}
+    </div>
+    ${readOnly ? "" : `<div class="st-add"><input type="text" id="mx-new" data-id="${s.id}" placeholder="Another type, e.g. Aerial video" aria-label="New media type">
+      <button class="btn small" data-act="mxnew" data-id="${s.id}">Add and select</button></div>`}
+    ${(()=>{ const blank = [...chosen.values()].filter(l=>!Number(l.cost)).map(l=>l.opt);
+      return blank.length ? `<div class="ad-warn">${blank.length===1?"This item has":"These items have"} no price, so ${blank.length===1?"it won't":"they won't"} appear on invoices or at settlement: ${esc(blank.join(", "))}. Enter a price, or untick ${blank.length===1?"it":"them"}.</div>` : ""; })()}
+    <div class="mx-total"><span>Total of selected media (${chosen.size})</span><span class="mono">${money(total)}</span></div>`;
+}
+/* ---------- Render one step ---------- */
+function stepHTML(s, st){
+  let icon, sub = [], nested = "", actions = "";
+  if (s.kind === "flow"){
+    const n = s.flow.filter(f=>f.doneOn).length;
+    icon = `<span class="flowcount" aria-hidden="true">${n}/${s.flow.length}</span>`;
+    sub.push(`Completes when the appraisal is booked`);
+    nested = `<div class="flowrow">` + s.flow.map((f,i)=>flowStepHTML(s,f,i)).join(`<span class="arrow" aria-hidden="true">→</span>`) + `</div>`;
+    if (editing && editing.id===s.id) nested += reminderForm(s, s.flow[editing.i], editing.i);
+  } else if (LINE_KINDS[s.kind]){
+    const K = LINE_KINDS[s.kind];
+    const total = adTotal(s);
+    if (K.ticks){
+      icon = `<button class="cb ${s.doneOn?"on":""}" data-act="toggle" data-id="${s.id}" aria-label="${s.doneOn?"Undo":"Mark done"}: ${esc(s.title)}"></button>`;
+      const named = s.lines.filter(l=>l.opt), nd = named.filter(l=>l.d).length;
+      sub.push(s.doneOn ? `${s.autoDone?"Completed when all items were ticked":"Manually acknowledged"} · <span class="mono">${s.doneOn}</span>`
+        : named.length ? `${nd}/${named.length} done · Ticks itself when every item is done` : "Manual acknowledgement");
+      sub.push(K.payer ? `Total <span class="mono">${money(total)}</span> · Paid by My Panda Realty <span class="mono">${money(chargeTotal(s))}</span> · Paid by the vendor direct <span class="mono">${money(r2(total - chargeTotal(s)))}</span>`
+                       : `Paid <span class="mono">${money(s.linked)}</span> · Total <span class="mono">${money(total)}</span>`);
+    } else if (K.manual){
+      icon = `<button class="cb ${s.doneOn?"on":""}" data-act="toggle" data-id="${s.id}" aria-label="${s.doneOn?"Undo":"Mark done"}: ${esc(s.title)}"></button>`;
+      sub.push(s.doneOn ? `Manually acknowledged · <span class="mono">${s.doneOn}</span>` : "Manual acknowledgement");
+      sub.push(`Paid <span class="mono">${money(s.linked)}</span> · Total <span class="mono">${money(total)}</span>`);
+    } else {
+      icon = `<span class="money" aria-hidden="true">$</span>`;
+      sub.push(`Linked <span class="mono">${money(s.linked)}</span> · Expected <span class="mono">${money(total)}</span>`);
+    }
+    if (s.note) sub.push(esc(s.note));
+    const canInvoice = chargeLines(s).some(l=>l.opt && Number(l.cost));
+    actions = (K.multi ? "" : `<button class="btn small primary" data-act="adadd" data-id="${s.id}">+ Add ${K.noun}</button>`) +
+      (readOnly ? "" : `<button class="btn small" data-act="invgen" data-id="${s.id}" ${canInvoice?"":"disabled"} title="${canInvoice?"Create a trust account invoice for these items":"Add "+K.noun+" with a cost first"}">Generate invoice</button>`) +
+      (s.allowNotRequired && !s.doneOn ? `<button class="btn small" data-act="na" data-id="${s.id}">Not required for this property</button>` : "");
+    const invs = s.invoices || [];
+    var invList = docListHTML(s, "Invoices"), _old = invs.length ? `<div class="inv-list"><div class="pgroup">Invoices</div>` + invs.map((v,i)=>`<div class="inv-row">
+        <span class="no">${esc(v.no)}</span><span class="mono">${money(v.total)}</span><span class="sub">Issued ${esc(fmtDate(v.issued))}</span>
+        <span class="pill ${v.emailedOn?"s-completed":v.draftOn?"s-upcoming":"s-pending"}">${v.emailedOn?"Emailed "+esc(fmtDate(v.emailedOn)):v.draftOn?"Draft in Gmail":"Not emailed"}</span>
+        <span class="grow"></span><button class="btn small" data-act="invview" data-id="${s.id}" data-i="${i}">Open</button></div>`).join("") + `</div>` : "";
+    const typeSelect = (l,i) => {
+      const opts = optsFor(s.kind).filter(o => o===l.opt || !s.lines.some(x=>x.opt===o));
+      if (l.opt && !opts.includes(l.opt)) opts.unshift(l.opt);
+      return `<select class="ad-type" id="${lid("type",s.id,i)}" data-id="${s.id}" data-i="${i}" aria-label="${K.Noun} type, line ${i+1}">
+        ${l.opt ? "" : `<option value="" selected disabled>Select ${K.noun} type…</option>`}
+        ${opts.map(o=>`<option value="${esc(o)}" ${o===l.opt?"selected":""}>${esc(o)}</option>`).join("")}
+        <option value="__new">+ New ${K.noun} type…</option>
+      </select>
+      <input type="text" class="ad-new" id="${lid("new",s.id,i)}" data-id="${s.id}" data-i="${i}" placeholder="Type a name, then Enter" aria-label="New ${K.noun} type" hidden>`;
+    };
+    const diff = s.authorised!=null ? total - s.authorised : 0;
+    const payerCell = (l,i) => K.payer ? `<td class="by-cell"><select class="ln-by ad-type" id="${lid("by",s.id,i)}" data-id="${s.id}" data-i="${i}" aria-label="Paid by, line ${i+1}" ${readOnly?"disabled":""}>
+        <option value="agency" ${!vendorDirect(l)?"selected":""}>My Panda Realty</option>
+        <option value="vendor" ${vendorDirect(l)?"selected":""}>Vendor direct to contractor</option></select></td>` : "";
+    const tick = (l,i) => K.ticks ? `<td class="tick"><input type="checkbox" class="ln-done" id="${lid("done",s.id,i)}" data-act="lndone" data-id="${s.id}" data-i="${i}" ${l.d?"checked":""} ${l.opt?"":"disabled"} aria-label="Done, line ${i+1}"></td>` : "";
+    const typesOpen = manageTypes === s.kind;
+    // Everything that can show in this table's dropdowns: the shared list plus any names only this sale uses.
+    const allTypes = [...optsFor(s.kind), ...[...new Set(s.lines.map(l=>l.opt).filter(o=>o && !optsFor(s.kind).includes(o)))]];
+    const typesPanel = !typesOpen ? "" : `<div class="types-box" id="types-${s.kind}">
+        <div class="types-head"><b>${K.Noun} types</b><span class="sub">Press × to remove a type from the dropdown completely. Any item on this sale using it is cleared so you can pick another type; its cost stays. Add a type back with “+ New ${K.noun} type…”.</span></div>
+        ${allTypes.length ? `<ul class="types-list">` + allTypes.map((o,i)=>`<li><span>${esc(o)}</span>
+          <button class="xbtn" data-act="typedel" data-id="${s.id}" data-i="${i}" data-o="${esc(o)}" aria-label="Remove ${esc(o)}">×</button></li>`).join("") + `</ul>`
+          : `<div class="sub">The list is empty. Choose “+ New ${K.noun} type…” in the dropdown to add one.</div>`}
+        <div><button class="btn small" data-act="types" data-id="${s.id}">Done</button></div>
+      </div>`;
+    nested = `<div class="nested ad-box">
+      <div class="fields">${numField(s,"authorised",K.authLabel)}${K.payer ? "" : numField(s,"linked","Paid $")}
+        ${readOnly?"":`<span class="grow"></span><button class="linkbtn" style="font-size:12px" data-act="types" data-id="${s.id}" aria-expanded="${typesOpen}">${typesOpen?"Close type list":"Edit type list"}</button>`}</div>
+      ${typesPanel}
+      ${K.multi ? mediaPickerHTML(s, total) : s.lines.length ? `<table class="ad-table"><thead><tr>${K.ticks?`<th class="tick"><span class="vh">Done</span></th>`:""}<th>${K.Noun}</th>${K.payer?`<th>Paid by</th>`:""}<th class="r">Cost</th><th><span class="vh">Remove</span></th></tr></thead><tbody>` +
+        s.lines.map((l,i)=>`<tr class="${K.ticks&&l.d?"is-done":""}">${tick(l,i)}<td><div class="type-cell">${typeSelect(l,i)}</div></td>${payerCell(l,i)}
+          <td class="r"><span class="cost-in">$<input class="ad-cost" id="${lid("cost",s.id,i)}" data-id="${s.id}" data-i="${i}" inputmode="decimal" value="${l.cost??""}" placeholder="0.00" aria-label="Cost, line ${i+1}"></span></td>
+          <td class="r"><button class="xbtn" data-act="addel" data-id="${s.id}" data-i="${i}" aria-label="Remove line ${i+1}">×</button></td></tr>`).join("") +
+        `</tbody><tfoot><tr>${K.ticks?"<td></td>":""}<td>Total</td>${K.payer?"<td></td>":""}<td class="r mono">${money(total)}</td><td></td></tr>
+          ${K.payer && s.lines.some(vendorDirect) ? `<tr class="by-split"><td colspan="${K.ticks?4:3}">Paid by My Panda Realty <span class="mono">${money(chargeTotal(s))}</span> <span class="sub">(recovered at settlement)</span> · Paid by the vendor direct <span class="mono">${money(r2(total - chargeTotal(s)))}</span> <span class="sub">(no charge to the vendor)</span></td><td></td></tr>` : ""}</tfoot></table>`
+        : `<div class="sub">No ${K.noun} added yet. Press “+ Add ${K.noun}” and choose a type.</div>`}
+      ${s.authorised!=null && Math.abs(diff)>0.004 ? `<div class="ad-warn">Total is ${money(Math.abs(diff))} ${diff>0?"over":"under"} the ${money(s.authorised)} ${K.authWord}.${diff>0 && K.settle ? " The extra can't be charged to the vendor: it will show on the commission invoice as provided at no charge." : ""}</div>` : ""}
+      ${K.settle ? adSettleHTML(s) : ""}
+      ${invList}
+    </div>`;
+  } else if (s.kind === "deposit"){
+    const L = DEP_LABEL[s.id] || "deposit", m = s.marks || {};
+    const done = DEP_FLOW.filter(f=>m[f.k]).length;
+    icon = `<span class="flowcount" aria-hidden="true">${done}/${DEP_FLOW.length}</span>`;
+    sub.push(`Received <span class="mono">${money(s.linked)}</span> · Expected <span class="mono">${money(s.expected)}</span>${s.due && !m.receipt ? ` · Due <span class="mono">${esc(fmtDate(s.due))}</span>` : ""}`);
+    if (!(cur.buyer && cur.buyer.name) && !readOnly) sub.push(`<span style="color:var(--warn)">Add the buyer and solicitors in <button class="linkbtn" style="font-size:12px" data-act="editsale">Edit details</button> so they appear on the documents.</span>`);
+    const dateField = (k,label) => `<label>${label} <input type="date" class="fld fld-date" id="fld-${s.id}-${k}" data-id="${s.id}" data-k="${k}" value="${s[k]||""}"></label>`;
+    const latest = t => { const ds = s.invoices||[]; for (let i = ds.length-1; i >= 0; i--) if (ds[i].doc === t) return i; return -1; };
+    const card = (f) => {
+      const on = m[f.k], i = f.doc ? latest(f.doc) : -1, dd = i >= 0 ? s.invoices[i] : null;
+      const need = f.doc === "request" ? (s.expected ?? s.linked) : s.linked;
+      const why = f.doc === "request" ? "Enter the expected amount first" : "Enter the amount received first";
+      let btns = "";
+      if (f.doc && !readOnly){
+        btns = dd ? `<button class="btn small" data-act="invview" data-id="${s.id}" data-i="${i}">Open</button>
+                     <button class="btn small" data-act="docgen" data-t="${f.doc}" data-id="${s.id}" ${need?"":"disabled"} title="Create a fresh copy with the current details">Redo</button>`
+                  : `<button class="btn small ${on?"":"primary"}" data-act="docgen" data-t="${f.doc}" data-id="${s.id}" ${need?"":`disabled title="${why}"`}>Create</button>`;
+      }
+      const meta = [];
+      if (on) meta.push(`Done <span class="mono">${fmtDay(on)}</span>`);
+      if (dd) meta.push(`<span class="rchip ${dd.emailedOn?"r-done":dd.draftOn?"r-up":"r-today"}">${dd.emailedOn?"Emailed "+fmtDay(dd.emailedOn):dd.draftOn?"Draft in Gmail":"Not emailed"}</span>`);
+      if (f.k === "receipt" && !on) meta.push(`Ticks when you enter the amount received`);
+      return `<div class="fstep ${on?"on":""}">
+        <div class="ftop"><button class="cb ${on?"on":""}" data-act="dmark" data-k="${f.k}" data-id="${s.id}" aria-label="${on?"Undo":"Mark done"}: ${esc(f.t(L))}"></button>
+          <span class="flabel">${esc(f.t(L))}</span>${btns}</div>
+        ${meta.length?`<div class="fmeta">${meta.join(" · ")}</div>`:""}</div>`;
+    };
+    nested = `<div class="flowrow">` + DEP_FLOW.map(card).join(`<span class="arrow" aria-hidden="true">→</span>`) + `</div>
+      <div class="nested"><div class="fields">${numField(s,"expected","Expected $")}${dateField("due","Due")}${numField(s,"linked","Received $")}${dateField("receivedOn","Received on")}
+        <label>Trust receipt no. <input class="fld fld-text" id="fld-${s.id}-receiptNo" data-id="${s.id}" data-k="receiptNo" value="${esc(s.receiptNo||"")}" placeholder="e.g. RJ-1333"></label></div>
+      ${docListHTML(s, "Documents")}</div>`;
+  } else if (s.kind === "payment"){
+    icon = `<span class="money" aria-hidden="true">$</span>`;
+    sub.push(`Linked <span class="mono">${money(s.linked)}</span> · Expected <span class="mono">${money(s.expected)}</span>`);
+    if (s.note) sub.push(esc(s.note));
+    const dateField = (k,label) => `<label>${label} <input type="date" class="fld fld-date" id="fld-${s.id}-${k}" data-id="${s.id}" data-k="${k}" value="${s[k]||""}"></label>`;
+    if (DEP_LABEL[s.id] && !readOnly){
+      const reqAmt = s.expected ?? s.linked, hasBuyer = cur.buyer && cur.buyer.name;
+      actions = `<button class="btn small primary" data-act="docgen" data-t="request" data-id="${s.id}" ${reqAmt?"":"disabled"} title="${reqAmt?"Create a request for the buyer to pay this deposit into trust":"Enter the expected amount first"}">Deposit request</button>` +
+        `<button class="btn small" data-act="docgen" data-t="letter" data-id="${s.id}" ${s.linked?"":"disabled"} title="${s.linked?"Create a letter to both solicitors confirming receipt":"Enter the amount received first"}">Solicitor receipt letter</button>`;
+      if (!hasBuyer) sub.push(`<span style="color:var(--warn)">Add the buyer and solicitors in <button class="linkbtn" style="font-size:12px" data-act="editsale">Edit details</button> so they appear on these documents.</span>`);
+    }
+    nested = `<div class="nested"><div class="fields">${numField(s,"expected","Expected $")}${dateField("due","Due")}${numField(s,"linked","Received $")}${dateField("receivedOn","Received on")}</div>
+      ${docListHTML(s, "Documents")}</div>`;
+  } else if (s.kind === "disburse"){
+    icon = `<button class="cb ${s.doneOn?"on":""}" data-act="toggle" data-id="${s.id}" aria-label="${s.doneOn?"Undo":"Mark done"}: ${esc(s.title)}"></button>`;
+    const f = disburseFigures(cur);
+    const dateField = (k,label) => `<label>${label} <input type="date" class="fld fld-date" id="fld-${s.id}-${k}" data-id="${s.id}" data-k="${k}" value="${s[k]||""}" ${readOnly?"disabled":""}></label>`;
+    if (!f){
+      sub.push(`<span style="color:var(--warn);font-weight:600">Fill in the commission tax invoice above first; this step works from its figures.</span>`);
+    } else {
+      sub.push(s.doneOn ? `${s.autoDone?"Completed when the funds were disbursed":"Manually acknowledged"} · <span class="mono">${s.doneOn}</span>`
+        : `Ticks itself when you enter the disbursement date${f.dueFromSolicitor?" and the date the solicitor's payment arrived":""}`);
+      const row = (k, v, cls="") => `<tr class="${cls}"><td>${k}</td><td class="r mono">${v}</td></tr>`;
+      nested = `<div class="nested ad-box">
+        <div class="sub">${f.source ? `From tax invoice <b class="mono">${esc(f.source)}</b>` : "From today's figures (no tax invoice generated yet)"}</div>
+        <table class="ad-table com-sum"><tbody>
+          ${row("Deposits held in trust", money(f.held))}
+          ${f.toBuyer ? row("Refund paid to the buyer from trust", acc(-f.toBuyer)) : ""}
+          ${row("Retained by My Panda Realty for commission and recoveries", acc(-f.retained))}
+          ${row(f.toVendor ? "Balance released to the vendor" : "Balance left in trust for this sale", money(f.toVendor), "tot")}
+          ${f.dueFromSolicitor ? row("Further amount due to My Panda Realty from the vendor's solicitor at settlement", money(f.dueFromSolicitor), "tot") : ""}
+        </tbody></table>
+        <div class="fields">${dateField("disbursedOn","Trust funds disbursed on")}${f.dueFromSolicitor ? dateField("solicitorPaidOn","Solicitor's payment received on") : ""}</div>
+      </div>`;
+    }
+  } else if (s.kind === "commission"){
+    icon = `<button class="cb ${s.doneOn?"on":""}" data-act="toggle" data-id="${s.id}" aria-label="${s.doneOn?"Undo":"Mark done"}: ${esc(s.title)}"></button>`;
+    const c = commissionCalc(s, cur), ready = Number(s.salePrice) && Number(s.rate);
+    const missing = [!Number(s.salePrice) && "sale price", !Number(s.rate) && "commission rate"].filter(Boolean);
+    sub.push(ready ? `Commission <span class="mono">${money(c.commNet)}</span> incl. GST · ${c.balance>=0?"Balance to vendor":"Owing by vendor"} <span class="mono">${money(Math.abs(c.balance))}</span>`
+                   : `<span style="color:var(--warn);font-weight:600">To generate the tax invoice, enter the ${missing.join(" and ")} below.</span>`);
+    sub.push(s.doneOn ? `${s.autoDone?"Completed when the invoice was emailed":"Manually acknowledged"} · <span class="mono">${s.doneOn}</span>` : "Ticks itself when the invoice is emailed");
+    if (!readOnly) actions = `<button class="btn small primary" data-act="comgen" data-id="${s.id}" ${ready?"":`disabled title="Enter the sale price and commission rate first"`}>Generate tax invoice</button>`;
+    const sumRow = (k,v,strong,subv) => `<tr${strong?' class="tot"':""}><td>${k}</td><td class="r mono sub-col">${subv??""}</td><td class="r mono">${v}</td></tr>`;
+    nested = `<div class="nested ad-box">
+      <div class="fields">${numField(s,"salePrice","Sale price $")}
+        <label>Commission rate <input class="fld fld-num" id="fld-${s.id}-rate" data-id="${s.id}" data-k="rate" inputmode="decimal" placeholder="" value="${s.rate??""}" style="width:80px${s.rate==null?";border-color:var(--warn)":""}"> %</label>
+        <label><input type="checkbox" class="fld-chk" id="fld-${s.id}-incl" data-id="${s.id}" data-k="rateInclGst" ${s.rateInclGst?"checked":""}> Rate includes GST</label></div>
+      <div class="pgroup">Advertising and maintenance</div>
+      ${c.sections.length ? `<div class="adj-list">` + c.sections.map(x=>{
+        const idp = `adj-${x.key}`;
+        if (x.mode === "custom") return `<div class="adj-row">
+          <div class="adj-head"><b>${esc(x.label)}</b> <span class="sub">Total <span class="mono">${money(x.total)}</span> · Paid up front <span class="mono">${money(x.paid)}</span></span></div>
+          <div class="fields"><span>${[x.lines - x.amount - x.paid > 0.004 ? `Vendor's share <span class="mono">${money(r2(x.paid + x.amount))}</span>` : "",
+              x.amount > 0 ? `Payable at settlement <span class="mono">${money(x.amount)}</span>` : x.amount < 0 ? `Refunded at settlement <span class="mono">${money(-x.amount)}</span>` : "Nothing further at settlement"].filter(Boolean).join(" · ")}</span>
+            <span class="grow"></span><button class="linkbtn" style="font-size:12px" data-jump="${SECTION_STAGE[x.key]}">Change in ${esc(x.label)}</button></div></div>`;
+        return `<div class="adj-row">
+          <div class="adj-head"><b>${esc(x.label)}</b> <span class="sub">Total <span class="mono">${money(x.total)}</span> · Paid up front <span class="mono">${money(x.paid)}</span> · Unpaid <span class="mono">${money(x.unpaid)}</span></span></div>
+          <div class="fields">
+            <label class="vh" for="${idp}-mode">How ${esc(x.label.toLowerCase())} is settled</label>
+            <select class="adj-mode ad-type" style="max-width:300px" id="${idp}-mode" data-id="${s.id}" data-sec="${x.key}">
+              <option value="deduct" ${x.mode==="deduct"?"selected":""}>Deduct from the deposit</option>
+              <option value="upfront" ${x.mode==="upfront"?"selected":""}>Paid up front, no refund</option>
+              <option value="refund" ${x.mode==="refund"?"selected":""}>Paid up front, refund at settlement</option>
+            </select>
+            ${x.mode==="refund" ? `<label>Paid by <select class="adj-payer ad-type" style="width:auto" id="${idp}-payer" data-id="${s.id}" data-sec="${x.key}">
+                <option value="vendor" ${x.payer==="vendor"?"selected":""}>Vendor</option><option value="buyer" ${x.payer==="buyer"?"selected":""}>Buyer</option></select></label>` : ""}
+            ${x.mode!=="upfront" ? `<label>${x.mode==="deduct"?"Deduct":"Refund"} $ <input class="adj-amt fld-num" id="${idp}-amt" data-id="${s.id}" data-sec="${x.key}" inputmode="decimal" value="${x.amount}" aria-label="${x.mode==="deduct"?"Amount to deduct":"Amount to refund"}"></label>
+              ${x.amount !== x.dflt ? `<button class="linkbtn" style="font-size:12px" data-act="adjfull" data-id="${s.id}" data-sec="${x.key}">Use full ${money(x.dflt)}</button>` : `<span class="sub">${x.mode==="deduct"?"Full unpaid amount":"Full amount paid"}</span>`}` : ""}
+          </div></div>`; }).join("") + `</div>`
+        : `<div class="sub">No advertising or maintenance on this sale.</div>`}
+      ${ready ? `<div class="pgroup">Breakdown</div><div class="com-wrap"><table class="com-rows"><tbody>` + commissionRows(c, {agency:(settings.agency||{}).name, salePrice:r2(s.salePrice), rate:s.rate, rateInclGst:s.rateInclGst,
+          settlement:(cur.stages.flatMap(g=>g.steps).find(x=>x.id==="settle")||{}).due}).map(r=>`<tr class="${[r.head?"h":"",r.bold?"b":"",r.grand?"g":"",r.gap?"gap":""].join(" ")}">
+          <td class="${r.keepCase?"":"uc"}">${esc(r.label)}</td>
+          <td class="r mono s ${r.rule?"rule":""}">${r.subText ? esc(r.subText) : r.sub != null ? acc(r.sub) : (r.mid?esc(r.mid):"")}</td>
+          <td class="r mono t ${r.ruleAbove?"rule-a":""}">${r.tot != null ? acc(r.tot) : ""}</td></tr>`).join("") + `</tbody></table></div>`
+        : ""}
+      ${docListHTML(s, "Tax invoices")}
+    </div>`;
+  } else if (s.kind === "review"){
+    icon = `<span class="money" aria-hidden="true">$</span>`;
+  } else {
+    icon = `<button class="cb ${s.doneOn?"on":""}" data-act="toggle" data-id="${s.id}" aria-label="${s.doneOn?"Undo":"Mark done"}: ${esc(s.title)}"></button>`;
+  }
+
+  if (s.kind === "condition"){
+    const when = s.doneOn || !s.due ? "" : (()=>{ const d = days(TODAY, s.due);
+      return d<0 ? ` · <b style="color:var(--bad)">${-d} days overdue</b>` : d===0 ? " · due today" : ` · in ${d} days`; })();
+    sub.push(`<span class="fields"><label>Due <input type="date" class="fld fld-date" id="fld-${s.id}-due" data-id="${s.id}" data-k="due" value="${s.due||""}"></label></span>${when}`);
+    sub.push(s.doneOn ? `Manually acknowledged · <span class="mono">${s.doneOn}</span>` : "Manual acknowledgement");
+  } else if (s.kind === "check"){
+    const linkedStep = LINKED_STEPS.includes(s.id);
+    sub.push(s.doneOn ? `${linkedStep?"Linked":"Manually acknowledged"} · <span class="mono">${s.doneOn}</span>` : linkedStep ? "Not linked yet" : "Manual acknowledgement");
+    if (s.allowNotRequired && !s.doneOn) actions = `<button class="btn small" data-act="na" data-id="${s.id}">Not required for this property</button>`;
+  }
+
+  if (s.receipt){
+    const r = s.receipt;
+    const line = r.state==="preparing" ? `<span class="pill s-pending">Solicitor letter not sent yet</span> Generate it with “Solicitor receipt letter” on the deposit step above, then email it.` : `<span class="pill s-completed">Solicitor letter sent</span>`;
+    nested += `<div class="nested"><div class="head">Receipt <input class="fld fld-text" id="fld-${s.id}-receipt" data-id="${s.id}" data-k="receipt.no" value="${esc(r.no)}" placeholder="e.g. R2-1330" aria-label="Receipt number"></div><div class="sub">${line}</div>` +
+      (r.state==="preparing" ? `<div><button class="btn small" data-act="receipt" data-id="${s.id}">Mark letter sent</button></div>`
+                             : `<div><button class="btn small" data-act="receiptundo" data-id="${s.id}">Undo</button></div>`) + `</div>`;
+  }
+  if (s.kind === "review"){
+    const lines = [];
+    lines.push(`<span class="${s.trust==null?"warnline":""}">Trust: ${s.trust==null?"authority and expected amount not recorded":money(s.trust)}</span>`);
+    lines.push(`<span class="${s.outside==null?"warnline":""}">Outside trust: ${s.outside==null?"authority and expected amount not recorded":money(s.outside)}</span>`);
+    lines.push(s.reviewed ? "Payment authority reviewed. Actual trust and outside payments are tracked separately." : "Record the payment authority and the trust and outside-trust amounts, then mark it reviewed.");
+    nested += `<div class="nested"><div class="notes">${lines.join("")}</div>` +
+      (s.reviewed ? `<div><button class="btn small" data-act="unreview" data-id="${s.id}">Reopen review</button></div>` : `<form class="amt-form" data-review="${s.id}">
+        <label for="tr-${s.id}">Trust</label><input id="tr-${s.id}" inputmode="decimal" placeholder="0.00" value="${s.trust??""}">
+        <label for="ou-${s.id}">Outside</label><input id="ou-${s.id}" inputmode="decimal" placeholder="0.00" value="${s.outside??""}">
+        <button class="btn small" type="submit">Save and mark reviewed</button></form>`) + `</div>`;
+  }
+
+  return `<div class="item"><div class="icon">${icon}</div>
+    <div class="body"><div class="title">${esc(s.title)} <span class="pill s-${st}">${LABEL[st]}</span></div>
+    ${sub.map(x=>`<div class="sub">${x}</div>`).join("")}</div>
+    <div class="actions">${actions}</div>${nested}</div>`;
+}
+
+/* ---------- Render page ---------- */
+const $ = id => document.getElementById(id);
+function sortedSales(){ return [...sales.entries()].sort((a,b)=>String(b[1].createdAt||"").localeCompare(String(a[1].createdAt||""))); }
+
+// Redraws replace the page's HTML. If someone is typing in a box at that moment, put back what they
+// typed, the cursor and the focus, so a background refresh never wipes an unsaved entry.
+function keepTyping(fn){
+  const el = document.activeElement;
+  const typing = el && el.id && ((el.tagName === "INPUT" && !/^(checkbox|radio|button|submit|file)$/.test(el.type)) || el.tagName === "TEXTAREA");
+  const saved = typing ? { id: el.id, value: el.value, a: el.selectionStart, b: el.selectionEnd } : null;
+  fn();
+  if (!saved) return;
+  const n = document.getElementById(saved.id);
+  if (!n || n === el) return;
+  if (n.value !== saved.value) n.value = saved.value;
+  n.focus({preventScroll:true});
+  try { if (saved.a != null) n.setSelectionRange(saved.a, saved.b); } catch {}
+}
+function renderChrome(){ keepTyping(renderChromeNow); }
+function renderChromeNow(){
+  // save indicator
+  const ss = $("savestate");
+  const txt = {saving:"Saving…", saved:"All changes saved", error:"Not saved"}[saveState] || (mode==="db" ? "Saved automatically" : "");
+  ss.className = "savestate" + (saveState==="saving"?" busy":saveState==="error"?" err":"");
+  ss.innerHTML = txt ? `<span class="d"></span>${txt}` : "";
+
+  // picker
+  const pick = $("sale-pick");
+  const list = sortedSales();
+  pick.hidden = list.length < 1;
+  pick.innerHTML = list.map(([id,b])=>`<option value="${esc(id)}" ${id===curId?"selected":""}>${esc(saleLabel(b))}</option>`).join("");
+  $("new-btn").hidden = readOnly || mode==="loading";
+  $("agency-btn").hidden = readOnly || mode==="loading";
+  $("overlay").innerHTML = overlayHTML();
+
+  // banner
+  let b = notice;
+  if (!b && mode==="local" && window.DEMO_SETUP) b = "Demo with a sample sale. Try anything you like: changes aren't saved, and reloading the page starts again.";
+  if (!b && mode==="local") b = "Saving isn't available in this view, so changes last only until you close the page. Open the artifact from claude.ai to keep your work.";
+  if (!b && readOnly) b = "You can view these sales, but you don't have access to change them.";
+  $("banner").innerHTML = b ? `<div class="banner${notice?" bad":""}">${esc(b)}</div>` : "";
+
+  // panel (new / edit / delete)
+  $("panel").innerHTML = panelHTML();
+}
+
+function panelHTML(){
+  if (!panel) return "";
+  if (panel === "confirmdel") return `<div class="panel" role="alertdialog" aria-label="Delete sale">
+      <h2>Delete the sale for ${esc(cur?.vendor)}?</h2>
+      <div class="sub">This removes the whole timeline for this property and can't be undone.</div>
+      <div class="prow"><button class="btn danger solid" data-act="delyes">Delete sale</button><button class="btn" data-act="panelcancel">Keep it</button></div></div>`;
+  if (panel === "agency"){
+    const a = settings.agency || {};
+    const req = ["name","trustName","bsb","acct"];
+    const f = (k,label,ph,extra="") => `<label ${extra}>${label}${req.includes(k)?" *":""}<input id="ag-${k}" value="${esc(a[k]||"")}" placeholder="${esc(ph)}" ${req.includes(k)?"required":""}></label>`;
+    return `<form class="panel" id="agency-form">
+      <h2>Agency and trust account</h2>
+      ${pendingDoc ? `<div class="ad-warn">This document needs your trust account details. Fill in the fields marked *, then press <b>Save and continue</b>.</div>`
+        : `<div class="sub">Printed on every advertising and maintenance invoice. Fields marked * are needed before you can generate one.</div>`}
+      <div class="pgroup">Agency</div>
+      <div class="pfields">
+        ${f("name","Agency name","e.g. Panda Realty Pty Ltd")}
+        ${f("licence","Licence number","e.g. 3456789")}
+        ${f("email","Email","e.g. accounts@yourdomain.com.au")}
+      </div>
+      <div class="pgroup">Commission tax invoice header</div>
+      <div class="pfields">
+        ${f("invContact","Contact name and title","e.g. Richard Falzon Director")}
+        ${f("invPhone","Phone","e.g. 0490 456 959")}
+        ${f("invEmail","Email","e.g. admin@yourdomain.com.au")}
+        ${f("abn","ABN","e.g. 14785202278")}
+      </div>
+      <div class="pgroup">Logo</div>
+      <div class="prow">
+        <img id="ag-logo-preview" alt="Agency logo" style="max-height:56px;max-width:260px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px" ${logoDraft?`src="${esc(logoDraft)}"`:"hidden"}>
+        <label class="btn small" for="ag-logo-file" style="cursor:pointer">${logoDraft?"Replace logo":"Upload logo"}</label>
+        <input type="file" id="ag-logo-file" accept="image/png,image/jpeg,image/webp" class="vh">
+        <button type="button" class="btn small" data-act="logoclear" id="ag-logo-clear" ${logoDraft?"":"hidden"}>Remove</button>
+        <span class="sub">Shown at the top of letters, invoices and requests. A PNG with a white or clear background works best.</span>
+      </div>
+      <div class="pgroup">Trust account for payment</div>
+      <div class="pfields">
+        ${f("trustName","Account name","e.g. Panda Realty Trust Account")}
+        ${f("bank","Bank","e.g. Commonwealth Bank")}
+        ${f("bsb","BSB","e.g. 064-000",'style="flex:0 1 130px"')}
+        ${f("acct","Account number","e.g. 1234 5678",'style="flex:0 1 170px"')}
+      </div>
+      <div class="pgroup">Invoices</div>
+      <div class="pfields">
+        <label style="flex:0 1 150px">Advertising prefix<input id="ag-prefix-advertising" value="${esc(settings.series.advertising.prefix)}"></label>
+        <label style="flex:0 1 130px">Next number<input id="ag-next-advertising" inputmode="numeric" value="${esc(settings.series.advertising.next)}"></label>
+        <label style="flex:0 1 150px">Maintenance prefix<input id="ag-prefix-maintenance" value="${esc(settings.series.maintenance.prefix)}"></label>
+        <label style="flex:0 1 130px">Next number<input id="ag-next-maintenance" inputmode="numeric" value="${esc(settings.series.maintenance.next)}"></label>
+        <label style="flex:0 1 150px">Media prefix<input id="ag-prefix-media" value="${esc(settings.series.media.prefix)}"></label>
+        <label style="flex:0 1 130px">Next number<input id="ag-next-media" inputmode="numeric" value="${esc(settings.series.media.next)}"></label>
+        <label style="flex:0 1 150px">Commission prefix<input id="ag-prefix-commission" value="${esc(settings.series.commission.prefix)}"></label>
+        <label style="flex:0 1 130px">Next number<input id="ag-next-commission" inputmode="numeric" value="${esc(settings.series.commission.next)}"></label>
+        <label style="flex:0 1 130px">Days to pay<input id="ag-due" inputmode="numeric" value="${esc(settings.dueDays)}"></label>
+      </div>
+      <div class="prow"><button class="btn primary" type="submit">${pendingDoc?"Save and continue":"Save details"}</button><button class="btn" type="button" data-act="panelcancel">Cancel</button></div>
+    </form>`;
+  }
+  const e = panel === "edit" ? cur : {vendor:"",vendorEmail:"",address:"",startedOn:TODAY};
+  return `<form class="panel" id="sale-form">
+    <h2>${panel==="edit"?"Sale details":"New sale"}</h2>
+    <div class="pfields">
+      <label>Vendor<input id="sf-vendor" required value="${esc(e.vendor)}" placeholder="e.g. Jodie Louise Davison"></label>
+      <label>Vendor email<input type="email" id="sf-email" value="${esc(e.vendorEmail||"")}" placeholder="e.g. jodie@example.com"></label>
+      <label>Property address<input id="sf-address" value="${esc(e.address)}" placeholder="e.g. 14 Banksia St, Paddington"></label>
+      <label style="flex:0 1 170px">Started<input type="date" id="sf-date" value="${esc(e.startedOn)}"></label>
+    </div>
+    <div class="pgroup">Buyer</div>
+    <div class="pfields">
+      <label>Buyer name(s)<input id="sf-buyer-name" value="${esc((e.buyer||{}).name||"")}" placeholder="e.g. Sam & Alex Nguyen"></label>
+      <label>Buyer email<input type="email" id="sf-buyer-email" value="${esc((e.buyer||{}).email||"")}" placeholder="e.g. sam@example.com"></label>
+    </div>
+    <div class="pgroup">Buyer's solicitor</div>
+    <div class="pfields">
+      <label>Firm<input id="sf-bsol-firm" value="${esc((e.buyerSol||{}).firm||"")}" placeholder="e.g. Smith & Co Lawyers"></label>
+      <label>Contact<input id="sf-bsol-contact" value="${esc((e.buyerSol||{}).contact||"")}" placeholder="e.g. Priya Shah"></label>
+      <label>Email<input type="email" id="sf-bsol-email" value="${esc((e.buyerSol||{}).email||"")}" placeholder="e.g. conveyancing@smithco.com.au"></label>
+    </div>
+    <div class="pgroup">Seller's solicitor</div>
+    <div class="pfields">
+      <label>Firm<input id="sf-ssol-firm" value="${esc((e.sellerSol||{}).firm||"")}" placeholder="e.g. Bay Legal"></label>
+      <label>Contact<input id="sf-ssol-contact" value="${esc((e.sellerSol||{}).contact||"")}" placeholder="e.g. Tom Reid"></label>
+      <label>Email<input type="email" id="sf-ssol-email" value="${esc((e.sellerSol||{}).email||"")}" placeholder="e.g. property@baylegal.com.au"></label>
+    </div>
+    <div class="prow">
+      <button class="btn primary" type="submit">${panel==="edit"?"Save details":"Create sale"}</button>
+      <button class="btn" type="button" data-act="panelcancel">Cancel</button>
+      <span class="grow"></span>
+      ${panel==="edit"?`<button class="btn danger small" type="button" data-act="delsale">Delete sale</button>`:""}
+    </div></form>`;
+}
+
+function render(){ keepTyping(renderNow); }
+function renderNow(){
+  renderChrome();
+  const meta = $("meta"), main = $("main"), empty = $("empty");
+
+  if (mode === "loading"){
+    main.hidden = true; meta.innerHTML = "";
+    empty.innerHTML = `<div class="empty"><span><span class="spin" aria-hidden="true"></span>Loading your sales…</span></div>`;
+    return;
+  }
+  if (!cur){
+    main.hidden = true; meta.innerHTML = "";
+    empty.innerHTML = panel ? "" : `<div class="empty"><b>No sales yet</b><span>Each property you're selling gets its own timeline, from first contact through to settlement.</span>
+      ${readOnly?"":`<button class="btn primary" data-act="newsale">+ Start a sale</button>`}</div>`;
+    return;
+  }
+  empty.innerHTML = ""; main.hidden = false;
+
+  const all = cur.stages.flatMap(g=>g.steps.map(s=>({s,st:statusOf(s)})));
+  const live = all.filter(x=>x.st!=="na");
+  const done = live.filter(x=>x.st==="completed").length;
+  const attn = live.filter(x=>needsAttention(x.st)).length;
+  const settle = all.find(x=>x.s.id==="settle").s;
+  const nextRem = cur.stages.flatMap(g=>g.steps).filter(s=>s.flow).flatMap(s=>s.flow)
+    .filter(f=>f.reminder && !f.doneOn).sort((a,b)=>(a.reminder.on+a.reminder.time).localeCompare(b.reminder.on+b.reminder.time))[0];
+  const firstOpen = cur.stages.find(g=>g.steps.some(s=>!["completed","na"].includes(statusOf(s))));
+
+  meta.innerHTML = `
+    <span>Pipeline: <span class="pipeline">${esc(firstOpen ? firstOpen.name : "Settled")}</span></span>
+    ${cur.address?`<span>Property <b>${esc(cur.address)}</b></span>`:""}
+    <span>Vendor <b>${esc(cur.vendor)}</b>${cur.vendorEmail?` · <span class="mono">${esc(cur.vendorEmail)}</span>`:""}</span>
+    ${cur.buyer && cur.buyer.name ? `<span>Buyer <b>${esc(cur.buyer.name)}</b></span>` : ""}
+    <span>Started <span class="mono">${esc(fmtDate(cur.startedOn))}</span></span>
+    ${readOnly?"":`<button class="linkbtn" data-act="editsale">Edit details</button>`}`;
+
+  const toSettle = settle.doneOn ? "Done" : settle.due ? days(TODAY,settle.due)+" days" : "No date";
+  $("stats").innerHTML = `
+    <div class="stat"><span class="n">${done}/${live.length}</span><span class="l">Steps done</span></div>
+    <div class="stat"><span class="n">${attn}</span><span class="l">Need attention</span></div>
+    <div class="stat"><span class="n">${toSettle}</span><span class="l">To settlement${settle.due?" · "+settle.due:""}</span></div>
+    <div class="stat"><span class="n">${nextRem?fmtDay(nextRem.reminder.on):"None"}</span><span class="l">Next reminder${nextRem?" · "+esc(nextRem.t):""}</span></div>
+    <div class="stat"><span class="n">${firstOpen?esc(firstOpen.name):"—"}</span><span class="l">Current stage</span></div>`;
+
+  $("rail").innerHTML = cur.stages.map(g=>{
+    const ls = g.steps.map(statusOf).filter(x=>x!=="na");
+    const p = ls.length ? ls.filter(x=>x==="completed").length/ls.length : 1;
+    const a = ls.some(needsAttention);
+    return `<span class="${a?"attn":""}" title="${esc(g.name)}: ${Math.round(p*100)}%" data-jump="${g.id}"><i style="transform:scaleX(${p})"></i></span>`;
+  }).join("");
+
+  const na = all.filter(x=>x.st==="na");
+  $("na").innerHTML = na.length ? `<details class="na-box" id="na-d" ${openDetails.has("na-d")?"open":""}><summary>Not required (${na.length})</summary>` +
+    na.map(x=>`<div class="na-row"><span>${esc(x.s.title)}</span><button class="btn small" data-act="restore" data-id="${x.s.id}">Restore</button></div>`).join("") + `</details>` : "";
+
+  $("stages").innerHTML = cur.stages.map(g=>{
+    const rows = g.steps.map(s=>({s,st:statusOf(s)})).filter(x=>x.st!=="na")
+      .filter(x=> filter==="all" || (filter==="open" && x.st!=="completed") || (filter==="attn" && needsAttention(x.st)));
+    if (!rows.length && filter!=="all") return "";
+    const ls = g.steps.map(statusOf).filter(x=>x!=="na");
+    const c = ls.filter(x=>x==="completed").length;
+    const cls = [c===ls.length?"done":"", ls.some(needsAttention)?"attn":"", closed.has(g.id)?"closed":""].join(" ");
+    return `<section class="stage ${cls}" id="g-${g.id}">
+      <button class="stage-h" data-act="fold" data-id="${g.id}" aria-expanded="${!closed.has(g.id)}">
+        <span class="dot"></span><h2>${esc(g.name)}</h2><span class="cnt">${c}/${ls.length}</span><span class="chev">▾</span></button>
+      <div class="items">${rows.map(x=>stepHTML(x.s,x.st)).join("")}</div></section>`;
+  }).join("");
+
+  $("json").textContent = JSON.stringify({id:curId, ...cur}, null, 2);
+}
+
+/* ---------- Advertising invoices ---------- */
+let GMAIL = null;                       // set when the Gmail connector is wired in
+let pendingDoc = null;                  // {id, type} waiting on trust account details
+let logoDraft = "";                     // logo picked in the agency form, saved with it
+let manageTypes = null;                 // "advertising" | "maintenance" while its type list is open
+let mailDraft = {to:"", subject:"", message:""};
+const addDays = (d,n) => { const x = new Date(d+"T00:00"); x.setDate(x.getDate()+n); return x.toLocaleDateString("en-CA"); };
+const trustMissing = () => { const a = settings.agency||{}; return ["name","trustName","bsb","acct"].filter(k=>!a[k]); };
+function curInvoice(){
+  if (!viewInv || !cur) return null;
+  const s = find(viewInv.id); return s && s.invoices ? s.invoices[viewInv.i] : null;
+}
+async function generateInvoice(s){
+  const lines = chargeLines(s).filter(l=>l.opt && Number(l.cost));
+  if (!lines.length) return;
+  if (trustMissing().length){ pendingDoc = {id:s.id, type:"invoice"}; logoDraft = (settings.agency||{}).logo || ""; panel = "agency"; notice = ""; render(); window.scrollTo({top:0}); return $("ag-"+trustMissing()[0])?.focus(); }
+  pendingDoc = null;
+  normalizeSettings();
+  const series = settings.series[s.kind] || settings.series.advertising;
+  const n = series.next || 1;
+  const total = lines.reduce((t,l)=>t+Number(l.cost),0);
+  const inv = {
+    kind: s.kind,
+    no: (series.prefix||"") + String(n).padStart(4,"0"),
+    issued: TODAY, due: addDays(TODAY, settings.dueDays ?? 7),
+    to: { name: cur.vendor, email: cur.vendorEmail || "", address: cur.address || "" },
+    property: cur.address || "",
+    lines: lines.map(l=>({d:l.opt, amt:Number(l.cost)})),
+    total, gst: Math.round(total/11*100)/100,
+    authorised: s.authorised ?? null,
+    agency: agencySnap(),
+    emailedOn: null
+  };
+  series.next = n + 1;
+  saveSettings();
+  (s.invoices = s.invoices || []).push(inv);
+  viewInv = {id:s.id, i:s.invoices.length-1}; mailOpen = false;
+  changed();
+}
+const kindOf = inv => LINE_KINDS[inv.kind] || LINE_KINDS.advertising;
+function invoiceBodyHTML(inv){
+  const a = inv.agency || {}, KI = kindOf(inv);
+  const td = 'style="padding:8px 0;border-bottom:1px solid #e3e6e3;vertical-align:top"';
+  const tdr = 'style="padding:8px 0;border-bottom:1px solid #e3e6e3;text-align:right;white-space:nowrap;font-family:Menlo,Consolas,monospace"';
+  const lab = 'style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#66706b;padding-bottom:4px"';
+  const agencyLines = [a.email, a.licence?`Licence ${a.licence}`:""].filter(Boolean).map(esc).join("<br>");
+  return `<div style="font-family:Figtree,Helvetica,Arial,sans-serif;color:#1d2421;font-size:14px;line-height:1.5;padding:32px;max-width:720px;background:#ffffff">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>
+    <td style="vertical-align:top">${a.logo?`<img src="${esc(a.logo)}" alt="" style="display:block;max-width:260px;max-height:70px;height:auto;margin-bottom:8px">`:""}<div style="font-size:18px;font-weight:700">${esc(a.name||"")}</div><div style="font-size:12px;color:#66706b;margin-top:4px">${agencyLines}</div></td>
+    <td style="vertical-align:top;text-align:right"><div style="font-size:22px;font-weight:700;color:#2f6b57">Tax invoice</div>
+      <div style="font-size:12px;color:#66706b;margin-top:4px">Invoice <b style="color:#1d2421;font-family:Menlo,Consolas,monospace">${esc(inv.no)}</b><br>Issued ${esc(fmtDate(inv.issued))}<br>Due ${esc(fmtDate(inv.due))}</div></td>
+  </tr></table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:28px"><tr>
+    <td style="vertical-align:top;width:50%"><div ${lab}>Bill to</div><div style="font-weight:600">${esc(inv.to.name)}</div><div style="font-size:13px;color:#66706b">${[inv.to.email].filter(Boolean).map(esc).join("<br>")}</div></td>
+    <td style="vertical-align:top;width:50%"><div ${lab}>Property</div><div>${esc(inv.property || "—")}</div></td>
+  </tr></table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:24px;background:#1d2421;border-radius:6px"><tr>
+    <td style="padding:14px 18px;color:#ffffff"><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#b9c4bf">Amount to pay into trust</div>
+      <div style="font-size:28px;font-weight:700;font-family:Menlo,Consolas,monospace;line-height:1.2">${money(inv.total)}</div></td>
+    <td style="padding:14px 18px;color:#ffffff;text-align:right;vertical-align:bottom"><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#b9c4bf">Due by</div>
+      <div style="font-size:16px;font-weight:600">${esc(fmtDate(inv.due))}</div></td>
+  </tr></table>
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:28px;font-size:14px">
+    <thead><tr><th align="left" ${lab}>${esc(KI.invTitle)}</th><th align="right" ${lab}>Amount (incl. GST)</th></tr></thead>
+    <tbody>${inv.lines.map(l=>`<tr><td ${td}>${esc(l.d)}</td><td ${tdr}>${money(l.amt)}</td></tr>`).join("")}</tbody>
+  </table>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:14px 0 0 auto;font-size:14px">
+    <tr><td style="padding:3px 24px 3px 0;color:#66706b">GST included</td><td style="text-align:right;font-family:Menlo,Consolas,monospace">${money(inv.gst)}</td></tr>
+    <tr><td style="padding:6px 24px 3px 0;font-weight:700;border-top:2px solid #1d2421">Total due</td><td style="padding-top:6px;text-align:right;font-weight:700;font-family:Menlo,Consolas,monospace;border-top:2px solid #1d2421">${money(inv.total)}</td></tr>
+  </table>
+  ${inv.authorised!=null?`<div style="font-size:12px;color:#66706b;margin-top:10px">${esc(KI.invNote)}: ${money(inv.authorised)}.</div>`:""}
+  <div style="margin-top:28px;padding:16px;border:1px solid #cfe0d7;background:#eef5f1;border-radius:6px">
+    <div ${lab}>Pay into our trust account</div>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:14px">
+      <tr><td style="padding:2px 18px 2px 0;color:#66706b">Amount</td><td style="font-family:Menlo,Consolas,monospace;font-weight:700">${money(inv.total)}</td></tr>
+      <tr><td style="padding:2px 18px 2px 0;color:#66706b">Account name</td><td>${esc(a.trustName||"")}</td></tr>
+      ${a.bank?`<tr><td style="padding:2px 18px 2px 0;color:#66706b">Bank</td><td>${esc(a.bank)}</td></tr>`:""}
+      <tr><td style="padding:2px 18px 2px 0;color:#66706b">BSB</td><td style="font-family:Menlo,Consolas,monospace">${esc(a.bsb||"")}</td></tr>
+      <tr><td style="padding:2px 18px 2px 0;color:#66706b">Account number</td><td style="font-family:Menlo,Consolas,monospace">${esc(a.acct||"")}</td></tr>
+      <tr><td style="padding:2px 18px 2px 0;color:#66706b">Reference</td><td style="font-family:Menlo,Consolas,monospace">${esc(inv.no)}</td></tr>
+    </table>
+    <div style="font-size:12px;color:#66706b;margin-top:8px">Please pay by ${esc(fmtDate(inv.due))} and use the reference above so we can match your payment. A trust account receipt will be issued when your payment is received.</div>
+  </div>
+</div>`;
+}
+const invoiceDocument = inv => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invoice ${esc(inv.no)}</title></head><body style="margin:0;background:#f5f6f4">${invoiceBodyHTML(inv)}</body></html>`;
+const mailSubject = inv => `${kindOf(inv).Noun} invoice ${inv.no}${inv.property?" – "+inv.property:""}`;
+function mailMessage(inv){
+  const a = inv.agency||{};
+  const first = (inv.to.name||"").split(/\s+/)[0] || "there";
+  return `Hi ${first},\n\nPlease find your ${kindOf(inv).noun} invoice ${inv.no} for ${inv.property||"your property"} below. The total of ${money(inv.total)} (incl. GST) is payable into our trust account by ${fmtDate(inv.due)}.\n\nAccount name: ${a.trustName||""}\nBSB: ${a.bsb||""}\nAccount number: ${a.acct||""}\nReference: ${inv.no}\n\nPlease let me know if you have any questions.\n\nKind regards,\n${a.name||""}${a.phone?"\n"+a.phone:""}`;
+}
+/* ---------- Deposit documents: request to the buyer, receipt letter to both solicitors ---------- */
+const cap = t => t ? t[0].toUpperCase() + t.slice(1) : "";
+const depRef = d => d.property || d.buyer.name || cap(d.label);
+const firstName = n => (n||"").split(/[\s&,]+/)[0] || "there";
+const solLine = (who, s) => [s.firm, s.contact?`Attn: ${s.contact}`:"", s.email].filter(Boolean).map(esc).join("<br>") || `<span style="color:#b23a2e">${esc(who)} not recorded</span>`;
+
+// "Receipt" ticks itself once an amount received is entered, and unticks if it is cleared (unless ticked by hand).
+function syncDeposit(s){
+  s.marks = s.marks || {};
+  if (s.linked && !s.marks.receipt){ s.marks.receipt = s.receivedOn || TODAY; s.autoReceipt = true; }
+  else if (!s.linked && s.marks.receipt && s.autoReceipt){ s.marks.receipt = null; s.autoReceipt = false; }
+  else if (s.linked && s.autoReceipt && s.receivedOn) s.marks.receipt = s.receivedOn;
+}
+function generateCommission(s){
+  if (trustMissing().length){ pendingDoc = {id:s.id, type:"commission"}; logoDraft = (settings.agency||{}).logo || ""; panel = "agency"; notice = ""; render(); window.scrollTo({top:0}); return $("ag-"+trustMissing()[0])?.focus(); }
+  pendingDoc = null;
+  normalizeSettings();
+  const series = settings.series.commission, n = series.next || 1;
+  const settle = cur.stages.flatMap(g=>g.steps).find(x=>x.id==="settle");
+  const d = { doc:"commission", dep:s.id, no:(series.prefix||"") + String(n).padStart(4,"0"), issued:TODAY,
+    salePrice:r2(s.salePrice), rate:Number(s.rate), rateInclGst:!!s.rateInclGst, settlement: settle && settle.due || null,
+    ...commissionCalc(s, cur),
+    vendor:cur.vendor||"", vendorEmail:cur.vendorEmail||"", property:cur.address||"",
+    buyer:clone(cur.buyer||{}), buyerSol:clone(cur.buyerSol||{}), sellerSol:clone(cur.sellerSol||{}),
+    agency:agencySnap(), emailedOn:null };
+  series.next = n + 1; saveSettings();
+  (s.invoices = s.invoices || []).push(d);
+  viewInv = {id:s.id, i:s.invoices.length-1}; mailOpen = false; mailNote = "";
+  changed();
+}
+function commissionBodyHTML(d){
+  const a = docAgency(d), f = "font-family:Arial,Helvetica,sans-serif;";
+  // Older invoices made before this layout: work the rows out again from their saved figures
+  const c = d.incurred ? d : { ...d, incurred:[], agencyMaint:[], vendorMaint:[], incurredTotal:0, payments:[], paymentsTotal:0, reimb:[], reimbTotal:0,
+    totalAfter:d.commInc, buyersTotal:d.held, payable:r2(d.commInc - d.held), buyerRefunds:[] };
+  const rows = commissionRows(c, {agency:a.name, salePrice:d.salePrice, rate:d.rate, rateInclGst:d.rateInclGst, settlement:d.settlement});
+  const cell = (v, extra="") => `<td style="padding:3px 0;text-align:right;white-space:nowrap;vertical-align:bottom;${extra}">${v}</td>`;
+  const dollar = (show, extra="") => `<td style="padding:3px 6px 3px 18px;vertical-align:bottom;font-weight:700;${extra}">${show?"$":""}</td>`;
+  const body = rows.map(r=>{
+    const pad = r.gap ? "padding-top:14px;" : "";
+    const wt = ((r.head && !r.plain)||r.bold||r.grand) ? "font-weight:700;" : "";
+    const subVal = r.subText ? esc(r.subText) : r.sub != null ? acc(r.sub) : (r.mid ? esc(r.mid) : "");
+    const subRule = r.rule ? "border-bottom:2px solid #9a9a9a;" : "";
+    const totRule = (r.bold && !r.grand) || r.ruleAbove ? "border-top:2px solid #9a9a9a;" : "";
+    return `<tr>
+      <td style="padding:3px 0;${pad}${wt}${r.keepCase?"":"text-transform:uppercase;"}vertical-align:bottom">${esc(r.label)}</td>
+      ${dollar(r.sub != null, pad + subRule)}${cell(subVal, pad + subRule + (r.grand?"text-align:center;":""))}
+      ${dollar(r.tot != null, pad + totRule)}${cell(r.tot != null ? acc(r.tot) : "", pad + totRule + wt)}</tr>`;
+  }).join("");
+  const head = [
+    a.invContact ? `<div style="font-weight:700">${esc(a.invContact)}</div>` : "",
+    a.invPhone ? `<div style="font-weight:700">ph: ${esc(a.invPhone)}</div>` : "",
+    `<div style="height:12px"></div>`,
+    (a.invEmail||a.email) ? `<div>Email: ${esc(a.invEmail||a.email)}</div>` : "",
+    a.abn ? `<div>ABN: ${esc(a.abn)}</div>` : "",
+    a.licence ? `<div>Licence: ${esc(a.licence)}</div>` : ""].join("");
+  const sol = d.sellerSol || {}, solName = [sol.firm, sol.contact].filter(Boolean).join(" - ");
+  const info = [["Date", fmtNum(d.issued)], ["Invoice no.", d.no], ["Seller name", d.vendor], ["Property", d.property], ["Seller's solicitor", solName]]
+    .filter(x=>x[1]).map(([k,v])=>`<tr><td style="padding:3px 24px 3px 0;font-weight:700;white-space:nowrap">${k}</td><td style="padding:3px 0;text-transform:uppercase">${esc(v)}</td></tr>`).join("");
+  return `<div style="${f}color:#1f2a44;font-size:12px;line-height:1.35;padding:40px 48px;max-width:760px;background:#ffffff">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>
+    <td style="vertical-align:top">${a.logo?`<img src="${esc(a.logo)}" alt="${esc(a.name||"")}" style="display:block;max-width:340px;max-height:100px;height:auto">`:`<div style="font-size:20px;font-weight:700">${esc(a.name||"")}</div>`}</td>
+    <td style="vertical-align:top;text-align:right;font-size:11.5px;line-height:1.45">${head}</td>
+  </tr></table>
+  <div style="text-align:center;font-weight:700;font-size:14px;margin:18px 0 26px">TAX INVOICE</div>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:18px">${info}</table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px">${body}</table>
+  ${(a.trustName || a.bsb || a.acct) ? (()=>{ const f = [["Account name", a.trustName], ["Bank", a.bank], ["BSB", a.bsb], ["Account number", a.acct], ["Reference", d.no]].filter(x=>x[1]);
+    return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:28px;border:1.5px solid #9a9a9a;font-size:12px">
+    <tr><td colspan="${f.length}" style="padding:7px 12px;font-weight:700;background:#f1f1f1;border-bottom:1px solid #9a9a9a">TRUST ACCOUNT DETAILS</td></tr>
+    <tr>${f.map(([k])=>`<td style="padding:6px 12px 2px;font-weight:700;white-space:nowrap">${k}</td>`).join("")}</tr>
+    <tr>${f.map(([,v])=>`<td style="padding:2px 12px 8px">${esc(v)}</td>`).join("")}</tr>
+  </table>`; })() : ""}
+</div>`;
+}
+function trustReceiptBodyHTML(d){
+  const a = docAgency(d), lab = 'style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#66706b;padding-bottom:4px"';
+  const row = (k,v,mono) => `<tr><td style="padding:4px 24px 4px 0;color:#66706b;vertical-align:top">${k}</td><td style="padding:4px 0;${mono?"font-family:Menlo,Consolas,monospace;":""}">${v}</td></tr>`;
+  return `<div style="font-family:'Noto Sans',Figtree,Helvetica,Arial,sans-serif;color:#1d2421;font-size:14px;line-height:1.5;padding:32px;max-width:720px;background:#ffffff">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>
+    <td style="vertical-align:top">${a.logo?`<img src="${esc(a.logo)}" alt="" style="display:block;max-width:260px;max-height:70px;height:auto;margin-bottom:8px">`:""}<div style="font-size:18px;font-weight:700">${esc(a.name||"")}</div>
+      <div style="font-size:12px;color:#66706b;margin-top:4px">${[a.email, a.licence?`Licence ${a.licence}`:""].filter(Boolean).map(esc).join("<br>")}</div></td>
+    <td style="vertical-align:top;text-align:right"><div style="font-size:22px;font-weight:700;color:#2f6b57">Trust account receipt</div>
+      <div style="font-size:12px;color:#66706b;margin-top:4px">Receipt <b style="color:#1d2421;font-family:Menlo,Consolas,monospace">${esc(d.receiptNo||"—")}</b><br>Received ${esc(fmtNum(d.receivedOn))}</div></td>
+  </tr></table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:28px"><tr>
+    <td style="vertical-align:top;width:50%"><div ${lab}>Received from</div><div style="font-weight:600">${esc(d.buyer.name||"—")}</div><div style="font-size:13px;color:#66706b">${esc(d.buyer.email||"")}</div></td>
+    <td style="vertical-align:top;width:50%"><div ${lab}>Property</div><div>${esc(d.property||"—")}</div></td>
+  </tr></table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:24px;background:#1d2421;border-radius:6px"><tr>
+    <td style="padding:14px 18px;color:#ffffff"><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#b9c4bf">Amount received into trust</div>
+      <div style="font-size:28px;font-weight:700;font-family:Menlo,Consolas,monospace;line-height:1.2">${money(d.amount)}</div></td>
+  </tr></table>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:18px;font-size:14px">
+    ${row("For", `${esc(cap(d.label))} under the contract of sale`)}
+    ${row("Date received", esc(fmtNum(d.receivedOn)))}
+    ${row("Trust receipt number", esc(d.receiptNo||"—"), true)}
+    ${row("Paid into", esc(a.trustName||""))}
+  </table>
+  <p style="margin:20px 0 0;font-size:12px;color:#66706b">These funds are held in our trust account in accordance with the contract, pending settlement.</p>
+</div>`;
+}
+function generateDoc(s, type){
+  if (type === "commission") return generateCommission(s);
+  if (trustMissing().length){ pendingDoc = {id:s.id, type}; logoDraft = (settings.agency||{}).logo || ""; panel = "agency"; notice = ""; render(); window.scrollTo({top:0}); return $("ag-"+trustMissing()[0])?.focus(); }
+  pendingDoc = null;
+  const d = {
+    doc: type, dep: s.id, label: DEP_LABEL[s.id] || "deposit", issued: TODAY,
+    amount: type === "request" ? (s.expected ?? s.linked) : s.linked,
+    due: s.due || null, receivedOn: s.receivedOn || null,
+    receiptNo: s.receiptNo || "",
+    // Total buyer deposit funds received into trust so far (initial + balance), for the letter's "held" line
+    heldTotal: ["init_dep","bal_dep"].map(find).filter(Boolean).reduce((t,x)=>t+(Number(x.linked)||0),0),
+    heldAsAt: TODAY,
+    property: cur.address || "", vendor: cur.vendor || "",
+    buyer: clone(cur.buyer || {}), buyerSol: clone(cur.buyerSol || {}), sellerSol: clone(cur.sellerSol || {}),
+    agency: agencySnap(), emailedOn: null
+  };
+  (s.invoices = s.invoices || []).push(d);
+  viewInv = {id:s.id, i:s.invoices.length-1}; mailOpen = false; mailNote = "";
+  changed();
+}
+function requestBodyHTML(d){
+  const a = docAgency(d), lab = 'style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#66706b;padding-bottom:4px"';
+  const row = (k,v,mono) => `<tr><td style="padding:2px 18px 2px 0;color:#66706b">${k}</td><td style="${mono?"font-family:Menlo,Consolas,monospace;":""}">${v}</td></tr>`;
+  return `<div style="font-family:Figtree,Helvetica,Arial,sans-serif;color:#1d2421;font-size:14px;line-height:1.5;padding:32px;max-width:720px;background:#ffffff">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>
+    <td style="vertical-align:top">${a.logo?`<img src="${esc(a.logo)}" alt="" style="display:block;max-width:260px;max-height:70px;height:auto;margin-bottom:8px">`:""}<div style="font-size:18px;font-weight:700">${esc(a.name||"")}</div><div style="font-size:12px;color:#66706b;margin-top:4px">${[a.email, a.licence?`Licence ${a.licence}`:""].filter(Boolean).map(esc).join("<br>")}</div></td>
+    <td style="vertical-align:top;text-align:right"><div style="font-size:22px;font-weight:700;color:#2f6b57">${esc(cap(d.label))} request</div>
+      <div style="font-size:12px;color:#66706b;margin-top:4px">Issued ${esc(fmtDate(d.issued))}</div></td>
+  </tr></table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:28px"><tr>
+    <td style="vertical-align:top;width:50%"><div ${lab}>Buyer</div><div style="font-weight:600">${esc(d.buyer.name||"—")}</div><div style="font-size:13px;color:#66706b">${esc(d.buyer.email||"")}</div></td>
+    <td style="vertical-align:top;width:50%"><div ${lab}>Property</div><div>${esc(d.property||"—")}</div></td>
+  </tr></table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:24px;background:#1d2421;border-radius:6px"><tr>
+    <td style="padding:14px 18px;color:#ffffff"><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#b9c4bf">${esc(cap(d.label))} to pay into trust</div>
+      <div style="font-size:28px;font-weight:700;font-family:Menlo,Consolas,monospace;line-height:1.2">${money(d.amount)}</div></td>
+    <td style="padding:14px 18px;color:#ffffff;text-align:right;vertical-align:bottom"><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#b9c4bf">Due by</div>
+      <div style="font-size:16px;font-weight:600">${d.due?esc(fmtDate(d.due)):"As per the contract"}</div></td>
+  </tr></table>
+  <p style="margin:22px 0 0">Under the contract of sale for ${esc(d.property||"the property")}, the ${esc(d.label)} of <b>${money(d.amount)}</b> is payable into our trust account${d.due?` by <b>${esc(fmtDate(d.due))}</b>`:""}.</p>
+  <div style="margin-top:20px;padding:16px;border:1px solid #cfe0d7;background:#eef5f1;border-radius:6px">
+    <div ${lab}>Pay into our trust account</div>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:14px">
+      ${row("Amount", `<b>${money(d.amount)}</b>`, true)}
+      ${row("Account name", esc(a.trustName||""))}
+      ${a.bank?row("Bank", esc(a.bank)):""}
+      ${row("BSB", esc(a.bsb||""), true)}
+      ${row("Account number", esc(a.acct||""), true)}
+      ${row("Reference", esc(depRef(d)), true)}
+    </table>
+    <div style="font-size:12px;color:#66706b;margin-top:8px">Please use the reference above and email us your remittance once paid. When the deposit is received we will issue a trust account receipt and confirm receipt to both solicitors.</div>
+  </div>
+</div>`;
+}
+// Letter to both solicitors, laid out to match the agency's own sample letter.
+const fmtNum = d => d ? new Date(d+"T00:00").toLocaleDateString("en-AU",{day:"2-digit",month:"2-digit",year:"numeric"}) : "—";
+function solRecipient(s, role){
+  const name = [s.contact, s.firm].filter(Boolean).map(esc).join(" - ");
+  return name ? `${name} (${role})` : `<span style="color:#b23a2e">${cap(role)} not recorded</span>`;
+}
+function letterBodyHTML(d){
+  const a = docAgency(d), p = 'style="margin:0 0 18px"';
+  const logo = a.logo ? `<img src="${esc(a.logo)}" alt="${esc(a.name||"")}" style="display:block;max-width:300px;max-height:80px;height:auto">` : `<div style="font-size:20px;font-weight:700">${esc(a.name||"")}</div>`;
+  const held = d.heldTotal != null ? d.heldTotal : d.amount;
+  return `<div style="font-family:'Noto Sans',Figtree,Helvetica,Arial,sans-serif;color:#1d2a3a;font-size:14px;line-height:1.6;padding:48px 56px;max-width:760px;background:#ffffff">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>
+    <td style="vertical-align:top">${logo}</td>
+    <td style="vertical-align:top;text-align:right;font-size:13px;line-height:1.8">
+      <div style="font-size:17px;font-weight:700">${esc(a.name||"")}</div>
+      ${a.email?`<div>${esc(a.email)}</div>`:""}${a.licence?`<div>Licence: ${esc(a.licence)}</div>`:""}</td>
+  </tr></table>
+  <div style="height:56px"></div>
+  <p ${p}><b>${esc(fmtNum(d.issued))}</b></p>
+  <p ${p}>${solRecipient(d.sellerSol, "seller's solicitor")}</p>
+  <p ${p}>${solRecipient(d.buyerSol, "buyer's solicitor")}</p>
+  <p ${p}>Dear Colleagues,</p>
+  <p ${p}><b>RE: Contract of Sale - ${esc((d.property||"the property").toUpperCase())}</b></p>
+  <p ${p}>We confirm receipt of ${money(d.amount)}${d.receivedOn?` on ${esc(fmtNum(d.receivedOn))}`:""} towards the ${esc(d.label)} under the Contract${d.receiptNo?` (Trust Receipt ${esc(d.receiptNo)})`:""}. This confirms this receipt amount; refer to the Contract for the total deposit obligation.</p>
+  <p ${p}>As at ${esc(fmtNum(d.heldAsAt || d.issued))}, the buyer deposit funds currently held in our trust account for this property are ${money(held)}, pending settlement advice.</p>
+  <p ${p}>Please contact us if you have any queries. Thank you.</p>
+  <p style="margin:0">Warm regards,<br>${esc(a.name||"")}</p>
+</div>`;
+}
+// One description per document type, used by the viewer, the list and the email.
+// A document keeps the details it was made with, but anything that was blank then
+// (buyer, solicitors, property) is filled from what is saved on the sale now.
+const hasAny = o => o && Object.values(o).some(v => v);
+function withSaleDetails(d){
+  if (!d.doc || !cur) return d;
+  return { ...d,
+    buyer: hasAny(d.buyer) ? d.buyer : (cur.buyer || {}),
+    buyerSol: hasAny(d.buyerSol) ? d.buyerSol : (cur.buyerSol || {}),
+    sellerSol: hasAny(d.sellerSol) ? d.sellerSol : (cur.sellerSol || {}),
+    property: d.property || cur.address || "", vendor: d.vendor || cur.vendor || "",
+    vendorEmail: d.vendorEmail || cur.vendorEmail || "" };
+}
+function docInfo(d){
+  d = withSaleDetails(d);
+  const a = docAgency(d);
+  if (d.doc === "request") return {
+    title: `${cap(d.label)} request`, who: "buyer", amount: d.amount, body: requestBodyHTML(d),
+    to: d.buyer.email || (cur && cur.buyer && cur.buyer.email) || "", toName: d.buyer.name || "the buyer",
+    subject: `${cap(d.label)} request – ${d.property || "your purchase"}`,
+    message: `Hi ${firstName(d.buyer.name)},\n\nAs per the contract for ${d.property||"your purchase"}, please pay the ${d.label} of ${money(d.amount)} into our trust account${d.due?` by ${fmtDate(d.due)}`:""}.\n\nAccount name: ${a.trustName||""}\nBSB: ${a.bsb||""}\nAccount number: ${a.acct||""}\nReference: ${depRef(d)}\n\nPlease email us your remittance once paid. The full request is below.\n\nKind regards,\n${a.name||""}`,
+    file: `${cap(d.label)} request ${d.issued}.html`
+  };
+  if (d.doc === "commission") return {
+    title: `Tax invoice ${d.no}`, who: "vendor and solicitor", amount: d.commInc, body: commissionBodyHTML(d),
+    to: [d.vendorEmail || (cur && cur.vendorEmail), d.sellerSol.email].filter(Boolean).join(", "), toName: "the vendor and the seller's solicitor",
+    subject: `Commission tax invoice ${d.no} – ${d.property || "sale"}`,
+    message: `Hi ${firstName(d.vendor)}${d.sellerSol.contact?` and ${d.sellerSol.contact}`:""},\n\nPlease find below our tax invoice ${d.no} for the sales commission on ${d.property||"the sale"} (${money(d.commInc)} incl. GST), with the outgoings, payments and deposits taken into account.\n\n${d.payable == null ? "" : d.payable>=0 ? `The amount payable to ${a.name||"us"} on settlement is ${money(d.payable)}.` : `After the deposits held in our trust account, ${money(-d.payable)} is payable to the seller on settlement.`}\n\nWarm regards,\n${a.name||""}`,
+    file: `Tax invoice ${d.no}.html`
+  };
+  if (d.doc === "trustreceipt") return {
+    title: `${cap(d.label)} trust receipt`, who: "buyer", amount: d.amount, body: trustReceiptBodyHTML(d),
+    to: d.buyer.email || (cur && cur.buyer && cur.buyer.email) || "", toName: d.buyer.name || "the buyer",
+    subject: `Trust receipt${d.receiptNo?" "+d.receiptNo:""} – ${d.label} – ${d.property || "your purchase"}`,
+    message: `Hi ${firstName(d.buyer.name)},\n\nThank you for your ${d.label} of ${money(d.amount)}${d.receivedOn?`, received on ${fmtNum(d.receivedOn)}`:""}. Your trust account receipt is below.\n\nWarm regards,\n${a.name||""}`,
+    file: `Trust receipt ${d.receiptNo || d.issued}.html`
+  };
+  if (d.doc === "letter") return {
+    title: `${cap(d.label)} receipt letter`, who: "both solicitors", amount: d.amount, body: letterBodyHTML(d),
+    to: [d.buyerSol.email || cur?.buyerSol?.email, d.sellerSol.email || cur?.sellerSol?.email].filter(Boolean).join(", "), toName: "both solicitors",
+    subject: `Receipt of ${d.label} – ${d.property || "sale"}`,
+    message: `Dear Colleagues,\n\nPlease see below our letter confirming receipt of the ${d.label} of ${money(d.amount)} for ${d.property||"the sale"}.\n\nWarm regards,\n${a.name||""}`,
+    file: `${cap(d.label)} receipt letter ${d.issued}.html`
+  };
+  return {
+    title: `Invoice ${d.no}`, who: "vendor", amount: d.total, body: invoiceBodyHTML(d),
+    to: d.emailedTo || d.to.email || (cur && cur.vendorEmail) || "", toName: d.to.name,
+    subject: mailSubject(d), message: mailMessage(d), file: `Invoice ${d.no}.html`
+  };
+}
+const docPage = (d) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(docInfo(d).title)}</title></head><body style="margin:0;background:#f5f6f4">${docInfo(d).body}</body></html>`;
+function docListHTML(s, heading){
+  const ds = s.invoices || [];
+  if (!ds.length) return "";
+  return `<div class="inv-list"><div class="pgroup">${heading}</div>` + ds.map((v,i)=>{ const I = docInfo(v);
+    return `<div class="inv-row"><span class="no">${esc(v.doc ? I.title : v.no)}</span><span class="mono">${money(I.amount)}</span><span class="sub">Issued ${esc(fmtDate(v.issued))}</span>
+      <span class="pill ${v.emailedOn?"s-completed":v.draftOn?"s-upcoming":"s-pending"}">${v.emailedOn?"Emailed "+esc(fmtDate(v.emailedOn)):v.draftOn?"Draft in Gmail":"Not emailed"}</span>
+      <span class="grow"></span>
+      ${delAsk && delAsk.id===s.id && delAsk.i===i
+        ? `<span class="sub">Delete ${esc(v.doc ? I.title.toLowerCase() : v.no)}?</span><button class="btn small danger solid" data-act="docdelyes" data-id="${s.id}" data-i="${i}">Delete</button><button class="btn small" data-act="docdelno">Keep</button>`
+        : `<button class="btn small" data-act="invview" data-id="${s.id}" data-i="${i}">Open</button>${!v.emailedOn && !readOnly ? `<button class="btn small" data-act="docdel" data-id="${s.id}" data-i="${i}" title="Delete this document (only possible before it is emailed)">Delete</button>` : ""}`}
+      </div>`; }).join("") + `</div>`;
+}
+let delAsk = null;                       // {id, i} document waiting for delete confirmation
+
+function overlayHTML(){
+  const inv = curInvoice(); if (!inv) return "";
+  const I = docInfo(inv);
+  const mail = !mailOpen ? "" : `<form class="mailbox" id="mail-form">
+      <h2 style="margin:0;font-size:15px">Email ${esc(I.title.toLowerCase())} to ${esc(I.toName)}</h2>
+      <div class="pfields">
+        <label>To<input type="email" multiple id="mail-to" required value="${esc(mailDraft.to)}" placeholder="name@example.com, other@example.com"></label>
+        <label style="flex:2 1 260px">Subject<input id="mail-subject" value="${esc(mailDraft.subject)}"></label>
+      </div>
+      ${!mailDraft.to ? `<div class="sub">No email address is saved for ${esc(I.toName)}. Type it above, or add it in <b>Edit details</b> on the sale.</div>` : ""}
+      <label class="pgroup" for="mail-message">Message (the ${esc(I.title.toLowerCase())} is added below it)</label>
+      <textarea id="mail-message">${esc(mailDraft.message)}</textarea>
+      ${mailNote ? `<div class="${mailNote.startsWith("✓")?"okline":"ad-warn"}">${esc(mailNote.replace(/^✓ /,""))}</div>` : ""}
+      <div class="prow">
+        ${GMAIL ? `<button class="btn primary" type="submit">Save as Gmail draft</button>`
+                : `<button class="btn primary" type="button" data-act="copymail">Copy email</button>`}
+        <button class="btn" type="button" data-act="markmailed">Mark as emailed</button>
+        <button class="btn" type="button" data-act="mailcancel">Cancel</button>
+      </div>
+      ${GMAIL ? "" : `<div class="sub">Copy the email, paste it into a new Gmail message and attach the downloaded file. Then mark it as emailed here.</div>`}
+    </form>`;
+  return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(I.title)}"><div class="sheet">
+    <div class="sheet-bar">
+      <span><b>${esc(I.title)}</b> · ${money(I.amount)}${inv.emailedOn?` · <span class="pill s-completed">Emailed ${esc(fmtDate(inv.emailedOn))}</span>`:""}</span>
+      <span class="grow"></span>
+      ${inv.draftUrl && !inv.emailedOn ? `<a class="btn small" href="${esc(inv.draftUrl)}" target="_blank" rel="noopener" style="text-decoration:none">Open Gmail draft</a>` : ""}
+      ${DL?`<button class="btn small primary" data-act="invpdf" id="pdf-btn">Save as PDF</button><button class="btn small" data-act="invprint" id="print-btn" title="Saves a PDF that opens straight into your printer dialog">Print</button><button class="btn small" data-act="invdl">Download HTML</button>`:""}
+      ${readOnly?"":`<button class="btn small primary" data-act="invmail" ${mailOpen?"hidden":""}>Email to ${esc(I.who)}</button>`}
+      <button class="btn small" data-act="invclose">Close</button>
+    </div>
+    ${pdfErr ? `<div class="ad-warn">${esc(pdfErr)}</div>` : ""}
+    ${mail}
+    <div class="paper">${I.body}</div>
+  </div></div>`;
+}
+// Save the open document as an A4 PDF: draw it on a canvas at print size, then place it on PDF pages.
+// The two libraries load from cdnjs the first time someone saves a PDF.
+const loadScript = src => new Promise((ok, fail) => {
+  if (document.querySelector(`script[src="${src}"]`)) return ok();
+  const el = document.createElement("script"); el.src = src; el.onload = ok; el.onerror = () => fail(new Error("load")); document.head.appendChild(el);
+});
+async function pdfLibs(){
+  if (!window.html2canvas) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+  if (!(window.jspdf && window.jspdf.jsPDF)) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+  return { html2canvas: window.html2canvas, jsPDF: window.jspdf.jsPDF };
+}
+async function buildPdf(inv, forPrint){
+  const { html2canvas, jsPDF } = await pdfLibs();
+  const box = document.createElement("div");
+  box.style.cssText = "position:fixed;left:-10000px;top:0;width:794px;background:#ffffff;color:#1d2421";
+  box.innerHTML = docInfo(inv).body;
+  document.body.appendChild(box);
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await Promise.all([...box.querySelectorAll("img")].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
+    const canvas = await html2canvas(box, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false });
+    const pdf = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(), margin = 18;
+    // Ignore white space below the last line of content, so no blank page is added at the end.
+    const cx = canvas.getContext("2d"); let end = canvas.height;
+    for (let y = canvas.height - 1; y > 0; y -= 4){
+      const row = cx.getImageData(0, y, canvas.width, 1).data; let ink = false;
+      for (let i = 0; i < row.length; i += 16){ if (row[i] < 245 || row[i+1] < 245 || row[i+2] < 245){ ink = true; break; } }
+      if (ink){ end = Math.min(canvas.height, y + 40); break; }
+    }
+    // Always one page: crop to the content, then scale it to fit the A4 page (shrinking a long document to fit).
+    const page = document.createElement("canvas"); page.width = canvas.width; page.height = end;
+    const pctx = page.getContext("2d"); pctx.fillStyle = "#ffffff"; pctx.fillRect(0, 0, page.width, end);
+    pctx.drawImage(canvas, 0, 0, canvas.width, end, 0, 0, canvas.width, end);
+    const fit = Math.min((pw - margin * 2) / page.width, (ph - margin * 2) / end);
+    const iw = page.width * fit, ih = end * fit;
+    pdf.addImage(page.toDataURL("image/jpeg", 0.92), "JPEG", (pw - iw) / 2, margin, iw, ih);
+    if (forPrint) pdf.autoPrint({ variant: "javascript" });
+    pdf.setProperties({ title: docInfo(inv).title, creator: (settings.agency && settings.agency.name) || "" });
+    return pdf.output("arraybuffer");
+  } finally { box.remove(); }
+}
+let pdfErr = "";
+async function savePdf(btn, forPrint){
+  const inv = curInvoice(); if (!inv || !DL) return;
+  const label = btn.textContent; btn.disabled = true; btn.textContent = "Making PDF…";
+  try {
+    const data = await buildPdf(inv, forPrint);
+    await DL.save({ filename: docInfo(inv).file.replace(/\.html$/i, forPrint ? " (print).pdf" : ".pdf"), data });
+    pdfErr = "";
+  } catch(e){
+    // the viewer choosing not to save is not an error
+    pdfErr = e && e.code === "declined" ? "" : e && e.message === "load" ? "The PDF tools couldn't load. Check your connection and try again."
+           : "The PDF couldn't be made. Try again, or use Download HTML.";
+    renderChrome();
+  } finally {
+    const b2 = $(btn.id); if (b2){ b2.disabled = false; b2.textContent = label; }
+  }
+}
+async function downloadInvoice(){
+  const inv = curInvoice(); if (!inv || !DL) return;
+  try { await DL.save({filename: docInfo(inv).file, data: docPage(inv)}); } catch {}
+}
+function copyMail(btn){
+  const inv = curInvoice(); if (!inv) return;
+  readMailFields();
+  const text = `To: ${mailDraft.to}\nSubject: ${mailDraft.subject}\n\n${mailDraft.message}`;
+  const done = () => { btn.textContent = "Copied"; };
+  const fallback = () => { const t = $("mail-message"); t.focus(); t.select(); mailNote = "Your browser blocked copying. The message is selected; press Ctrl+C or ⌘C."; };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+}
+function readMailFields(){
+  if (!$("mail-to")) return;
+  mailDraft = { to: $("mail-to").value.trim(), subject: $("mail-subject").value, message: $("mail-message").value };
+}
+async function mailSubmit(){
+  const inv = curInvoice(); if (!inv || !GMAIL) return;
+  readMailFields();
+  if (!mailDraft.to) return $("mail-to").focus();
+  mailNote = "Creating the draft…"; renderChrome();
+  try {
+    const html = `<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#1d2421;white-space:pre-wrap">${esc(mailDraft.message)}</div><br>` + docInfo(inv).body.replace(/<img [^>]*>/g, "");
+    const to = mailDraft.to.split(/[,;\s]+/).filter(Boolean);
+    const res = await GMAIL.createDraft({to, subject: mailDraft.subject, text: mailDraft.message, html});
+    inv.draftOn = TODAY; inv.emailedTo = mailDraft.to;
+    const url = res && typeof res.viewUrl === "string" && /^https:\/\//.test(res.viewUrl) ? res.viewUrl : "";
+    if (url) inv.draftUrl = url;
+    mailNote = "✓ Draft saved in your Gmail Drafts. Check it and press Send there, then mark it as emailed here.";
+    changed();
+  } catch(e){
+    const code = e && e.code;
+    mailNote = code === "needs_reauth" || code === "server_not_connected" ? "Gmail isn't connected for this page. Reconnect Gmail in claude.ai Settings → Connectors, then try again."
+      : code === "not_in_manifest" || code === "approval_required" ? "Gmail wasn't allowed for this page. Allow it from the artifact's Permissions menu, then try again."
+      : code === "blocked_by_policy" ? "Your organisation's settings don't allow creating Gmail drafts from here. Copy the email instead."
+      : "The draft wasn't created" + (e && e.message ? ": " + e.message : "") + ". Try again, or copy the email instead.";
+    renderChrome();
+  }
+}
+document.addEventListener("input", e=>{
+  const t = e.target;
+  if (t.closest && t.closest("#mail-form")) return readMailFields();
+  if (cur && !readOnly && t.classList && t.classList.contains("mx-cost")){
+    const l = find(t.dataset.id).lines.find(x=>x.opt===t.dataset.opt); if (!l) return;
+    l.cost = num(t.value);
+    if (mode === "local"){ sales.set(curId, clone(cur)); return; }
+    saveState = "saving"; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 800);
+    const ss = $("savestate"); if (ss){ ss.className = "savestate busy"; ss.innerHTML = `<span class="d"></span>Saving…`; }
+    return;
+  }
+  if (!cur || readOnly || !t.classList || !t.classList.contains("fld") || t.type === "date" || t.dataset.k === "receipt.no") return;
+  const s = find(t.dataset.id); if (!s) return;
+  if (t.dataset.k === "receiptNo") s.receiptNo = t.value.trim(); else s[t.dataset.k] = num(t.value);
+  if (s.kind === "deposit") syncDeposit(s);
+  // enable "Generate tax invoice" as soon as both commission numbers are in, without redrawing
+  if (s.kind === "commission"){ const btn = document.querySelector('[data-act="comgen"]'); if (btn) btn.disabled = !(Number(s.salePrice) && Number(s.rate)); }
+  if (mode === "local"){ sales.set(curId, clone(cur)); return; }
+  saveState = "saving"; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 800);
+  const ss = $("savestate"); if (ss){ ss.className = "savestate busy"; ss.innerHTML = `<span class="d"></span>Saving…`; }
+});
+
+// Shrink an uploaded logo so it stores comfortably with the agency settings.
+function pickLogo(input){
+  const file = input.files && input.files[0]; if (!file) return;
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onload = () => {
+    const scale = Math.min(1, 600 / img.width, 200 / img.height);
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    logoDraft = c.toDataURL("image/png");
+    const im = $("ag-logo-preview"); if (im){ im.src = logoDraft; im.hidden = false; }
+    const rm = $("ag-logo-clear"); if (rm) rm.hidden = false;
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); notice = "That file couldn't be read as an image. Try a PNG or JPG."; renderChrome(); };
+  img.src = url;
+}
+
+/* ---------- Saving ---------- */
+let saveTimer = null, saving = null, again = false;
+function changed(){
+  render();
+  if (readOnly) return;
+  if (mode === "local"){ sales.set(curId, clone(cur)); return; }
+  saveState = "saving"; renderChrome();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flush, 600);
+}
+async function flush(){
+  clearTimeout(saveTimer); saveTimer = null;
+  if (mode !== "db" || !cur) return;
+  if (saving){ again = true; return saving; }
+  const id = curId, body = clone(cur);
+  saving = (async()=>{
+    try {
+      await DB.collection("sales").doc(id).set(body);
+      sales.set(id, body);
+      if (id === curId) curKey = stable(body);
+      saveState = "saved"; notice = "";
+    } catch(e){ onWriteError(e); }
+  })();
+  await saving; saving = null;
+  if (again){ again = false; return flush(); }
+  renderChrome();
+}
+function onWriteError(e){
+  saveState = "error";
+  const code = e && e.code;
+  if (code === "invalid_argument"){ readOnly = true; notice = ""; }
+  else if (code === "quota_exceeded") notice = "Storage for this tracker is full. Delete a finished sale to make room, then try again.";
+  else if (code === "revoked") notice = "Access to this tracker changed. Reload the page to keep working.";
+  else notice = "Your last change didn't save. Check your connection; the next change will try again.";
+  render();
+}
+const pendingSave = () => !!saveTimer || !!saving;
+
+async function selectSale(id){
+  if (pendingSave()) await flush();
+  curId = id;
+  const b = id ? sales.get(id) : null;
+  cur = b ? clone(b) : null;
+  curKey = b ? stable(b) : "";
+  editing = null; closed.clear(); viewInv = null; mailOpen = false;
+  if (id) lsSet("pt-current", id);
+  if (cur && migrateSale(cur)) return changed();
+  render();
+}
+
+// Shared settings save: one write at a time, the latest state wins, and a failure is shown, never swallowed.
+let settingsBusy = false, settingsAgain = false;
+async function saveSettings(){
+  if (mode !== "db" || readOnly) return;
+  if (settingsBusy){ settingsAgain = true; return; }
+  settingsBusy = true;
+  try {
+    do {
+      settingsAgain = false;
+      const body = clone({...settings, adOptions, maintOptions, mediaOptions});
+      delete body.invoicePrefix; delete body.nextInvoice;
+      await DB.doc("settings/agency").set(body);
+      settingsKey = stable(body);
+    } while (settingsAgain);
+  } catch(e){
+    saveState = "error";
+    notice = "A change to your agency settings or type lists didn't save" + (e && e.code ? ` (${e.code})` : "") + ". Reload the page and try again.";
+    render();
+  } finally { settingsBusy = false; }
+}
+let settingsKey = "";
+const saveAdOptions = saveSettings;
+
+/* ---------- Actions ---------- */
+const find = id => cur.stages.flatMap(g=>g.steps).find(s=>s.id===id);
+document.addEventListener("click", async e=>{
+  const b = e.target.closest("[data-act],[data-f],[data-jump]"); if(!b) return;
+  if (b.dataset.f){ filter=b.dataset.f; document.querySelectorAll("[data-f]").forEach(x=>x.setAttribute("aria-pressed",x===b)); return render(); }
+  if (b.dataset.jump){ closed.delete(b.dataset.jump); render(); return $("g-"+b.dataset.jump)?.scrollIntoView({behavior:"smooth"}); }
+  const act = b.dataset.act;
+
+  // sale-level actions
+  if (act==="newsale"){ panel = "new"; render(); return $("sf-vendor")?.focus(); }
+  if (act==="logoclear"){ logoDraft = ""; const im = $("ag-logo-preview"); if (im){ im.hidden = true; im.removeAttribute("src"); } b.hidden = true; return; }
+  if (act==="agency"){ logoDraft = (settings.agency||{}).logo || ""; panel = panel==="agency" ? null : "agency"; render(); window.scrollTo({top:0}); return $("ag-name")?.focus(); }
+  if (act==="invclose"){ pdfErr = ""; viewInv = null; mailOpen = false; mailNote = ""; return renderChrome(); }
+  if (act==="invmail"){
+    const inv = curInvoice(); if (!inv) return;
+    const I = docInfo(inv);
+    mailDraft = { to: inv.emailedTo || I.to, subject: I.subject, message: I.message };
+    mailOpen = true; mailNote = ""; renderChrome(); return $("mail-to")?.focus();
+  }
+  if (act==="mailcancel"){ mailOpen = false; mailNote = ""; return renderChrome(); }
+  if (act==="invdl") return downloadInvoice();
+  if (act==="invpdf") return savePdf(b, false);
+  if (act==="invprint") return savePdf(b, true);
+  if (act==="copymail") return copyMail(b);
+  if (act==="markmailed"){
+    const inv = curInvoice(); if (!inv) return;
+    inv.emailedOn = TODAY; inv.emailedTo = $("mail-to")?.value.trim() || docInfo(inv).to;
+    // Emailing the receipt letter to the solicitors completes the matching "receipt and solicitor letter sent" step.
+    const ds = inv.dep && find(inv.dep);
+    if (ds && ds.kind === "commission" && !ds.doneOn){ ds.doneOn = TODAY; ds.autoDone = true; }
+    if (ds && ds.kind === "deposit" && DOC_MARK[inv.doc]){ ds.marks = ds.marks || {}; if (!ds.marks[DOC_MARK[inv.doc]]) ds.marks[DOC_MARK[inv.doc]] = TODAY; }
+    mailOpen = false; mailNote = ""; changed(); return;
+  }
+  if (act==="editsale"){ panel = panel==="edit" ? null : "edit"; render(); window.scrollTo({top:0}); return $("sf-vendor")?.focus(); }
+  if (act==="panelcancel"){ panel = null; pendingDoc = null; return render(); }
+  if (act==="delsale"){ panel = "confirmdel"; return render(); }
+  if (act==="delyes"){
+    const id = curId; panel = null; clearTimeout(saveTimer); saveTimer = null;
+    if (saving) await saving;
+    if (mode==="db"){ try { await DB.collection("sales").doc(id).delete(); } catch(err){ return onWriteError(err); } }
+    sales.delete(id);
+    const next = sortedSales()[0];
+    return selectSale(next ? next[0] : null);
+  }
+
+  if (!cur) return;
+  const s = b.dataset.id ? find(b.dataset.id) : null;
+  switch(act){
+    case "toggle": s.doneOn = s.doneOn ? null : TODAY; s.autoDone = false; break;
+    case "na": s.notRequired = true; break;
+    case "restore": s.notRequired = false; break;
+    case "receipt": s.receipt.state = "sent"; break;
+    case "receiptundo": s.receipt.state = "preparing"; break;
+    case "unreview": s.reviewed = false; break;
+    case "adadd": {
+      if (s.lines.some(l=>!l.opt)){ $(lid("type",s.id,s.lines.findIndex(l=>!l.opt)))?.focus(); return; }
+      s.lines.push(LINE_KINDS[s.kind]?.ticks ? {opt:"", cost:null, d:false} : {opt:"", cost:null});
+      changed();
+      $(lid("type",s.id,s.lines.length-1))?.focus();
+      return;
+    }
+    case "addel": s.lines.splice(+b.dataset.i,1); syncLines(s); break;
+    case "lndone": s.lines[+b.dataset.i].d = b.checked; syncLines(s); break;
+    case "types": manageTypes = manageTypes === s.kind ? null : s.kind; return render();
+    case "typedel": {
+      const name = b.dataset.o, list = optsFor(s.kind);
+      const at = list.indexOf(name);
+      if (at >= 0){ list.splice(at, 1); saveSettings(); }
+      let used = false;
+      s.lines.forEach(l=>{ if (l.opt === name){ l.opt = ""; l.d = false; used = true; } });
+      if (used){ syncLines(s); changed(); } else render();
+      const next = document.querySelector(`#types-${s.kind} .xbtn[data-i="${+b.dataset.i}"]`) || document.querySelector(`#types-${s.kind} .xbtn:last-of-type`);
+      (next || document.querySelector(`#types-${s.kind} .btn`))?.focus();
+      return;
+    }
+    case "ftoggle": { const f = s.flow[+b.dataset.i]; f.doneOn = f.doneOn ? null : TODAY; break; }
+    case "rem": { const i=+b.dataset.i; editing = (editing && editing.id===s.id && editing.i===i) ? null : {id:s.id,i}; render(); $("rem-date")?.focus(); return; }
+    case "remclear": s.flow[+b.dataset.i].reminder = null; editing = null; break;
+    case "remcancel": editing = null; return render();
+    case "quick": { const d = new Date(TODAY+"T00:00"); d.setDate(d.getDate() + +b.dataset.d);
+      $("rem-date").value = d.toLocaleDateString("en-CA"); return; }
+    case "fold": closed.has(b.dataset.id)?closed.delete(b.dataset.id):closed.add(b.dataset.id); return render();
+    case "dmark": {
+      const k = b.dataset.k; s.marks = s.marks || {};
+      s.marks[k] = s.marks[k] ? null : TODAY;
+      if (k === "receipt") s.autoReceipt = false;
+      break;
+    }
+    case "comgen": return generateDoc(s, "commission");
+    case "adjfull": { const a = s.adj && s.adj[b.dataset.sec]; if (a) delete a.amount; break; }
+    case "ogadd": (s.outgoings = s.outgoings || []).push({desc:"", amt:null}); changed(); $("og-desc-"+(s.outgoings.length-1))?.focus(); return;
+    case "ogdel": s.outgoings.splice(+b.dataset.i, 1); break;
+    case "mxnew": return addMediaType(s);
+    case "docdel": delAsk = {id:s.id, i:+b.dataset.i}; return render();
+    case "docdelno": delAsk = null; return render();
+    case "docdelyes": {
+      const i = +b.dataset.i, d = s.invoices && s.invoices[i];
+      delAsk = null;
+      if (!d || d.emailedOn) return render();
+      s.invoices.splice(i, 1);
+      if (viewInv && viewInv.id === s.id){ viewInv = null; mailOpen = false; }
+      break;
+    }
+    case "invgen": return generateInvoice(s);
+    case "docgen": return generateDoc(s, b.dataset.t);
+    case "invview": viewInv = {id:s.id, i:+b.dataset.i}; mailOpen = false; mailNote = ""; return renderChrome();
+    default: return;
+  }
+  changed();
+});
+function addMediaType(s){
+  const inp = $("mx-new"), name = inp && inp.value.trim();
+  if (!name) return inp && inp.focus();
+  const list = optsFor(s.kind), existing = list.find(o=>o.toLowerCase()===name.toLowerCase()) || s.lines.map(l=>l.opt).find(o=>o && o.toLowerCase()===name.toLowerCase());
+  const o = existing || name;
+  if (!list.includes(o)){ list.push(o); saveSettings(); }
+  if (!s.lines.some(l=>l.opt===o)) s.lines.push({opt:o, cost:null});
+  changed();
+  const c = document.querySelector(`.mx-cost[data-opt="${CSS.escape(o)}"]`); c && c.focus();
+}
+// When every item on a tick-off list (maintenance) is ticked, the step completes itself.
+// If it completed that way and an item is later unticked or added, it reopens.
+// A step ticked by hand is left alone.
+function syncLines(s){
+  if (!LINE_KINDS[s.kind] || !LINE_KINDS[s.kind].ticks) return;
+  const named = s.lines.filter(l=>l.opt);
+  const allDone = named.length > 0 && named.every(l=>l.d);
+  if (allDone && !s.doneOn){ s.doneOn = TODAY; s.autoDone = true; }
+  else if (!allDone && s.doneOn && s.autoDone){ s.doneOn = null; s.autoDone = false; }
+}
+document.addEventListener("toggle", e=>{
+  const d = e.target; if (!d.id || d.tagName!=="DETAILS") return;
+  d.open ? openDetails.add(d.id) : openDetails.delete(d.id);
+}, true);
+
+document.addEventListener("change", e=>{
+  const t = e.target;
+  if (t.id === "sale-pick") return selectSale(t.value);
+  if (t.id === "ag-logo-file") return pickLogo(t);
+  if (!cur) return;
+  if (t.classList.contains("ln-by")){
+    const s = find(t.dataset.id), l = s.lines[+t.dataset.i];
+    if (t.value === "vendor") l.by = "vendor"; else delete l.by;
+    return changed();
+  }
+  if (t.classList.contains("mx-chk")){
+    const s = find(t.dataset.id), o = t.dataset.opt;
+    if (t.checked){ if (!s.lines.some(l=>l.opt===o)) s.lines.push({opt:o, cost:null}); }
+    else s.lines = s.lines.filter(l=>l.opt!==o);
+    changed();
+    if (t.checked){ const c = document.querySelector(`.mx-cost[data-opt="${CSS.escape(o)}"]`); c && c.focus(); }
+    return;
+  }
+  if (t.classList.contains("mx-cost")){
+    const l = find(t.dataset.id).lines.find(x=>x.opt===t.dataset.opt); if (l){ l.cost = num(t.value); changed(); }
+    return;
+  }
+  if (t.classList.contains("as-fld")){
+    const s = find(t.dataset.id), k = t.dataset.k; s.settle = s.settle || {};
+    if (t.type === "checkbox") s.settle[k] = t.checked;
+    else if (k === "applyValue" || k === "refundValue" || k === "settleValue" || k === "shareValue"){ const v = num(t.value); if (v == null) delete s.settle[k]; else s.settle[k] = v; }
+    else { s.settle[k] = t.value; if (k === "applyType") delete s.settle.applyValue; if (k === "refundType") delete s.settle.refundValue; if (k === "settleType") delete s.settle.settleValue; if (k === "shareType") delete s.settle.shareValue; }
+    return changed();
+  }
+  if (t.classList.contains("adj-mode") || t.classList.contains("adj-payer") || t.classList.contains("adj-amt")){
+    const s = find(t.dataset.id), k = t.dataset.sec;
+    s.adj = s.adj || {}; const a = s.adj[k] = s.adj[k] || {};
+    if (t.classList.contains("adj-mode")){ a.mode = t.value; delete a.amount; }
+    else if (t.classList.contains("adj-payer")) a.payer = t.value;
+    else { const v = num(t.value); if (v == null) delete a.amount; else a.amount = v; }
+    return changed();
+  }
+  if (t.classList.contains("fld-chk")){ find(t.dataset.id)[t.dataset.k] = t.checked; return changed(); }
+  if (t.classList.contains("og-desc") || t.classList.contains("og-amt")){
+    const o = find(t.dataset.id).outgoings[+t.dataset.i];
+    if (t.classList.contains("og-desc")) o.desc = t.value.trim(); else o.amt = num(t.value);
+    return changed();
+  }
+  if (t.classList.contains("fld")){
+    const s = find(t.dataset.id), k = t.dataset.k;
+    if (k === "receipt.no") s.receipt.no = t.value.trim();
+    else if (k === "receiptNo") s.receiptNo = t.value.trim();
+    else if (t.type === "date") s[k] = t.value || null;
+    else s[k] = num(t.value);
+    if (s.kind === "deposit") syncDeposit(s);
+    if (s.kind === "disburse") syncDisburse(s);
+    return changed();
+  }
+  if (t.classList.contains("ad-type")){
+    const s = find(t.dataset.id), i = +t.dataset.i, line = s.lines[i];
+    if (t.value === "__new"){
+      t.hidden = true;
+      const inp = $(lid("new",s.id,i));
+      inp.hidden = false; inp.focus();
+      return;
+    }
+    line.opt = t.value;
+    syncLines(s);
+    changed();
+    const cost = $(lid("cost",s.id,i));
+    if (cost && !cost.value) cost.focus();
+  }
+  if (t.classList.contains("ad-new")){
+    t.dispatchEvent(new KeyboardEvent("keydown",{key: t.value.trim() ? "Enter" : "Escape", bubbles:true}));
+    return;
+  }
+  if (t.classList.contains("ad-cost")){
+    find(t.dataset.id).lines[+t.dataset.i].cost = num(t.value);
+    changed();
+  }
+});
+document.addEventListener("keydown", e=>{
+  const t = e.target;
+  if (e.key === "Escape" && viewInv && !t.classList.contains("ad-new")){ viewInv = null; mailOpen = false; return renderChrome(); }
+  if (t.classList.contains("ad-new") && (e.key==="Enter" || e.key==="Escape")){
+    e.preventDefault();
+    const s = find(t.dataset.id), i = +t.dataset.i, name = t.value.trim();
+    if (e.key==="Enter" && name){
+      const list = optsFor(s.kind);
+      const existing = list.find(o=>o.toLowerCase()===name.toLowerCase());
+      if (!existing){ list.push(name); saveSettings(); }
+      s.lines[i].opt = existing || name;
+      syncLines(s);
+      changed();
+    } else render();
+    $(lid(e.key==="Enter" && name ? "cost" : "type", s.id, i))?.focus();
+  }
+  if (e.key==="Enter" && t.id === "mx-new"){ e.preventDefault(); return addMediaType(find(t.dataset.id)); }
+  if (e.key==="Enter" && (t.classList.contains("ad-cost") || t.classList.contains("fld") || t.classList.contains("adj-amt") || t.classList.contains("as-fld"))) t.blur();
+});
+document.addEventListener("submit", async e=>{
+  e.preventDefault();
+  const f = e.target;
+  if (f.id === "agency-form"){
+    const a = {};
+    ["name","licence","email","trustName","bank","bsb","acct","invContact","invPhone","invEmail","abn"].forEach(k=>a[k]=$("ag-"+k).value.trim());
+    a.logo = logoDraft || "";
+    settings.agency = a;
+    ["advertising","maintenance","media","commission"].forEach(k=>{
+      settings.series[k] = { prefix: $("ag-prefix-"+k).value.trim(), next: Math.max(1, parseInt($("ag-next-"+k).value,10) || 1) };
+    });
+    settings.dueDays = Math.max(0, parseInt($("ag-due").value,10) || 0);
+    panel = null; render();
+    saveState = "saving"; renderChrome();
+    await saveSettings(); if (saveState === "saving") saveState = "saved";
+    renderChrome();
+    if (pendingDoc && cur && !trustMissing().length){ const p = pendingDoc, s = find(p.id); pendingDoc = null; if (s) p.type === "invoice" ? generateInvoice(s) : generateDoc(s, p.type); }
+    return;
+  }
+  if (f.id === "mail-form") return mailSubmit();
+  if (f.id === "sale-form"){
+    const vendor = $("sf-vendor").value.trim(), address = $("sf-address").value.trim(), startedOn = $("sf-date").value || TODAY;
+    const vendorEmail = $("sf-email").value.trim();
+    if (!vendor) return $("sf-vendor").focus();
+    const v = id => $(id).value.trim();
+    const people = {
+      buyer: { name: v("sf-buyer-name"), email: v("sf-buyer-email") },
+      buyerSol: { firm: v("sf-bsol-firm"), contact: v("sf-bsol-contact"), email: v("sf-bsol-email") },
+      sellerSol: { firm: v("sf-ssol-firm"), contact: v("sf-ssol-contact"), email: v("sf-ssol-email") }
+    };
+    if (panel === "edit"){ Object.assign(cur, {vendor, vendorEmail, address, startedOn}, people); panel = null; return changed(); }
+    const body = blankSale({vendor, address, startedOn}); body.vendorEmail = vendorEmail; Object.assign(body, people);
+    let id;
+    if (mode === "db"){
+      if (pendingSave()) await flush();
+      const ref = DB.collection("sales").doc(); id = ref.id;
+      sales.set(id, body); panel = null;
+      await selectSale(id);
+      saveState = "saving"; renderChrome();
+      try { await ref.set(body); saveState = "saved"; } catch(err){ return onWriteError(err); }
+      return renderChrome();
+    }
+    id = "local-" + Date.now().toString(36);
+    sales.set(id, body); panel = null;
+    return selectSale(id);
+  }
+  if (f.dataset.rem){
+    const [id,i] = f.dataset.rem.split("|");
+    find(id).flow[+i].reminder = { on: $("rem-date").value, time: $("rem-time").value, note: $("rem-note").value.trim() };
+    editing = null; return changed();
+  }
+  if (f.dataset.review){
+    const s = find(f.dataset.review);
+    s.trust = num($("tr-"+s.id).value); s.outside = num($("ou-"+s.id).value);
+    if (s.trust==null && s.outside==null) return render();
+    s.reviewed = true; changed();
+  }
+});
+$("expand").onclick = ()=>{ closed.clear(); render(); };
+$("collapse").onclick = ()=>{ cur.stages.forEach(g=>{ if(g.steps.every(s=>["completed","na"].includes(statusOf(s)))) closed.add(g.id); }); render(); };
+$("copy").onclick = e=>{
+  navigator.clipboard?.writeText($("json").textContent).then(()=>e.target.textContent="Copied",()=>{
+    const r=document.createRange(); r.selectNodeContents($("json")); getSelection().removeAllRanges(); getSelection().addRange(r);
+  });
+};
+
+/* ---------- Boot ---------- */
+normalizeSettings();
+render();
+(async()=>{
+  let db = null, user = null;
+  try {
+    if (window.claude && window.claude.use) [db, user, DL] = await Promise.all([claude.use("db"), claude.use("user"), claude.use("downloads")]);
+  } catch {}
+  try {
+    const mcp = window.claude && window.claude.use ? await claude.use("mcp") : null;
+    if (mcp) GMAIL = { createDraft: async ({to, subject, text, html}) => {
+      const r = await mcp.callTool("Gmail", "create_draft", { to: Array.isArray(to) ? to : [to], subject, body:text, htmlBody:html, includeSignature:true });
+      return r && r.payload;
+    }};
+  } catch {}
+  if (!db){ mode = "local"; if (window.DEMO_SETUP) window.DEMO_SETUP(); return render(); }
+  DB = db; mode = "db";
+  if (user){ try { if (await user.can("data.write") === false) readOnly = true; } catch {} }
+
+  const onErr = err => { if (err && err.code === "revoked"){ notice = "Access to this tracker changed. Reload the page to keep working."; render(); } };
+
+  db.doc("settings/agency").onSnapshot(snap=>{
+    const d = snap.exists ? snap.data() : null;
+    if (!d) return;
+    if (settingsBusy) return;              // our own save is in flight; its result arrives next
+    const before = stable({...settings, adOptions, maintOptions, mediaOptions});
+    if (Array.isArray(d.adOptions)) adOptions = [...d.adOptions];
+    if (Array.isArray(d.maintOptions)) maintOptions = [...d.maintOptions];
+    if (Array.isArray(d.mediaOptions)) mediaOptions = [...d.mediaOptions];
+    if (!d.series) delete settings.series;   // let older numbering settings carry over
+    settings = { ...settings, ...clone(d) }; delete settings.adOptions; delete settings.maintOptions; delete settings.mediaOptions;
+    settings.agency = settings.agency || {};
+    normalizeSettings();
+    if (stable({...settings, adOptions, maintOptions, mediaOptions}) !== before && panel !== "agency") render();
+  }, onErr);
+
+  let first = true, listKey = "";
+  db.collection("sales").onSnapshot(snap=>{
+    const next = new Map();
+    snap.docs.forEach(d=>next.set(d.id, d.data()));
+    // keep a sale we just created locally until the store confirms it
+    if (curId && !next.has(curId) && sales.has(curId) && pendingSave()) next.set(curId, sales.get(curId));
+    sales = next;
+    const newListKey = stable(sortedSales().map(([id,b])=>[id,saleLabel(b)]));
+
+    if (first){
+      first = false;
+      // Panda Realty: opened from a property, so show (or start) that property's sale.
+      const qp = new URLSearchParams(location.search), want = qp.get("sale");
+      if (want){
+        listKey = newListKey;
+        if (!sales.has(want)){
+          const body = blankSale({ vendor: qp.get("vendor") || "Vendor", address: qp.get("address") || "" });
+          body.vendorEmail = qp.get("email") || "";
+          body.propertyListId = qp.get("property") || null;
+          sales.set(want, body);
+          saveState = "saving"; renderChrome();
+          DB.collection("sales").doc(want).set(body).then(()=>{ saveState = "saved"; renderChrome(); }, onWriteError);
+        }
+        return selectSale(want);
+      }
+      const saved = lsGet("pt-current");
+      const pickId = saved && sales.has(saved) ? saved : (sortedSales()[0]||[])[0] || null;
+      listKey = newListKey;
+      return selectSale(pickId);
+    }
+    let redraw = newListKey !== listKey; listKey = newListKey;
+    if (curId && !sales.has(curId)){ // deleted elsewhere
+      const nx = sortedSales()[0]; return selectSale(nx ? nx[0] : null);
+    }
+    if (!curId && sales.size){ return selectSale(sortedSales()[0][0]); }
+    if (curId && !pendingSave()){
+      const incoming = sales.get(curId), k = stable(incoming);
+      if (k !== curKey){ cur = clone(incoming); curKey = k; redraw = true;
+        if (migrateSale(cur)) return changed(); }
+    }
+    if (redraw) render();
+  }, onErr);
+})();
+</script>
+
+</body></html>
