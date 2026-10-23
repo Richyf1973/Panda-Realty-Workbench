@@ -1,0 +1,2 @@
+ALTER TABLE "panda_realty"."email_signatures" ADD COLUMN "html_content" text DEFAULT '' NOT NULL;--> statement-breakpoint
+ALTER TABLE "panda_realty"."email_signatures" ADD COLUMN "rendered_html" text DEFAULT '' NOT NULL;

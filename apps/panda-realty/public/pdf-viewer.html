@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; background: #fff; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const params = new URLSearchParams(location.search);
+  const pdfUrl = params.get('pdf') || '/contract-sp-calibration-all.pdf';
+  const pageNum = parseInt(params.get('page') || '3', 10);
+  const scale   = parseFloat(params.get('scale') || '3');
+
+  pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+    pdf.getPage(pageNum).then(page => {
+      const vp = page.getViewport({ scale });
+      const canvas = document.getElementById('c');
+      canvas.width  = vp.width;
+      canvas.height = vp.height;
+      page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise.then(() => {
+        document.title = 'ready';
+      });
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Forma Contract Form - Multi-Offer Premium Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Sacramento&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Custom smooth scrollbar for suggestions and modals */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 12mm 10mm 12mm 10mm;
+            }
+            body {
+                background-color: #ffffff !important;
+                font-size: 10.5pt !important;
+                line-height: 1.3 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                color: #000000 !important;
+            }
+            .max-w-4xl {
+                max-width: 100% !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            /* Hide web-only controls */
+            #add_buyer_btn,
+            .pt-6.grid,
+            button,
+            [id^="mode_draw_btn_"],
+            [id^="mode_type_btn_"],
+            .absolute.top-1.right-2,
+            .print-hidden,
+            .remove-buyer-btn {
+                display: none !important;
+            }
+            form {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            form > div {
+                margin-top: 1.5rem !important;
+                margin-bottom: 1.5rem !important;
+                padding: 0 !important;
+                page-break-inside: avoid !important;
+            }
+            h2 {
+                margin-bottom: 0.5rem !important;
+                padding-bottom: 0.25rem !important;
+                font-size: 13pt !important;
+                border-bottom: 1px solid #cbd5e1 !important;
+            }
+            .grid {
+                gap: 0.75rem !important;
+            }
+            input, select, textarea {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 10pt !important;
+                border: 1px solid #94a3b8 !important;
+                background-color: #ffffff !important;
+                border-radius: 4px !important;
+                box-shadow: none !important;
+            }
+            /* Containers that should remain atomic on pages */
+            [id^="buyer_card_stack_"],
+            #financial_offer_section,
+            #main_settlement_container,
+            #subject_to_sale_container,
+            #subject_to_finance_container,
+            #finance_details_sub_container,
+            #building_pest_days_container,
+            #signatures_container > div,
+            .print-avoid-break {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                overflow: visible !important;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .text-4xl { font-size: 1.75rem !important; }
+            .text-2xl { font-size: 1.3rem !important; }
+            .bg-slate-50, .bg-slate-900, .bg-gray-50 {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            .border-orange-500 {
+                border-color: #000000 !important;
+            }
+            .text-green-500, .text-emerald-600 {
+                color: #000000 !important;
+            }
+            .hidden {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 space-y-12 transition-colors duration-200">
+
+    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200/60">
+        
+        <div class="bg-slate-900 text-white px-8 py-7 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-4 border-emerald-500 gap-4">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">PRO FORMA CONTRACT</h1>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1 font-medium">Real Estate Offer Submission Framework</p>
+            </div>
+            <div class="text-left sm:text-right select-none">
+                <span class="text-emerald-500 font-black tracking-widest text-2xl sm:text-4xl block leading-tight">MY PANDA REALTY</span>
+            </div>
+        </div>
+
+        <form class="p-8 space-y-8" id="contract_form" action="/submit-offer" method="POST" novalidate>
+            
+            <div class="space-y-4">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">1</span>
+                    Property & Buyer Details
+                </h2>
+                <div class="grid grid-cols-1 gap-5">
+                    <div class="relative">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Property Address <span class="text-red-500">*</span></label>
+                        <div class="relative rounded-md shadow-sm">
+                            <input type="text" id="main_property_address" name="property_address" required autocomplete="off" 
+                                class="block w-full rounded-lg border-slate-300 shadow-sm p-3 border font-medium text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-150 outline-none" 
+                                placeholder="Start typing a Queensland property address...">
+                        </div>
+                        <div id="main_address_suggestions" class="hidden absolute z-30 w-full bg-white border border-slate-200 mt-1.5 rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-slate-50"></div>
+                    </div>
+                    
+                    <div id="buyers_container" class="space-y-5"></div>
+
+                    <div class="text-right">
+                        <button type="button" id="add_buyer_btn" onclick="addBuyerCard()" class="inline-flex items-center justify-center gap-1.5 bg-slate-50 border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all active:scale-[0.98]">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add Another Purchaser
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">2</span>
+                    Solicitor Details
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Solicitor's Name</label>
+                        <input type="text" name="solicitor_name" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Solicitor's Phone</label>
+                        <input type="tel" name="solicitor_phone" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Solicitor's Legal Practice Address</label>
+                        <input type="text" name="solicitor_address" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Solicitor's Email Address</label>
+                        <input type="email" name="solicitor_email" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <div id="financial_offer_section" class="space-y-4">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">3</span>
+                    Financial Offer Structuring
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-50 p-5 rounded-xl border border-slate-200/70">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-900 mb-1">Proposed Offer Amount ($) <span class="text-red-500">*</span></label>
+                        <input type="number" name="offer_amount" required class="block w-full rounded-lg border-slate-300 shadow-sm p-3 border font-bold text-xl text-slate-900 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Total Deposit Amount ($)</label>
+                        <input type="number" name="total_deposit" value="20000" class="block w-full rounded-lg border-slate-300 shadow-sm p-3 border font-semibold text-lg text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-0.5">Initial Holding Payment ($)</label>
+                        <span class="block text-[11px] text-slate-500 mb-1">(Payable upon offer acceptance by vendor)</span>
+                        <input type="number" name="initial_payment" value="2000" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-0.5">Secondary Payment / Balance ($)</label>
+                        <span class="block text-[11px] text-slate-500 mb-1">(Payable once contract hits unconditional status)</span>
+                        <input type="number" name="second_payment" value="18000" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-5">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">4</span>
+                    Offer Contingencies & Terms
+                </h2>
+                
+                <div class="space-y-6 bg-white">
+                    <div class="p-4 bg-slate-50/50 rounded-xl border border-slate-200/60 space-y-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 leading-relaxed">
+                            Statutory cooling off period is 5 days for residential home sales, and 21 days for manufactured home sales. Do you wish to waive this statutory cooling off period?
+                        </label>
+                        <div class="flex space-x-6 pt-1">
+                            <label class="inline-flex items-center cursor-pointer group">
+                                <input type="radio" name="waive_cooling_off" value="yes" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500 focus:ring-2">
+                                <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">Yes, Waive Period</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer group">
+                                <input type="radio" name="waive_cooling_off" value="no" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500 focus:ring-2">
+                                <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">No, Retain Statutory Period</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50/50 rounded-xl border border-slate-200/60 space-y-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">Are you a Cash Buyer?</label>
+                        <div class="flex space-x-6 pt-1">
+                            <label class="inline-flex items-center cursor-pointer group">
+                                <input type="radio" id="cash_buyer_yes" name="cash_buyer" value="yes" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500 focus:ring-2">
+                                <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">Yes (Unconditional on Finance)</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer group">
+                                <input type="radio" id="cash_buyer_no" name="cash_buyer" value="no" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500 focus:ring-2">
+                                <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">No (Subject to Finance / Terms)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="subject_to_finance_container" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4 transition-all duration-200">
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">Is this offer subject to finance approval?</label>
+                            <div class="flex space-x-6 pt-1">
+                                <label class="inline-flex items-center cursor-pointer group">
+                                    <input type="radio" id="subject_to_finance_yes" name="subject_to_finance" value="yes" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500 focus:ring-2">
+                                    <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">Yes</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer group">
+                                    <input type="radio" id="subject_to_finance_no" name="subject_to_finance" value="no" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500 focus:ring-2">
+                                    <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">No</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="finance_details_sub_container" class="hidden space-y-4 pt-3 border-t border-slate-200/80">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">If subject to finance, are you pre-approved?</label>
+                                <div class="flex space-x-6 pt-1">
+                                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="finance_preapproved" value="yes" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-sm text-slate-700">Yes</span></label>
+                                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="finance_preapproved" value="no" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-sm text-slate-700">No</span></label>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Days required to get full Bank Approval</label>
+                                    <select name="finance_approval_days" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-sm font-medium text-slate-800">
+                                        <option value="7" selected>7 Days</option>
+                                        <option value="14">14 Days</option>
+                                        <option value="21">21 Days</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Financier / Banking Institution</label>
+                                    <input type="text" name="finance_provider" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-sm" placeholder="e.g., CBA, ANZ, Westpac, Broker">
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-sm bg-white">
+                                <table class="min-w-full divide-y divide-slate-200 text-xs">
+                                    <thead class="bg-slate-50">
+                                        <tr>
+                                            <th scope="col" class="px-4 py-2.5 text-left font-bold uppercase tracking-wider text-slate-600">Bank Contact Name</th>
+                                            <th scope="col" class="px-4 py-2.5 text-left font-bold uppercase tracking-wider text-slate-600">Bank Contact Phone</th>
+                                            <th scope="col" class="px-4 py-2.5 text-left font-bold uppercase tracking-wider text-slate-600">Bank Contact Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr>
+                                            <td class="p-2"><input type="text" name="bank_contact_name" class="w-full rounded border-slate-300 p-1.5 border text-xs focus:border-emerald-500 outline-none" placeholder="Contact Name"></td>
+                                            <td class="p-2"><input type="tel" name="bank_contact_phone" class="w-full rounded border-slate-300 p-1.5 border text-xs focus:border-emerald-500 outline-none" placeholder="Phone Number"></td>
+                                            <td class="p-2"><input type="email" name="bank_contact_email" class="w-full rounded border-slate-300 p-1.5 border text-xs focus:border-emerald-500 outline-none" placeholder="Email Address"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50/50 rounded-xl border border-slate-200/60 space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">Do you require a building and pest inspection contingency?</label>
+                            <div class="flex space-x-6 pt-1">
+                                <label class="inline-flex items-center cursor-pointer group">
+                                    <input type="radio" id="building_pest_yes" name="building_pest" value="yes" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500">
+                                    <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">Yes</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer group">
+                                    <input type="radio" id="building_pest_no" name="building_pest" value="no" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500">
+                                    <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">No</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="building_pest_days_container" class="hidden p-4 bg-white rounded-xl border border-slate-200 max-w-xl space-y-4 shadow-inner">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Required Inspection Timeline</label>
+                                <div class="flex space-x-6">
+                                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="building_pest_days" value="7_days" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-sm font-medium text-slate-700">7 Calendar Days</span></label>
+                                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="building_pest_days" value="14_days" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-sm font-medium text-slate-700">14 Calendar Days</span></label>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-slate-100 pt-3">
+                                <label class="block text-xs font-semibold text-slate-600 mb-2">Would you like My Panda Realty to recommend credentialed building inspection providers?</label>
+                                <div class="flex space-x-6">
+                                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="suggest_building_companies" value="yes" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-sm font-medium text-slate-700">Yes, please</span></label>
+                                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="suggest_building_companies" value="no" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-sm font-medium text-slate-700">No, I have my own</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="subject_to_sale_container" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4 evaluation-sale-container">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">Will this offer be contingent upon the sale of another property?</label>
+                            <div class="flex space-x-6 pt-1">
+                                <label class="inline-flex items-center cursor-pointer group">
+                                    <input type="radio" id="subject_to_sale_yes" name="subject_to_sale" value="yes" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500">
+                                    <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">Yes, Contingent on Existing Sale</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer group">
+                                    <input type="radio" id="subject_to_sale_no" name="subject_to_sale" value="no" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500">
+                                    <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">No, Independent Offer</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="sale_details_sub_container" class="hidden space-y-4 pt-3 border-t border-slate-200">
+                            <div class="relative">
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full Address of the Asset to be Sold</label>
+                                <input type="text" id="property_to_be_sold_address" name="property_to_be_sold_address" autocomplete=\"off\" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border text-slate-800 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Type property location to search...">
+                                <div id="address_suggestions" class="hidden absolute z-20 w-full bg-white border border-slate-200 mt-1 rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-slate-50"></div>
+                            </div>
+
+                            <div id="simultaneous_settlement_container" class="p-4 bg-white rounded-xl border border-slate-200/80 space-y-3 shadow-inner">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 leading-relaxed">
+                                    Will the settlement of <span id="dynamic_sold_address" class="text-emerald-600 font-bold underline">[Property to be Sold Address]</span> occur at the same time as the purchase of <span id="dynamic_purchase_address" class="text-emerald-600 font-bold underline">[Property Address]</span>?
+                                </label>
+                                <div class="flex space-x-6 pt-1">
+                                    <label class="inline-flex items-center cursor-pointer group">
+                                        <input type="radio" id="simultaneous_yes" name="simultaneous_settlement" value="yes" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500">
+                                        <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">Yes</span>
+                                    </label>
+                                    <label class="inline-flex items-center cursor-pointer group">
+                                        <input type="radio" id="simultaneous_no" name="simultaneous_settlement" value="no" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500">
+                                        <span class="ml-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">No</span>
+                                    </label>
+                                </div>
+
+                                <div id="simultaneous_yes_result" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-semibold text-emerald-800 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Result: Settlement date will be this date (Simultaneous Settlement).</span>
+                                </div>
+
+                                <div id="simultaneous_no_result" class="hidden space-y-2 border-t border-slate-100 pt-3"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-800 mb-1">Current Transaction Status</label>
+                                <select id="sale_status_dropdown" name="sale_status" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-sm text-slate-800 font-medium">
+                                    <option value="">-- Select State --</option>
+                                    <option value="to_be_listed">To be Listed</option>
+                                    <option value="on_the_market">On the Market / Live Campaign</option>
+                                    <option value="under_contract_conditional">Under Contract (Conditional)</option>
+                                    <option value="under_contract_unconditional">Under Contract (Unconditional)</option>
+                                </select>
+                            </div>
+
+                            <div id="sale_timeline_metrics_container" class="hidden bg-white p-4 rounded-xl border border-slate-200 space-y-4 shadow-inner">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div id="days_before_live_field_container">
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Days until listing goes live on portals</label>
+                                        <input type="number" id="days_before_listing_live" name="days_before_listing_live" class="block w-full rounded-lg border-slate-300 p-2 border text-sm outline-none focus:border-emerald-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Estimated days required to secure a sale contract</label>
+                                        <input type="number" id="days_to_get_sale_contract" name="days_to_get_sale_contract" class="block w-full rounded-lg border-slate-300 p-2 border text-sm outline-none focus:border-emerald-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Days from contract until Unconditional status</label>
+                                        <input type="number" id="days_to_get_unconditional_contract" name="days_to_get_unconditional_contract" class="block w-full rounded-lg border-slate-300 p-2 border text-sm outline-none focus:border-emerald-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Days from contract until target settlement</label>
+                                        <input type="number" id="days_to_settle_existing_property" name="days_to_settle_existing_property" class="block w-full rounded-lg border-slate-300 p-2 border text-sm outline-none focus:border-emerald-500">
+                                    </div>
+                                </div>
+                                <p id="timeline_metrics_error" class="text-xs text-red-500 font-medium mt-1 hidden"></p>
+                            </div>
+
+                            <div id="under_contract_details_container" class="hidden bg-white p-4 rounded-xl border border-slate-200 space-y-4 shadow-inner">
+                                <div id="uc_fields_not_unconditional" class="hidden space-y-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">Target date for contract becoming unconditional</label>
+                                            <input type="date" id="contract_unconditional_date" name="contract_unconditional_date" class="block w-full rounded-lg border-slate-300 p-2 border text-sm outline-none focus:border-emerald-500 bg-slate-50/50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">Scheduled settlement date</label>
+                                            <input type="date" id="buyer_sale_settlement_date_no" name="buyer_sale_settlement_date_no" class="block w-full rounded-lg border-slate-300 p-2 border text-sm outline-none focus:border-emerald-500 bg-slate-50/50">
+                                            <p id="conditional_date_error" class="text-xs text-red-500 font-medium mt-1 hidden"></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Outstanding conditions still applying <span class="text-[11px] text-slate-400 font-normal">(Select all that apply)</span></label>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                                            <label class="inline-flex items-center cursor-pointer text-xs text-slate-700 font-medium"><input type="checkbox" name="active_conditions" value="finance" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"><span class="ml-2">Subject to Finance Approval</span></label>
+                                            <label class="inline-flex items-center cursor-pointer text-xs text-slate-700 font-medium"><input type="checkbox" name="active_conditions" value="building_pest" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"><span class="ml-2">Building & Pest Assessment</span></label>
+                                            <label class="inline-flex items-center cursor-pointer text-xs text-slate-700 font-medium"><input type="checkbox" name="active_conditions" value="sale_of_property" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"><span class="ml-2">Prior Interdependent Property Sale</span></label>
+                                            <label class="inline-flex items-center cursor-pointer text-xs text-slate-700 font-medium"><input type="checkbox" id="current_condition_other" name="active_conditions" value="other" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"><span class="ml-2">Other Unique Conditions</span></label>
+                                        </div>
+                                    </div>
+
+                                    <div id="current_condition_elaboration_container" class="hidden transition-all duration-150 bg-white p-1 mt-1">
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Elaborate details on specified conditions:</label>
+                                        <textarea name="current_conditions_elaboration" rows="2" class="block w-full rounded-lg border-slate-300 p-2 border text-sm outline-none focus:border-emerald-500 placeholder-slate-400" placeholder="Enumerate terms here..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div id="uc_fields_is_unconditional" class="hidden space-y-4">
+                                    <div class="max-w-xs">
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Scheduled settlement calendar date</label>
+                                        <input type="date" id="buyer_sale_settlement_date_yes" name="buyer_sale_settlement_date_yes" class="block w-full rounded-lg border-slate-300 p-2 border text-sm outline-none focus:border-emerald-500 bg-slate-50/50">
+                                        <p id="unconditional_settlement_error" class="text-xs text-red-500 font-medium mt-1 hidden"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="free_appraisal_container" class="hidden pt-1 transition-all duration-150">
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Would you like My Panda Realty to perform a complimentary modern Market Valuation on your current asset?</label>
+                                <div class="flex space-x-6">
+                                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="free_appraisal" value="yes" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-sm font-medium text-slate-800">Yes, compute appraisal</span></label>
+                                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="free_appraisal" value="no" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-sm font-medium text-slate-800">No, thank you</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="global_settlement_placeholder">
+                        <div id="main_settlement_container" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5 transition-all duration-200">
+                            <label id="settlement_label" class="block text-xs font-bold uppercase tracking-wider text-slate-700">Proposed Settlement Date / Interval</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+                                <input type="text" id="settlement_period_days" name="settlement_period_days" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border font-medium text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none bg-white text-slate-800" placeholder="e.g., 30 Days from contract sign date">
+                                <input type="date" id="settlement_date_picker" name="settlement_date_picker" class="block w-full rounded-lg border-slate-300 shadow-sm p-2.5 border text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none bg-white text-slate-800">
+                            </div>
+                            <p id="settlement_helper_note" class="text-xs text-slate-500 font-medium flex items-center gap-1.5 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span id="settlement_helper_text">Selecting an exact calendar field date automatically determines net days tracking.</span>
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="space-y-4 bg-amber-50/40 p-5 rounded-xl border border-amber-200/70 print-avoid-break">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">5</span>
+                    Multi-Offer Scenario Acknowledgment
+                </h2>
+                <div class="text-xs text-slate-700 leading-relaxed space-y-3 font-medium">
+                    <p class="font-bold text-amber-900 bg-amber-100/60 p-3 rounded-lg border border-amber-200 leading-relaxed">
+                        ⚠️ NOTICE TO PURCHASER(S): You are submitting an offer in a competitive multi-offer scenario. Competing buyers are reviewing this asset simultaneously. The seller may accept the most favorable offer without giving any party a second opportunity to negotiate.
+                    </p>
+                    <div class="space-y-3 pt-2">
+                        <label class="flex items-start cursor-pointer group select-none">
+                            <input type="checkbox" name="multi_offer_check_highest" required class="mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
+                            <span class="ml-2.5 text-sm text-slate-700 group-hover:text-slate-900 leading-snug">I/We confirm this purchase structure represents our **highest and best offer**, and understand we may not have a subsequent opportunity to revise price or terms. <span class="text-red-500">*</span></span>
+                        </label>
+                        <label class="flex items-start cursor-pointer group select-none">
+                            <input type="checkbox" name="multi_offer_check_discretion" required class="mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
+                            <span class="ml-2.5 text-sm text-slate-700 group-hover:text-slate-900 leading-snug">I/We understand that the vendor reserves the right to accept any offer outright, reject all offers, or select an alternative single offer to negotiate further at their complete discretion. <span class="text-red-500">*</span></span>
+                        </label>
+                        <label class="flex items-start cursor-pointer group select-none">
+                            <input type="checkbox" name="multi_offer_check_confidential" required class="mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
+                            <span class="ml-2.5 text-sm text-slate-700 group-hover:text-slate-900">I/We acknowledge that all alternate competing offers remain strictly confidential, and the Sales Agent cannot disclose details of competing buyers' parameters. <span class="text-red-500">*</span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">6</span>
+                    Special Conditions / Extra Comments
+                </h2>
+                <textarea name="extra_comments" rows="4" class="block w-full rounded-lg border-slate-300 shadow-sm p-3 border text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none placeholder-slate-400" placeholder="List any additional inclusion guarantees, exclusions, specific fixture requirements or custom timelines here..."></textarea>
+            </div>
+
+            <div class="space-y-4">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">7</span>
+                    Purchaser Acknowledgements & Signatures
+                </h2>
+                <div id="signatures_container" class="grid grid-cols-1 gap-6"></div>
+            </div>
+
+            <div class="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button type="button" onclick="window.print()" class="w-full bg-white text-slate-800 border border-slate-300 font-bold py-3.5 px-5 rounded-xl shadow-sm hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.99] flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H7a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print Offer
+                </button>
+                <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3.5 px-5 rounded-xl shadow-md hover:bg-slate-800 transition-all active:scale-[0.99]">
+                    Submit Offer
+                </button>
+            </div>
+        </form>
+
+        <div class="bg-slate-950 px-8 py-5 text-slate-400 border-t border-slate-800 text-[11px] sm:text-xs grid grid-cols-1 sm:grid-cols-2 gap-4 select-none">
+            <div class="space-y-1">
+                <strong class="text-slate-200 font-semibold block text-xs">Sales Agent:</strong>
+                <p>Maria Koch — Senior Relationship Associate</p>
+                <p><strong>Direct Line:</strong> 0493 635 666 | <strong class="ml-1">Email:</strong> maria@mypandarealty.com.au</p>
+            </div>
+            <div class="space-y-1">
+                <strong class="text-slate-200 font-semibold block text-xs">Sales Agent:</strong>
+                <p>Richard Falzon — Principal Director</p>
+                <p><strong>Direct Line:</strong> 0490 456 959 | <strong class="ml-1">Email:</strong> richard@mypandarealty.com.au</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let buyerStackCount = 0;
+        let lastSaleStatus = '';
+        let lastTargetWindowDays = 0;
+        let lastSimultaneous = '';
+
+        // Dynamic address mirroring tracker layout
+        function updateDynamicAddressLabels() {
+            const purchaseAddr = document.getElementById('main_property_address').value.trim();
+            const soldAddr = document.getElementById('property_to_be_sold_address').value.trim();
+            
+            document.getElementById('dynamic_purchase_address').textContent = purchaseAddr ? purchaseAddr : "[Property Address]";
+            document.getElementById('dynamic_sold_address').textContent = soldAddr ? soldAddr : "[Property to be Sold Address]";
+        }
+
+        // Programmatic extractor engine to read available day count from target settlement windows
+        function getTargetSettlementWindowDays() {
+            const datePicker = document.getElementById('settlement_date_picker');
+            const periodInput = document.getElementById('settlement_period_days');
+            if (datePicker && datePicker.value) {
+                const targetDate = extractLocalBounds(datePicker.value);
+                if (targetDate) {
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    targetDate.setHours(0,0,0,0);
+                    const diffTime = targetDate.getTime() - today.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays > 0 ? diffDays : 30;
+                }
+            }
+            if (periodInput && periodInput.value) {
+                const match = periodInput.value.match(/\d+/);
+                if (match) {
+                    return parseInt(match[0], 10);
+                }
+            }
+            return 30; 
+        }
+
+        // Dynamic generation architecture for purchaser parameters
+        function addBuyerCard() {
+            buyerStackCount++;
+            const wrapper = document.getElementById('buyers_container');
+            const firstAddressInput = document.querySelector('input[name="buyer_individual_address[]"]');
+            const defaultAddress = firstAddressInput ? firstAddressInput.value : '';
+
+            const card = document.createElement('div');
+            card.id = `buyer_card_stack_${buyerStackCount}`;
+            card.className = "p-5 bg-slate-50 rounded-xl border border-slate-200/80 relative space-y-4 transition-all duration-150 shadow-sm print-avoid-break";
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-center border-b border-slate-200/60 pb-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5 buyer-heading">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Purchaser ${buyerStackCount}
+                    </h3>
+                    ${buyerStackCount > 1 ? `<button type="button" onclick="removeBuyerCard(${buyerStackCount})" class="text-xs text-red-500 hover:text-red-700 font-bold transition-colors remove-buyer-btn">Remove Entity</button>` : ''}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Full Legal Entity Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="buyer_full_name[]" required class="mt-1 block w-full rounded-lg border-slate-300 p-2 border text-slate-800 text-sm focus:border-emerald-500 outline-none bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Phone Number *</label>
+                        <input type="tel" name="buyer_individual_phone[]" ${buyerStackCount === 1 ? 'required' : ''} class="mt-1 block w-full rounded-lg border-slate-300 p-2 border text-slate-800 text-sm focus:border-emerald-500 outline-none bg-white">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Email Address *</label>
+                        <input type="email" name="buyer_individual_email[]" ${buyerStackCount === 1 ? 'required' : ''} class="mt-1 block w-full rounded-lg border-slate-300 p-2 border text-slate-800 text-sm focus:border-emerald-500 outline-none bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Current Residential Address <span class="text-red-500">*</span></label>
+                        <input type="text" name="buyer_individual_address[]" value="${buyerStackCount > 1 ? defaultAddress : ''}" required class="mt-1 block w-full rounded-lg border-slate-300 p-2 border text-slate-800 text-sm focus:border-emerald-500 outline-none bg-white">
+                    </div>
+                </div>
+                
+                <div class="pt-2 border-t border-slate-200/60 class-rep-wrapper">
+                    <label class="inline-flex items-center cursor-pointer select-none">
+                        <input type="checkbox" name="buyer_has_representative[]" value="yes" onchange="this.closest('.class-rep-wrapper').querySelector('.class-rep-fields').classList.toggle('hidden', !this.checked)" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                        <span class="ml-2 text-xs font-semibold text-slate-700">Is this purchaser represented by a third-party alternate entity? (e.g. POA, Executive Buyer Agent)</span>
+                    </label>
+                    
+                    <div class="class-rep-fields hidden mt-3 p-4 bg-white rounded-xl border border-slate-200 space-y-4 transition-all duration-200 shadow-inner">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-600 uppercase tracking-wide">Representative Legal Name</label>
+                                <input type="text" name="buyer_rep_name[]" class="mt-1 block w-full rounded-lg border-slate-300 p-2 border text-slate-800 text-sm focus:border-emerald-500 outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-600 uppercase tracking-wide">Representative Phone</label>
+                                <input type="tel" name="buyer_rep_phone[]" class="mt-1 block w-full rounded-lg border-slate-300 p-2 border text-slate-800 text-sm focus:border-emerald-500 outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-600 uppercase tracking-wide">Representative Email</label>
+                                <input type="email" name="buyer_rep_email[]" class="mt-1 block w-full rounded-lg border-slate-300 p-2 border text-slate-800 text-sm focus:border-emerald-500 outline-none bg-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Is this third-party entity the preferred administrative primary communication vector?</label>
+                            <div class="flex space-x-6">
+                                <label class="inline-flex items-center cursor-pointer"><input type="radio" name="buyer_rep_is_preferred_${buyerStackCount}" value="yes" checked class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-xs font-medium text-slate-700">Yes, default communications</span></label>
+                                <label class="inline-flex items-center cursor-pointer"><input type="radio" name="buyer_rep_is_preferred_${buyerStackCount}" value="no" class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"><span class="ml-2 text-xs font-medium text-slate-700">No, secondary record only</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            wrapper.appendChild(card);
+            synchronizeSignaturesPanel();
+        }
+
+        function removeBuyerCard(cardId) {
+            const target = document.getElementById(`buyer_card_stack_${cardId}`);
+            if (target) {
+                target.remove();
+                reindexBuyerLayoutHierarchy();
+            }
+        }
+
+        function reindexBuyerLayoutHierarchy() {
+            const wrapper = document.getElementById('buyers_container');
+            const activeCards = wrapper.children;
+            buyerStackCount = 0;
+            
+            Array.from(activeCards).forEach((card) => {
+                buyerStackCount++;
+                card.id = `buyer_card_stack_${buyerStackCount}`;
+                
+                const heading = card.querySelector('.buyer-heading');
+                if (heading) heading.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg> Purchaser ${buyerStackCount}`;
+                
+                const removeBtn = card.querySelector('.remove-buyer-btn');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeBuyerCard(${buyerStackCount})`);
+                }
+
+                const radios = card.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => {
+                    if (radio.name.startsWith('buyer_rep_is_preferred_')) {
+                        radio.name = `buyer_rep_is_preferred_${buyerStackCount}`;
+                    }
+                });
+            });
+            synchronizeSignaturesPanel();
+        }
+
+        function synchronizeSignaturesPanel() {
+            const signatureContainer = document.getElementById('signatures_container');
+            const wrapper = document.getElementById('buyers_container');
+            const currentBuyerCount = wrapper.children.length;
+            
+            if (currentBuyerCount === 1) {
+                signatureContainer.className = "grid grid-cols-1 gap-6";
+            } else {
+                signatureContainer.className = "grid grid-cols-1 md:grid-cols-2 gap-6";
+            }
+
+            while (signatureContainer.children.length > currentBuyerCount) {
+                signatureContainer.lastElementChild.remove();
+            }
+
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayValueStr = `${yyyy}-${mm}-${dd}`;
+            const todayDisplayStr = today.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            const signatureFontStacks = [
+                "'Dancing Script', cursive",
+                "'Great Vibes', cursive",
+                "'Sacramento', cursive",
+                "'Caveat', cursive",
+                "'Brush Script MT', cursive"
+            ];
+
+            const startingIndex = signatureContainer.children.length + 1;
+            for (let i = startingIndex; i <= currentBuyerCount; i++) {
+                const customFont = signatureFontStacks[(i - 1) % signatureFontStacks.length];
+                
+                const signatureBox = document.createElement('div');
+                signatureBox.className = "p-5 border rounded-xl border-dashed border-slate-300 bg-slate-50/50 transition-all shadow-sm print-avoid-break";
+                signatureBox.innerHTML = `
+                    <div class="flex justify-between items-center mb-2.5">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">Purchaser ${i} Execution Signature</label>
+                        <div class="inline-flex rounded-lg shadow-sm text-xs bg-slate-100 p-1 border border-slate-200">
+                            <button type="button" onclick="switchSignatureMode(${i}, 'type')" id="mode_type_btn_${i}" class="px-2.5 py-1 bg-slate-900 text-white rounded-md font-semibold shadow-sm transition-all text-[11px]">Type Text</button>
+                            <button type="button" onclick="switchSignatureMode(${i}, 'draw')" id="mode_draw_btn_${i}" class="px-2.5 py-1 text-slate-600 rounded-md font-semibold transition-all text-[11px]">Draw Canvas</button>
+                        </div>
+                    </div>
+
+                    <div id="draw_container_buyer_${i}" class="hidden space-y-2">
+                        <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-inner relative">
+                            <canvas id="signature_pad_buyer_${i}" class="w-full h-24 touch-none cursor-crosshair bg-white" width="400" height="96"></canvas>
+                            <button type="button" onclick="clearSignatureCanvas(${i})" class="absolute top-1.5 right-2 text-[10px] uppercase font-bold tracking-wider bg-slate-100/90 hover:bg-slate-200 border border-slate-300 text-slate-600 px-2 py-0.5 rounded transition-all">Clear</button>
+                        </div>
+                    </div>
+
+                    <div id="type_container_buyer_${i}" class="space-y-2">
+                        <input type="text" id="signature_text_input_${i}" oninput="mirrorTypedSignature(${i})" class="block w-full text-sm rounded-lg border-slate-300 p-2.5 border outline-none focus:border-emerald-500 bg-white" placeholder="Type your formal complete legal identity name...">
+                        <div class="border border-slate-200 rounded-xl bg-white shadow-inner h-20 flex items-center justify-center overflow-hidden px-4">
+                            <p id="signature_text_rendering_${i}" class="text-3xl text-slate-800 select-none tracking-wide truncate w-full text-center" style="font-family: ${customFont};"></p>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="signature_data_buyer_${i}" name="buyer_${i}_signature_payload">
+                    <input type="hidden" id="signature_method_buyer_${i}" name="buyer_${i}_signature_method" value="type">
+                    
+                    <div class="mt-3.5 text-xs text-slate-600 bg-slate-100/80 p-2.5 rounded-lg border border-slate-200 flex justify-between items-center select-none font-medium">
+                        <span class="text-slate-500 uppercase tracking-wider font-semibold text-[10px]">Attestation Record Date:</span>
+                        <span class="font-bold text-slate-800">${todayDisplayStr}</span>
+                    </div>
+                    <input type="hidden" name="buyer_${i}_sign_date" value="${todayValueStr}">
+                `;
+                signatureContainer.appendChild(signatureBox);
+                
+                setTimeout(() => {
+                    initSignatureDrawingEngine(`signature_pad_buyer_${i}`, `signature_data_buyer_${i}`);
+                }, 20);
+            }
+        }
+
+        function switchSignatureMode(index, mode) {
+            const drawWrapper = document.getElementById(`draw_container_buyer_${index}`);
+            const typeWrapper = document.getElementById(`type_container_buyer_${index}`);
+            const drawBtn = document.getElementById(`mode_draw_btn_${index}`);
+            const typeBtn = document.getElementById('mode_type_btn_' + index);
+            const methodInput = document.getElementById(`signature_method_buyer_${index}`);
+            const payloadInput = document.getElementById(`signature_data_buyer_${index}`);
+
+            if (!methodInput || !payloadInput) return;
+            methodInput.value = mode;
+            payloadInput.value = '';
+
+            if (mode === 'draw') {
+                if (drawWrapper) drawWrapper.classList.remove('hidden');
+                if (typeWrapper) typeWrapper.classList.add('hidden');
+                if (drawBtn) drawBtn.className = "px-2.5 py-1 bg-slate-900 text-white rounded-md font-semibold shadow-sm transition-all text-[11px]";
+                if (typeBtn) typeBtn.className = "px-2.5 py-1 text-slate-600 rounded-md font-semibold transition-all text-[11px]";
+                clearSignatureCanvas(index);
+            } else {
+                if (typeWrapper) typeWrapper.classList.remove('hidden');
+                if (drawWrapper) drawWrapper.classList.add('hidden');
+                if (typeBtn) typeBtn.className = "px-2.5 py-1 bg-slate-900 text-white rounded-md font-semibold shadow-sm transition-all text-[11px]";
+                if (drawBtn) drawBtn.className = "px-2.5 py-1 text-slate-600 rounded-md font-semibold transition-all text-[11px]";
+                const textIn = document.getElementById('signature_text_input_' + index);
+                const textRender = document.getElementById('signature_text_rendering_' + index);
+                if (textIn) textIn.value = '';
+                if (textRender) textRender.textContent = '';
+            }
+        }
+
+        function mirrorTypedSignature(index) {
+            const inputVal = document.getElementById(`signature_text_input_${index}`)?.value || '';
+            const textRender = document.getElementById(`signature_text_rendering_${index}`);
+            const dataInput = document.getElementById(`signature_data_buyer_${index}`);
+            if (textRender) textRender.textContent = inputVal;
+            if (dataInput) dataInput.value = inputVal;
+        }
+
+        function initSignatureDrawingEngine(canvasId, hiddenInputId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const hiddenInput = document.getElementById(hiddenInputId);
+            let drawing = false;
+
+            ctx.strokeStyle = '#0f172a'; 
+            ctx.lineWidth = 2.0; 
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            function getCoordinates(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            canvas.addEventListener('mousedown', (e) => {
+                drawing = true;
+                const coords = getCoordinates(e);
+                ctx.beginPath();
+                ctx.moveTo(coords.x, coords.y);
+                e.preventDefault();
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!drawing) return;
+                const coords = getCoordinates(e);
+                ctx.lineTo(coords.x, coords.y);
+                ctx.stroke();
+                e.preventDefault();
+            });
+
+            const stopDrawing = () => {
+                if (!drawing) return;
+                drawing = false;
+                if (hiddenInput) hiddenInput.value = canvas.toDataURL();
+            };
+
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+            
+            canvas.addEventListener('touchstart', (e) => {
+                drawing = true;
+                const coords = getCoordinates(e);
+                ctx.beginPath();
+                ctx.moveTo(coords.x, coords.y);
+                e.preventDefault();
+            }, { passive: false });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                if (!drawing) return;
+                const coords = getCoordinates(e);
+                ctx.lineTo(coords.x, coords.y);
+                ctx.stroke();
+                e.preventDefault();
+            }, { passive: false });
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function clearSignatureCanvas(index) {
+            const canvas = document.getElementById(`signature_pad_buyer_${index}`);
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const dataInput = document.getElementById(`signature_data_buyer_${index}`);
+                if (dataInput) dataInput.value = '';
+            }
+        }
+
+        function extractLocalBounds(dateStr) {
+            if (!dateStr) return null;
+            const [year, month, day] = dateStr.split('-');
+            return new Date(year, month - 1, day);
+        }
+
+        // Settlement window algorithmic engine mapping
+        const settleDatePicker = document.getElementById('settlement_date_picker');
+        if (settleDatePicker) {
+            settleDatePicker.addEventListener('change', function() {
+                const selectedDateString = this.value;
+                const daysInput = document.getElementById('settlement_period_days');
+                const helperNote = document.getElementById('settlement_helper_note');
+                if (!daysInput || !helperNote) return;
+
+                if (!selectedDateString) {
+                    this.setCustomValidity('');
+                    daysInput.setCustomValidity('');
+                    return;
+                }
+
+                const selectedDate = extractLocalBounds(selectedDateString);
+                selectedDate.setHours(0, 0, 0, 0);
+                const dayOfWeekIdx = selectedDate.getDay(); 
+                const dayOfWeek = selectedDate.toLocaleDateString('en-AU', { weekday: 'long' });
+
+                if (dayOfWeekIdx === 0 || dayOfWeekIdx === 6) {
+                    this.setCustomValidity('Settlement execution cannot fall on non-business weekend parameters.');
+                    daysInput.setCustomValidity('Settlement execution cannot fall on non-business weekend parameters.');
+                    this.value = '';
+                    daysInput.value = '';
+                    helperNote.innerHTML = `<span class="text-red-500 font-bold flex items-center gap-1">⚠️ Error: Target date requested falls on a weekend (${dayOfWeek}). Choose a business weekday.</span>`;
+                    updateFormVisibility();
+                    return;
+                } else {
+                    this.setCustomValidity('');
+                    daysInput.setCustomValidity('');
+                }
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const daysDifference = Math.ceil((selectedDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+                
+                if (daysDifference > 0) {
+                    daysInput.value = daysDifference + ` Days (${dayOfWeek})`;
+                } else if (daysDifference === 0) {
+                    daysInput.value = `Today (${dayOfWeek})`;
+                } else {
+                    daysInput.value = Math.abs(daysDifference) + ` Days Ago (${dayOfWeek})`;
+                }
+                helperNote.innerHTML = `Settlement processing parameters anchor on a solid <strong>${dayOfWeek}</strong>.`;
+                updateFormVisibility();
+            });
+        }
+
+        const settlePeriodDays = document.getElementById('settlement_period_days');
+        if (settlePeriodDays) {
+            settlePeriodDays.addEventListener('input', function() {
+                const query = this.value.trim();
+                const datePicker = document.getElementById('settlement_date_picker');
+                const helperNote = document.getElementById('settlement_helper_note');
+                if (!datePicker || !helperNote) return;
+                
+                this.setCustomValidity('');
+                datePicker.setCustomValidity('');
+
+                if (!query) {
+                    datePicker.value = '';
+                    helperNote.innerHTML = `Selecting an exact calendar field date automatically determines net days tracking.`;
+                    updateFormVisibility();
+                    return;
+                }
+
+                let targetDate = null;
+                if (query.toLowerCase() === 'today') {
+                    targetDate = new Date();
+                } else {
+                    const match = query.match(/\d+/);
+                    if (match) {
+                        const days = parseInt(match[0], 10);
+                        targetDate = new Date();
+                        if (query.toLowerCase().includes('ago')) {
+                            targetDate.setDate(targetDate.getDate() - days);
+                        } else {
+                            targetDate.setDate(targetDate.getDate() + days);
+                        }
+                    }
+                }
+
+                if (targetDate) {
+                    const dayOfWeekIdx = targetDate.getDay();
+                    const dayOfWeek = targetDate.toLocaleDateString('en-AU', { weekday: 'long' });
+
+                    if (dayOfWeekIdx === 0 || dayOfWeekIdx === 6) {
+                        this.setCustomValidity('Settlement period can\'t land on weekends.');
+                        datePicker.setCustomValidity('Settlement period can\'t land on weekends.');
+                        datePicker.value = '';
+                        helperNote.innerHTML = `<span class="text-red-500 font-bold">⚠️ Warning: Interval calculation falls on a weekend (${dayOfWeek}).</span>`;
+                        updateFormVisibility();
+                        return;
+                    }
+
+                    const yyyy = targetDate.getFullYear();
+                    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+                    const dd = String(targetDate.getDate()).padStart(2, '0');
+                    datePicker.value = `${yyyy}-${mm}-${dd}`;
+                    helperNote.innerHTML = `Settlement target automatically anchors on a <strong>${dayOfWeek}</strong>.`;
+                }
+                updateFormVisibility();
+            });
+        }
+
+        // Conditional visibility orchestration router engine
+        function updateFormVisibility() {
+            const cashBuyerYes = document.getElementById('cash_buyer_yes');
+            const subjectToSaleContainer = document.getElementById('subject_to_sale_container');
+            const subjectToFinanceContainer = document.getElementById('subject_to_finance_container');
+            const subjectToFinanceYes = document.getElementById('subject_to_finance_yes');
+            const financeDetailsSubContainer = document.getElementById('finance_details_sub_container');
+            const buildingPestYes = document.getElementById('building_pest_yes');
+            const buildingPestDaysContainer = document.getElementById('building_pest_days_container');
+            const subjectToSaleYes = document.getElementById('subject_to_sale_yes');
+            const saleDetailsSubContainer = document.getElementById('sale_details_sub_container');
+            const saleStatusDropdown = document.getElementById('sale_status_dropdown');
+            const saleTimelineMetricsContainer = document.getElementById('sale_timeline_metrics_container');
+            const daysBeforeLiveFieldContainer = document.getElementById('days_before_live_field_container');
+            const underContractDetailsContainer = document.getElementById('under_contract_details_container');
+            const ucFieldsIsUnconditional = document.getElementById('uc_fields_is_unconditional');
+            const ucFieldsNotUnconditional = document.getElementById('uc_fields_not_unconditional');
+            const currentConditionOther = document.getElementById('current_condition_other');
+            const currentConditionElaborationContainer = document.getElementById('current_condition_elaboration_container');
+            const freeAppraisalContainer = document.getElementById('free_appraisal_container');
+
+            // Dynamic question answers elements
+            const simultaneousYes = document.getElementById('simultaneous_yes');
+            const simultaneousNo = document.getElementById('simultaneous_no');
+            const simultaneousYesResult = document.getElementById('simultaneous_yes_result');
+            const simultaneousNoResult = document.getElementById('simultaneous_no_result');
+            
+            // Settlement containers routing matrix + Target text elements
+            const mainSettlementContainer = document.getElementById('main_settlement_container');
+            const globalSettlementPlaceholder = document.getElementById('global_settlement_placeholder');
+            const settlementLabel = document.getElementById('settlement_label');
+            const settlementHelperText = document.getElementById('settlement_helper_text');
+
+            // Day field inputs
+            const dbLiveInput = document.getElementById('days_before_listing_live');
+            const dContractInput = document.getElementById('days_to_get_sale_contract');
+            const dUncondInput = document.getElementById('days_to_get_unconditional_contract');
+            const dSettleInput = document.getElementById('days_to_settle_existing_property');
+            const timelineMetricsError = document.getElementById('timeline_metrics_error');
+
+            const contractUnconditionalDate = document.getElementById('contract_unconditional_date');
+            const buyerSaleSettlementDateNo = document.getElementById('buyer_sale_settlement_date_no');
+            const errNode = document.getElementById('conditional_date_error');
+
+            const buyerSaleSettlementDateYes = document.getElementById('buyer_sale_settlement_date_yes');
+            const uncErrNode = document.getElementById('unconditional_settlement_error');
+            const settleDatePicker = document.getElementById('settlement_date_picker');
+
+            if (!cashBuyerYes) return; 
+
+            if (cashBuyerYes.checked) {
+                if (subjectToSaleContainer) subjectToSaleContainer.classList.add('hidden');
+                if (subjectToFinanceContainer) subjectToFinanceContainer.classList.add('hidden');
+            } else {
+                if (subjectToSaleContainer) subjectToSaleContainer.classList.remove('hidden');
+                if (subjectToFinanceContainer) subjectToFinanceContainer.classList.remove('hidden');
+                
+                if (subjectToFinanceYes && subjectToFinanceYes.checked) {
+                    if (financeDetailsSubContainer) financeDetailsSubContainer.classList.remove('hidden');
+                } else {
+                    if (financeDetailsSubContainer) financeDetailsSubContainer.classList.add('hidden');
+                }
+            }
+
+            if (buildingPestYes && buildingPestYes.checked) {
+                if (buildingPestDaysContainer) buildingPestDaysContainer.classList.remove('hidden');
+            } else {
+                if (buildingPestDaysContainer) buildingPestDaysContainer.classList.add('hidden');
+            }
+
+            // Target Settlement Window architecture configuration
+            if (subjectToSaleYes && subjectToSaleYes.checked && !cashBuyerYes.checked) {
+                if (saleDetailsSubContainer) saleDetailsSubContainer.classList.remove('hidden');
+                
+                // Read actual dynamic window day constraints ceiling bounds
+                const targetWindowDays = getTargetSettlementWindowDays();
+                const simultaneousVal = simultaneousYes && simultaneousYes.checked ? 'yes' : (simultaneousNo && simultaneousNo.checked ? 'no' : '');
+
+                // Sequential flush architecture block parameters
+                if (simultaneousVal === 'yes' && lastSimultaneous === 'no') {
+                    if (mainSettlementContainer) {
+                        const targetDaysIn = document.getElementById('settlement_period_days');
+                        const targetDateIn = document.getElementById('settlement_date_picker');
+                        if (targetDaysIn) targetDaysIn.value = "";
+                        if (targetDateIn) targetDateIn.value = "";
+                    }
+                    if (saleStatusDropdown) saleStatusDropdown.value = "";
+                    if (dbLiveInput) dbLiveInput.value = "";
+                    if (dContractInput) dContractInput.value = "";
+                    if (dUncondInput) dUncondInput.value = "";
+                    if (dSettleInput) dSettleInput.value = "";
+                    if (contractUnconditionalDate) contractUnconditionalDate.value = "";
+                    if (buyerSaleSettlementDateNo) buyerSaleSettlementDateNo.value = "";
+                    if (buyerSaleSettlementDateYes) buyerSaleSettlementDateYes.value = "";
+                    
+                    lastSaleStatus = ''; 
+                    if (errNode) errNode.classList.add('hidden');
+                    if (uncErrNode) uncErrNode.classList.add('hidden');
+                    if (timelineMetricsError) timelineMetricsError.classList.add('hidden');
+                }
+
+                if (simultaneousYes && simultaneousYes.checked) {
+                    simultaneousYesResult.classList.remove('hidden');
+                    simultaneousNoResult.classList.add('hidden');
+                    
+                    if (globalSettlementPlaceholder && mainSettlementContainer && mainSettlementContainer.parentNode !== globalSettlementPlaceholder) {
+                        globalSettlementPlaceholder.appendChild(mainSettlementContainer);
+                    }
+                    if (mainSettlementContainer) mainSettlementContainer.classList.add('hidden');
+                } else if (simultaneousNo && simultaneousNo.checked) {
+                    simultaneousYesResult.classList.add('hidden');
+                    simultaneousNoResult.classList.remove('hidden');
+                    
+                    if (settlementLabel) settlementLabel.textContent = "Target Settlement Window";
+                    if (settlementHelperText) settlementHelperText.textContent = `Because this purchase relies on your existing sale, please stipulate your target interval after your prior property settles (must fall within the ${targetWindowDays} days ceiling bounds).`;
+                    
+                    if (simultaneousNoResult && mainSettlementContainer && mainSettlementContainer.parentNode !== simultaneousNoResult) {
+                        simultaneousNoResult.appendChild(mainSettlementContainer);
+                    }
+                    if (mainSettlementContainer) mainSettlementContainer.classList.remove('hidden');
+                } else {
+                    simultaneousYesResult.classList.add('hidden');
+                    simultaneousNoResult.classList.add('hidden');
+                    if (globalSettlementPlaceholder && mainSettlementContainer && mainSettlementContainer.parentNode !== globalSettlementPlaceholder) {
+                        globalSettlementPlaceholder.appendChild(mainSettlementContainer);
+                    }
+                    if (mainSettlementContainer) mainSettlementContainer.classList.add('hidden');
+                }
+
+                const status = saleStatusDropdown ? saleStatusDropdown.value : '';
+                
+                // Proportional defaults setting module values calculations profiles
+                if (status !== lastSaleStatus || targetWindowDays !== lastTargetWindowDays || simultaneousVal !== lastSimultaneous) {
+                    if (simultaneousVal === 'yes') {
+                        if (status === 'to_be_listed') {
+                            if (dbLiveInput) dbLiveInput.value = 7;
+                            if (dContractInput) dContractInput.value = 30;
+                            if (dUncondInput) dUncondInput.value = 14;
+                            if (dSettleInput) dSettleInput.value = 30;
+                        } else if (status === 'on_the_market') {
+                            if (dbLiveInput) dbLiveInput.value = ""; 
+                            if (dContractInput) dContractInput.value = 30;
+                            if (dUncondInput) dUncondInput.value = 14;
+                            if (dSettleInput) dSettleInput.value = 30;
+                        } else if (status === 'under_contract_conditional') {
+                            if (dbLiveInput) dbLiveInput.value = "";
+                            if (dContractInput) dContractInput.value = 30;
+                            if (dUncondInput) dUncondInput.value = 14;
+                            if (dSettleInput) dSettleInput.value = 30;
+                        } else {
+                            if (dbLiveInput) dbLiveInput.value = "";
+                            if (dContractInput) dContractInput.value = "";
+                            if (dUncondInput) dUncondInput.value = "";
+                            if (dSettleInput) dSettleInput.value = "";
+                        }
+                    } else if (simultaneousVal === 'no') {
+                        if (status === 'to_be_listed') {
+                            if (dbLiveInput) dbLiveInput.value = Math.max(1, Math.floor(targetWindowDays * 0.1));
+                            if (dContractInput) dContractInput.value = Math.max(1, Math.floor(targetWindowDays * 0.4));
+                            if (dUncondInput) dUncondInput.value = Math.max(1, Math.floor(targetWindowDays * 0.2));
+                            if (dSettleInput) dSettleInput.value = Math.max(1, Math.floor(targetWindowDays * 0.3));
+                        } else if (status === 'on_the_market') {
+                            if (dbLiveInput) dbLiveInput.value = ""; 
+                            if (dContractInput) dContractInput.value = Math.max(1, Math.floor(targetWindowDays * 0.5));
+                            if (dUncondInput) dUncondInput.value = Math.max(1, Math.floor(targetWindowDays * 0.2));
+                            if (dSettleInput) dSettleInput.value = Math.max(1, Math.floor(targetWindowDays * 0.4));
+                        } else if (status === 'under_contract_conditional') {
+                            if (dbLiveInput) dbLiveInput.value = "";
+                            if (dContractInput) dContractInput.value = Math.max(1, Math.floor(targetWindowDays * 0.5));
+                            if (dUncondInput) dUncondInput.value = Math.max(1, Math.floor(targetWindowDays * 0.2));
+                            if (dSettleInput) dSettleInput.value = Math.max(1, Math.floor(targetWindowDays * 0.4));
+                        } else {
+                            if (dbLiveInput) dbLiveInput.value = "";
+                            if (dContractInput) dContractInput.value = "";
+                            if (dUncondInput) dUncondInput.value = "";
+                            if (dSettleInput) dSettleInput.value = "";
+                        }
+                    }
+                    lastSaleStatus = status;
+                    lastTargetWindowDays = targetWindowDays;
+                    lastSimultaneous = simultaneousVal;
+                }
+
+                // Reset internal metrics layouts structures
+                if (saleTimelineMetricsContainer) saleTimelineMetricsContainer.classList.add('hidden');
+                if (daysBeforeLiveFieldContainer) daysBeforeLiveFieldContainer.classList.add('hidden');
+                if (underContractDetailsContainer) underContractDetailsContainer.classList.add('hidden');
+                if (ucFieldsIsUnconditional) ucFieldsIsUnconditional.classList.add('hidden');
+                if (ucFieldsNotUnconditional) ucFieldsNotUnconditional.classList.add('hidden');
+                if (freeAppraisalContainer) freeAppraisalContainer.classList.remove('hidden');
+
+                if (status === 'to_be_listed') {
+                    if (saleTimelineMetricsContainer) saleTimelineMetricsContainer.classList.remove('hidden');
+                    if (daysBeforeLiveFieldContainer) daysBeforeLiveFieldContainer.classList.remove('hidden');
+                } else if (status === 'on_the_market') {
+                    if (saleTimelineMetricsContainer) saleTimelineMetricsContainer.classList.remove('hidden');
+                    if (daysBeforeLiveFieldContainer) daysBeforeLiveFieldContainer.classList.add('hidden');
+                    if (freeAppraisalContainer) freeAppraisalContainer.classList.add('hidden');
+                } else if (status === 'under_contract_conditional') {
+                    if (underContractDetailsContainer) underContractDetailsContainer.className = "bg-white p-4 rounded-xl border border-slate-200 space-y-4 shadow-inner";
+                    if (ucFieldsNotUnconditional) ucFieldsNotUnconditional.classList.remove('hidden');
+                    if (freeAppraisalContainer) freeAppraisalContainer.classList.add('hidden');
+                    if (currentConditionOther && currentConditionOther.checked) {
+                        if (currentConditionElaborationContainer) currentConditionElaborationContainer.classList.remove('hidden');
+                    } else {
+                        if (currentConditionElaborationContainer) currentConditionElaborationContainer.classList.add('hidden');
+                    }
+
+                    // REAL-TIME SECURITY cross-validation check matrix layer (Conditional)
+                    if (contractUnconditionalDate && buyerSaleSettlementDateNo) {
+                        let isError = false;
+                        let errMsg = "";
+
+                        if (simultaneousNo && simultaneousNo.checked && settleDatePicker && settleDatePicker.value) {
+                            contractUnconditionalDate.max = settleDatePicker.value;
+                            buyerSaleSettlementDateNo.max = settleDatePicker.value;
+                        } else {
+                            contractUnconditionalDate.removeAttribute('max');
+                            buyerSaleSettlementDateNo.removeAttribute('max');
+                        }
+
+                        if (contractUnconditionalDate.value) {
+                            buyerSaleSettlementDateNo.min = contractUnconditionalDate.value;
+                        } else {
+                            buyerSaleSettlementDateNo.removeAttribute('min');
+                        }
+
+                        if (simultaneousNo && simultaneousNo.checked && settleDatePicker && settleDatePicker.value && contractUnconditionalDate.value && contractUnconditionalDate.value > settleDatePicker.value) {
+                            isError = true;
+                            contractUnconditionalDate.setCustomValidity("The target unconditional date must occur before the global target settlement window date.");
+                            contractUnconditionalDate.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+                            errMsg = "⚠️ Error: The target unconditional date must be set prior to the global target settlement window date.";
+                        } else {
+                            contractUnconditionalDate.setCustomValidity("");
+                            contractUnconditionalDate.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10');
+                        }
+
+                        if (buyerSaleSettlementDateNo.value && !isError) {
+                            if (contractUnconditionalDate.value && buyerSaleSettlementDateNo.value < contractUnconditionalDate.value) {
+                                isError = true;
+                                buyerSaleSettlementDateNo.setCustomValidity("The scheduled settlement date cannot occur prior to the contract unconditional date.");
+                                buyerSaleSettlementDateNo.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+                                errMsg = "⚠️ Error: Settlement date cannot occur before the contract unconditional date.";
+                            } else if (simultaneousNo && simultaneousNo.checked && settleDatePicker && settleDatePicker.value && buyerSaleSettlementDateNo.value > settleDatePicker.value) {
+                                isError = true;
+                                buyerSaleSettlementDateNo.setCustomValidity("The scheduled settlement date must occur before the target settlement window date.");
+                                buyerSaleSettlementDateNo.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+                                errMsg = "⚠️ Error: The scheduled settlement date must be set prior to the global target settlement window date.";
+                            } else {
+                                const parsedDate = extractLocalBounds(buyerSaleSettlementDateNo.value);
+                                if (parsedDate) {
+                                    const dayIdx = parsedDate.getDay();
+                                    if (dayIdx === 0 || dayIdx === 6) {
+                                        buyerSaleSettlementDateNo.setCustomValidity(""); 
+                                        buyerSaleSettlementDateNo.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+                                        const condDayName = parsedDate.toLocaleDateString('en-AU', { weekday: 'long' });
+                                        errMsg = `⚠️ Warning: The selected date falls on a weekend (${condDayName}). Please ensure legal entities can execute transactions on this day.`;
+                                        isError = true;
+                                    } else {
+                                        buyerSaleSettlementDateNo.setCustomValidity("");
+                                        buyerSaleSettlementDateNo.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10');
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isError && errMsg) {
+                            if (errNode) {
+                                errNode.textContent = errMsg;
+                                errNode.classList.remove('hidden');
+                            }
+                        } else {
+                            if (errNode) errNode.classList.add('hidden');
+                        }
+                    }
+
+                    if (buyerSaleSettlementDateYes) {
+                        buyerSaleSettlementDateYes.setCustomValidity("");
+                        buyerSaleSettlementDateYes.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10');
+                    }
+                    if (uncErrNode) uncErrNode.classList.add('hidden');
+
+                } else if (status === 'under_contract_unconditional') {
+                    if (underContractDetailsContainer) underContractDetailsContainer.className = "bg-white p-4 rounded-xl border border-slate-200 space-y-4 shadow-inner";
+                    if (ucFieldsIsUnconditional) ucFieldsIsUnconditional.classList.remove('hidden');
+                    if (freeAppraisalContainer) freeAppraisalContainer.classList.add('hidden');
+                    
+                    // REAL-TIME SECURITY cross-validation check matrix layer (Unconditional)
+                    if (buyerSaleSettlementDateYes) {
+                        let isUncError = false;
+                        let uncErrMsg = "";
+
+                        if (settleDatePicker && settleDatePicker.value) {
+                            buyerSaleSettlementDateYes.max = settleDatePicker.value;
+                        } else {
+                            buyerSaleSettlementDateYes.removeAttribute('max');
+                        }
+
+                        if (buyerSaleSettlementDateYes.value) {
+                            if (simultaneousNo && simultaneousNo.checked && settleDatePicker && settleDatePicker.value && buyerSaleSettlementDateYes.value > settleDatePicker.value) {
+                                isUncError = true;
+                                buyerSaleSettlementDateYes.setCustomValidity("The scheduled settlement date must occur before the target settlement window date.");
+                                buyerSaleSettlementDateYes.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+                                uncErrMsg = "⚠️ Error: The scheduled settlement date must be set prior to the global target settlement window date.";
+                            } else {
+                                const parsedDate = extractLocalBounds(buyerSaleSettlementDateYes.value);
+                                if (parsedDate) {
+                                    const dayIdx = parsedDate.getDay();
+                                    if (dayIdx === 0 || dayIdx === 6) {
+                                        buyerSaleSettlementDateYes.setCustomValidity(""); 
+                                        buyerSaleSettlementDateYes.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+                                        const uncDayName = parsedDate.toLocaleDateString('en-AU', { weekday: 'long' });
+                                        uncErrMsg = `⚠️ Warning: The selected date falls on a weekend (${uncDayName}). Please ensure legal entities can execute transactions on this day.`;
+                                        isUncError = true;
+                                    } else {
+                                        buyerSaleSettlementDateYes.setCustomValidity("");
+                                        buyerSaleSettlementDateYes.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10');
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isUncError && uncErrMsg) {
+                            if (uncErrNode) {
+                                uncErrNode.textContent = uncErrMsg;
+                                uncErrNode.classList.remove('hidden');
+                            }
+                        } else {
+                            if (uncErrNode) uncErrNode.classList.add('hidden');
+                            buyerSaleSettlementDateYes.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10');
+                        }
+                    }
+
+                    if (buyerSaleSettlementDateNo) {
+                        buyerSaleSettlementDateNo.setCustomValidity("");
+                        buyerSaleSettlementDateNo.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10');
+                    }
+                    if (errNode) errNode.classList.add('hidden');
+                }
+
+                // Numerical cumulative checks timeline day counters constraints evaluation filter loop
+                if (status === 'to_be_listed' || status === 'on_the_market') {
+                    let dbLiveVal = (status === 'to_be_listed' && dbLiveInput) ? parseInt(dbLiveInput.value || 0, 10) : 0;
+                    let dContractVal = dContractInput ? parseInt(dContractInput.value || 0, 10) : 0;
+                    let dUncondVal = dUncondInput ? parseInt(dUncondInput.value || 0, 10) : 0;
+                    let dSettleVal = dSettleInput ? parseInt(dSettleInput.value || 0, 10) : 0;
+
+                    let timelineIsError = false;
+                    
+                    if (simultaneousNo && simultaneousNo.checked) {
+                        if (dbLiveVal > targetWindowDays || dContractVal > targetWindowDays || dUncondVal > targetWindowDays || dSettleVal > targetWindowDays) {
+                            timelineIsError = true;
+                        }
+                        if ((dbLiveVal + dContractVal + dSettleVal) > targetWindowDays) {
+                            timelineIsError = true;
+                        }
+                    }
+
+                    if (timelineIsError) {
+                        if (dbLiveInput) dbLiveInput.setCustomValidity("Value parameters exceed the allocated target settlement window timeframe.");
+                        if (dContractInput) dContractInput.setCustomValidity("Value parameters exceed the allocated target settlement window timeframe.");
+                        if (dUncondInput) dUncondInput.setCustomValidity("Value parameters exceed the allocated target settlement window timeframe.");
+                        if (dSettleInput) dSettleInput.setCustomValidity("Value parameters exceed the allocated target settlement window timeframe.");
+
+                        if (dbLiveInput && status === 'to_be_listed') dbLiveInput.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+                        if (dContractInput) dContractInput.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+                        if (dUncondInput) dUncondInput.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+                        if (dSettleInput) dSettleInput.classList.add('border-red-500', 'ring-2', 'ring-red-500/10');
+
+                        if (timelineMetricsError) {
+                            timelineMetricsError.textContent = `⚠️ Error: Entered day fields or cumulative transaction sequential duration cannot exceed the ${targetWindowDays} days configured in the Target Settlement Window setup.`;
+                            timelineMetricsError.classList.remove('hidden');
+                        }
+                    } else {
+                        if (dbLiveInput) { dbLiveInput.setCustomValidity(""); dbLiveInput.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10'); }
+                        if (dContractInput) { dContractInput.setCustomValidity(""); dContractInput.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10'); }
+                        if (dUncondInput) { dUncondInput.setCustomValidity(""); dUncondInput.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10'); }
+                        if (dSettleInput) { dSettleInput.setCustomValidity(""); dSettleInput.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10'); }
+                        if (timelineMetricsError) timelineMetricsError.classList.add('hidden');
+                    }
+                } else {
+                    if (timelineMetricsError) timelineMetricsError.classList.add('hidden');
+                }
+
+            } else {
+                if (saleDetailsSubContainer) saleDetailsSubContainer.classList.add('hidden');
+                if (saleTimelineMetricsContainer) saleTimelineMetricsContainer.classList.add('hidden');
+                if (underContractDetailsContainer) underContractDetailsContainer.classList.add('hidden');
+                if (freeAppraisalContainer) freeAppraisalContainer.classList.add('hidden'); 
+                
+                if (buyerSaleSettlementDateNo) {
+                    buyerSaleSettlementDateNo.setCustomValidity("");
+                    buyerSaleSettlementDateNo.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10');
+                }
+                if (errNode) errNode.classList.add('hidden');
+
+                if (buyerSaleSettlementDateYes) {
+                    buyerSaleSettlementDateYes.setCustomValidity("");
+                    buyerSaleSettlementDateYes.classList.remove('border-red-500', 'ring-2', 'ring-red-500/10');
+                }
+                if (uncErrNode) uncErrNode.classList.add('hidden');
+                if (timelineMetricsError) timelineMetricsError.classList.add('hidden');
+
+                if (settlementLabel) settlementLabel.textContent = "Proposed Settlement Date / Interval";
+                if (settlementHelperText) settlementHelperText.textContent = "Selecting an exact calendar field date automatically determines net days tracking.";
+                
+                // Focus guard architecture return block 
+                if (globalSettlementPlaceholder && mainSettlementContainer && mainSettlementContainer.parentNode !== globalSettlementPlaceholder) {
+                    globalSettlementPlaceholder.appendChild(mainSettlementContainer);
+                }
+                if (mainSettlementContainer) mainSettlementContainer.classList.remove('hidden');
+                
+                lastSaleStatus = ''; 
+                lastTargetWindowDays = 0;
+                lastSimultaneous = ''; 
+            }
+            updateDynamicAddressLabels();
+        }
+
+        function safelyBindVisibilityTriggers() {
+            const mappings = [
+                { id: 'cash_buyer_yes', type: 'change' },
+                { id: 'cash_buyer_no', type: 'change' },
+                { id: 'subject_to_sale_yes', type: 'change' },
+                { id: 'subject_to_sale_no', type: 'change' },
+                { id: 'simultaneous_yes', type: 'change' },
+                { id: 'simultaneous_no', type: 'change' },
+                { id: 'sale_status_dropdown', type: 'change' },
+                { id: 'subject_to_finance_yes', type: 'change' },
+                { id: 'subject_to_finance_no', type: 'change' },
+                { id: 'building_pest_yes', type: 'change' },
+                { id: 'building_pest_no', type: 'change' },
+                { id: 'current_condition_other', type: 'change' },
+                { id: 'contract_unconditional_date', type: 'change' },
+                { id: 'buyer_sale_settlement_date_no', type: 'change' },
+                { id: 'buyer_sale_settlement_date_yes', type: 'change' },
+                { id: 'settlement_date_picker', type: 'change' },
+                { id: 'days_before_listing_live', type: 'input' },
+                { id: 'days_to_get_sale_contract', type: 'input' },
+                { id: 'days_to_get_unconditional_contract', type: 'input' },
+                { id: 'days_to_settle_existing_property', type: 'input' }
+            ];
+
+            mappings.forEach(map => {
+                const el = document.getElementById(map.id);
+                if (el) el.addEventListener(map.type, updateFormVisibility);
+            });
+
+            document.getElementById('main_property_address').addEventListener('input', updateDynamicAddressLabels);
+            document.getElementById('property_to_be_sold_address').addEventListener('input', updateDynamicAddressLabels);
+        }
+
+        // Live OpenStreetMap Autocomplete Module
+        function initLiveQLDAutocomplete(inputId, suggestionsId) {
+            const addressInput = document.getElementById(inputId);
+            const suggestionsPanel = document.getElementById(suggestionsId);
+            let debounceTimer;
+            if (!addressInput || !suggestionsPanel) return;
+
+            // Restricting search geopolitical bounding regions to Queensland borders specifically
+            function executeFetch(searchQuery, originalNumberPrefix = "") {
+                const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&state=Queensland&country=Australia&limit=5`;
+                
+                fetch(apiUrl, {
+                    headers: {
+                        'Accept-Language': 'en-AU',
+                        'User-Agent': 'MyPandaRealtyContractApp/2026'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        suggestionsPanel.innerHTML = '';
+                        suggestionsPanel.classList.remove('hidden');
+                        
+                        data.forEach(item => {
+                            let cleanAddress = item.display_name.replace(", Australia", "");
+                            if (originalNumberPrefix && !/^\d/.test(cleanAddress)) {
+                                cleanAddress = `${originalNumberPrefix} ${cleanAddress}`;
+                            }
+
+                            const row = document.createElement('div');
+                            row.className = "px-4 py-2.5 hover:bg-slate-50 cursor-pointer text-sm text-slate-700 font-medium transition-all duration-100 border-b border-slate-100 last:border-b-0";
+                            row.textContent = cleanAddress;
+                            
+                            row.addEventListener('click', function() {
+                                addressInput.value = cleanAddress;
+                                suggestionsPanel.classList.add('hidden');
+                                updateDynamicAddressLabels();
+                            });
+                            suggestionsPanel.appendChild(row);
+                        });
+                    } 
+                    else if (!originalNumberPrefix && /^\d+/.test(searchQuery)) {
+                        const numberMatch = searchQuery.match(/^(\d+\s*)/);
+                        if (numberMatch) {
+                            const prefix = numberMatch[1].trim();
+                            const fallbackQuery = searchQuery.replace(/^\d+\s*/, "").trim();
+                            executeFetch(fallbackQuery, prefix);
+                        }
+                    } 
+                    else if (suggestionsPanel.children.length === 0) {
+                        suggestionsPanel.innerHTML = '';
+                        suggestionsPanel.classList.remove('hidden');
+                        const emptyRow = document.createElement('div');
+                        emptyRow.className = "px-4 py-3 text-xs text-slate-400 italic font-medium";
+                        emptyRow.textContent = "No standard structural match. Confirm manually.";
+                        suggestionsPanel.appendChild(emptyRow);
+                    }
+                })
+                .catch(error => console.error("Error executing API address verification query:", error));
+            }
+
+            addressInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+                if (query.length < 4) {
+                    suggestionsPanel.innerHTML = '';
+                    suggestionsPanel.classList.add('hidden');
+                    return;
+                }
+                debounceTimer = setTimeout(() => { executeFetch(query); }, 400);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target !== addressInput && e.target !== suggestionsPanel) {
+                    suggestionsPanel.classList.add('hidden');
+                }
+            });
+        }
+
+        // Local Registry Storage Repository Interface Layout
+        const LOCAL_STORAGE_KEY = 'panda_offers_premium_registry_db';
+
+        function fetchLocalRegistry() {
+            const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveToLocalRegistry(item) {
+            const currentRegistry = fetchLocalRegistry();
+            currentRegistry.unshift(item);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(currentRegistry));
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            addBuyerCard();
+            safelyBindVisibilityTriggers(); 
+            updateFormVisibility(); 
+            initLiveQLDAutocomplete('main_property_address', 'main_address_suggestions');
+            initLiveQLDAutocomplete('property_to_be_sold_address', 'address_suggestions');
+        });
+    </script>
+</body>
+</html>

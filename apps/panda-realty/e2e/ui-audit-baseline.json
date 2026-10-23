@@ -1,0 +1,15 @@
+{
+  "sidebar": {
+    "width": 255
+  },
+  "fontScale": {
+    "h1": 18,
+    "body": 14
+  },
+  "spacing": {
+    "pageGutter": 0
+  },
+  "borderRadius": {
+    "button": 8
+  }
+}

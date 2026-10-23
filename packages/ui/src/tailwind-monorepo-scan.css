@@ -1,0 +1,7 @@
+/**
+ * Import from each app’s `app/globals.css` immediately after `@import "tailwindcss"`.
+ * Tailwind v4 otherwise may not scan `@repo/ui` / `@repo/admin`, so utilities used only
+ * there are missing from the app CSS bundle (admin/dialogs look “unstyled”).
+ */
+@source ".";
+@source "../../admin";

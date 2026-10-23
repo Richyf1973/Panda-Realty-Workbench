@@ -1,0 +1,9 @@
+.vercel
+.scratch/
+playwright.scratch.config.ts
+docs/stories/
+docs/calibration/
+e2e/screenshots/
+e2e/.auth/
+public/proforma-offer-multi-offer-disclosure.html
+public/calibrate-view.html

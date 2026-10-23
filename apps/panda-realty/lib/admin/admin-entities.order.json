@@ -1,0 +1,28 @@
+{
+  "slugs": [
+    "agents",
+    "buyer-status",
+    "buyer-offers",
+    "buyer-requirement",
+    "contact-categories",
+    "contacts",
+    "entities",
+    "entity-buyer-requirements",
+    "entity-buyer-statuses",
+    "entity-categories",
+    "entity-members",
+    "event-timelines",
+    "events",
+    "lead-sources",
+    "properties",
+    "property-types",
+    "suburbs",
+    "property-entity-files",
+    "property-entity-notes",
+    "property-entities",
+    "property-status",
+    "address-type-conversions",
+    "property-forms",
+    "property-form-sends"
+  ]
+}

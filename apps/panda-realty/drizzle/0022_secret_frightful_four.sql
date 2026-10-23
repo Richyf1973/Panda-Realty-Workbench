@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "email_signatures_single_default_idx" ON "panda_realty"."email_signatures" USING btree ("is_default") WHERE "panda_realty"."email_signatures"."is_default" = true;

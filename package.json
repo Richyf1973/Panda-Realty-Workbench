@@ -1,0 +1,5 @@
+{
+  "name": "panda-realty-monorepo",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"]
+}

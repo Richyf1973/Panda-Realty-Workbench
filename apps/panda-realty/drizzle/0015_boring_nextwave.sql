@@ -1,0 +1,1 @@
+ALTER TABLE "panda_realty"."property_meetings" ADD COLUMN "reminders_json" text;

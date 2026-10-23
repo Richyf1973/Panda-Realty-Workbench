@@ -1,0 +1,1 @@
+ALTER TABLE "panda_realty"."buyer_offers" ADD COLUMN "subject_to_sale_address" text;

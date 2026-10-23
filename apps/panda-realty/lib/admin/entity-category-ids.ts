@@ -1,0 +1,4 @@
+export const ENTITY_CATEGORY_BUYER = 1
+export const ENTITY_CATEGORY_CONTACT = 4
+
+export const CONTACT_CATEGORY_SOLICITOR = 1

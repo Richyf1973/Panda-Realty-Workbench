@@ -1,0 +1,29 @@
+@import "tailwindcss";
+@import "@repo/ui/tailwind-monorepo-scan.css";
+@import "tw-animate-css";
+@import "@repo/ui/app-theme.css";
+
+/*
+ * Offer Form Submission print isolation.
+ * Gated by `body.printing-offer-submission`, a class the panel's Print button toggles only for the
+ * duration of its own window.print() call. Other print surfaces (e.g. the public offer form) never
+ * get this class, so their print output is unaffected.
+ */
+@media print {
+  body.printing-offer-submission * {
+    visibility: hidden;
+  }
+  body.printing-offer-submission .panda-offer-print-area,
+  body.printing-offer-submission .panda-offer-print-area * {
+    visibility: visible;
+  }
+  body.printing-offer-submission .panda-offer-print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0;
+    background: #fff;
+    color: #000;
+  }
+}

@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Forma Contract Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Dancing+Script:wght@400..700&family=Great+Vibes&family=Sacramento&display=swap" rel="stylesheet">
+
+    <style>
+        @media print {
+            /* Hardcode zero margins on top and bottom of each printable A4 page canvas */
+            @page {
+                size: A4;
+                margin: 0mm 10mm 0mm 10mm;
+            }
+            
+            /* Ground base body layouts safely with minimal padding at the absolute edges */
+            body {
+                background-color: #ffffff !important;
+                font-size: 11px !important;
+                line-height: 1.2 !important;
+                padding-top: 0mm !important;  /* Snaps layout directly to the top edge */
+                padding-bottom: 5mm !important;
+                margin: 0 !important;
+                color: #000000 !important;
+            }
+
+            /* Compress outer shadow layouts and boundary lines */
+            .max-w-4xl {
+                max-width: 100% !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important; /* Prevents browser from cutting off fields on page breaks */
+            }
+
+            /* Hide non-printable web UI components cleanly */
+            #add_buyer_btn,
+            .pt-4.grid,
+            button,
+            [id^="mode_draw_btn_"],
+            [id^="mode_type_btn_"],
+            .absolute.top-1.right-2 {
+                display: none !important;
+            }
+
+            /* Compress base spacing configurations across core containers */
+            form {
+                padding: 0.5rem !important;
+                margin: 0 !important;
+            }
+            
+            /* Shrink spacing between individual programmatic block sections */
+            form > div {
+                margin-top: 0.75rem !important;
+                margin-bottom: 0.75rem !important;
+                padding: 0 !important;
+            }
+
+            h2 {
+                margin-bottom: 0.5rem !important;
+                padding-bottom: 0.25rem !important;
+                font-size: 14px !important;
+            }
+
+            /* Compact form fields grids tightly down to save real estate */
+            .grid {
+                gap: 0.5rem !important;
+            }
+
+            input, select, textarea {
+                padding: 0.4rem 0.6rem !important;
+                font-size: 11px !important;
+                border-color: #cbd5e1 !important;
+                background-color: #ffffff !important;
+            }
+
+            /* Protect key segments and parameters from split page fragmentation */
+            [id^="buyer_card_stack_"],
+            #financial_offer_section,
+            #main_settlement_container,
+            #subject_to_sale_container,
+            #subject_to_finance_container,
+            #finance_details_sub_container,
+            #building_pest_days_container,
+            #signatures_container > div,
+            .print-avoid-break {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                overflow: visible !important;
+            }
+
+            /* Force standard browsers to preserve color distributions during processing paths */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Resize top header logo banner precisely for high-DPI paper layouts */
+            .text-4xl {
+                font-size: 1.75rem !important;
+            }
+            .text-2xl {
+                font-size: 1.25rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+
+    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+        
+        <div class="bg-slate-900 text-white px-8 py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-orange-500 gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">PRO FORMA CONTRACT</h1>
+                <p class="text-slate-400 text-sm mt-1">Real Estate Offer Submission Form</p>
+            </div>
+            <div class="mt-4 sm:mt-0 text-left sm:text-right">
+                <span class="text-green-500 font-bold tracking-widest text-2xl sm:text-[45px] block leading-none">MY PANDA REALTY</span>
+            </div>
+        </div>
+
+        <form class="p-8 space-y-8" id="contract_form" action="/submit-offer" method="POST">
+            
+            <div>
+                <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">1. Property & Buyer Details</h2>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700">Property Address</label>
+                        <input type="text" id="main_property_address" name="property_address" required autocomplete="off" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500" placeholder="Type a Queensland property address...">
+                        <div id="main_address_suggestions" class="hidden absolute z-20 w-full bg-white border border-gray-200 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto"></div>
+                    </div>
+                    
+                    <div id="buyers_container" class="space-y-4"></div>
+
+                    <div class="text-right">
+                        <button type="button" id="add_buyer_btn" class="inline-flex items-center justify-center bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-800 text-sm font-semibold py-2 px-4 rounded-lg shadow-sm transition">
+                            + Add Another Buyer
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">2. Solicitor Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Solicitor's Name</label>
+                        <input type="text" name="solicitor_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Solicitor's Phone</label>
+                        <input type="tel" name="solicitor_phone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Solicitor's Address</label>
+                        <input type="text" name="solicitor_address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Solicitor's Email</label>
+                        <input type="email" name="solicitor_email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500">
+                    </div>
+                </div>
+            </div>
+
+            <div id="financial_offer_section">
+                <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">3. Offer Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-gray-200">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-900">Offer Amount ($)</label>
+                        <input type="number" name="offer_amount" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border font-semibold text-lg focus:ring-slate-500 focus:border-slate-500" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Total Deposit Amount ($)</label>
+                        <input type="number" name="total_deposit" value="20000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border font-semibold text-lg focus:ring-slate-500 focus:border-slate-500" placeholder="20000">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Initial Payment ($) <span class="text-xs text-gray-500 font-normal">(Payable if offer is accepted)</span></label>
+                        <input type="number" name="initial_payment" value="2000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500" placeholder="2000">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">2nd Payment / Balance ($) <span class="text-xs text-gray-500 font-normal">(Payable when contract becomes unconditional)</span></label>
+                        <input type="number" name="second_payment" value="18000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500" placeholder="18000">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">4. Offer Terms & Conditions</h2>
+                <div class="space-y-6">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Statutory cooling off period is 5 days for residential home sales. And 21 days for manufactured home sales. Do you wish to waive this statutory cooling off period?</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center"><input type="radio" name="waive_cooling_off" value="yes" class="text-slate-900"><span class="ml-2">Yes</span></label>
+                            <label class="inline-flex items-center"><input type="radio" name="waive_cooling_off" value="no" checked class="text-slate-900"><span class="ml-2">No</span></label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Are you a Cash Buyer?</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center"><input type="radio" id="cash_buyer_yes" name="cash_buyer" value="yes" class="text-slate-900"><span class="ml-2">Yes</span></label>
+                            <label class="inline-flex items-center"><input type="radio" id="cash_buyer_no" name="cash_buyer" value="no" checked class="text-slate-900"><span class="ml-2">No</span></label>
+                        </div>
+                    </div>
+
+                    <div id="subject_to_finance_container" class="bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-4 transition-all duration-200">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Is this offer subject to finance?</label>
+                            <div class="flex space-x-4">
+                                <label class="inline-flex items-center"><input type="radio" id="subject_to_finance_yes" name="subject_to_finance" value="yes" class="text-slate-900"><span class="ml-2">Yes</span></label>
+                                <label class="inline-flex items-center"><input type="radio" id="subject_to_finance_no" name="subject_to_finance" value="no" checked class="text-slate-900"><span class="ml-2">No</span></label>
+                            </div>
+                        </div>
+                        
+                        <div id="finance_details_sub_container" class="hidden space-y-4 pt-2 border-t border-gray-200">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">If subject to finance are you pre-approved?</label>
+                                <div class="flex space-x-4">
+                                    <label class="inline-flex items-center"><input type="radio" name="finance_preapproved" value="yes" class="text-slate-900"><span class="ml-2">Yes</span></label>
+                                    <label class="inline-flex items-center"><input type="radio" name="finance_preapproved" value="no" checked class="text-slate-900"><span class="ml-2">No</span></label>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Days required to get fully approved from Bank</label>
+                                    <select name="finance_approval_days" class="block w-full rounded-md border-gray-300 shadow-sm p-2.5 border bg-white focus:ring-slate-500 focus:border-slate-500">
+                                        <option value="7" selected>7 Days</option>
+                                        <option value="14">14 Days</option>
+                                        <option value="21">21 Days</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Which bank or finance company will you be using?</label>
+                                    <input type="text" name="finance_provider" class="block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500" placeholder="e.g., CBA, ANZ, Westpac">
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg bg-white overflow-hidden text-sm">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-4 py-2 text-left font-medium text-gray-500 text-xs uppercase tracking-wider border-b">Bank Contact Name</th>
+                                            <th scope="col" class="px-4 py-2 text-left font-medium text-gray-500 text-xs uppercase tracking-wider border-b">Bank Contact Phone Number</th>
+                                            <th scope="col" class="px-4 py-2 text-left font-medium text-gray-500 text-xs uppercase tracking-wider border-b">Bank Contact Email Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-2 py-2"><input type="text" name="bank_contact_name" class="w-full rounded-md border-gray-300 p-1.5 border focus:ring-slate-500 focus:border-slate-500" placeholder="Contact Name"></td>
+                                            <td class="px-2 py-2"><input type="tel" name="bank_contact_phone" class="w-full rounded-md border-gray-300 p-1.5 border focus:ring-slate-500 focus:border-slate-500" placeholder="Phone Number"></td>
+                                            <td class="px-2 py-2"><input type="email" name="bank_contact_email" class="w-full rounded-md border-gray-300 p-1.5 border focus:ring-slate-500 focus:border-slate-500" placeholder="Email Address"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Do you require a building and pest inspection?</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center"><input type="radio" id="building_pest_yes" name="building_pest" value="yes" class="text-slate-900"><span class="ml-2">Yes</span></label>
+                            <label class="inline-flex items-center"><input type="radio" id="building_pest_no" name="building_pest" value="no" checked class="text-slate-900"><span class="ml-2">No</span></label>
+                        </div>
+                        
+                        <div id="building_pest_days_container" class="hidden mt-3 p-4 bg-white rounded-xl border border-gray-200 max-w-lg transition-all duration-200 space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-2">Select Inspection Timeline</label>
+                                <div class="flex space-x-6">
+                                    <label class="inline-flex items-center"><input type="radio" name="building_pest_days" value="7_days" checked class="text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">7 Days</span></label>
+                                    <label class="inline-flex items-center"><input type="radio" name="building_pest_days" value="14_days" class="text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">14 Days</span></label>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-gray-100 pt-3">
+                                <label class="block text-xs font-semibold text-gray-600 mb-2">Do you wish My Panda Realty to suggest some building inspection companies for the property inspection?</label>
+                                <div class="flex space-x-6">
+                                    <label class="inline-flex items-center"><input type="radio" name="suggest_building_companies" value="yes" class="text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">Yes</span></label>
+                                    <label class="inline-flex items-center"><input type="radio" name="suggest_building_companies" value="no" checked class="text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">No</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="subject_to_sale_container" class="bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-4 transition-all duration-200">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Will this offer be subject to the Sale of another property?</label>
+                            <div class="flex space-x-4">
+                                <label class="inline-flex items-center"><input type="radio" id="subject_to_sale_yes" name="subject_to_sale" value="yes" class="text-slate-900"><span class="ml-2">Yes</span></label>
+                                <label class="inline-flex items-center"><input type="radio" id="subject_to_sale_no" name="subject_to_sale" value="no" checked class="text-slate-900"><span class="ml-2">No</span></label>
+                            </div>
+                        </div>
+                        
+                        <div id="sale_details_sub_container" class="hidden space-y-4 pt-2 border-t border-gray-200">
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Address of the Property to be Sold</label>
+                                <input type="text" id="property_to_be_sold_address" name="property_to_be_sold_address" autocomplete="off" class="block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500" placeholder="Type your Queensland property to be sold...">
+                                <div id="address_suggestions" class="hidden absolute z-10 w-full bg-white border border-gray-200 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">If yes, what is the current status?</label>
+                                <select id="sale_status_dropdown" name="sale_status" class="block w-full rounded-md border-gray-300 shadow-sm p-2.5 border bg-white focus:ring-slate-500 focus:border-slate-500">
+                                    <option value="">-- Select Status --</option>
+                                    <option value="to_be_listed">To be Listed</option>
+                                    <option value="on_the_market">On the Market</option>
+                                    <option value="under_contract">Under Contract</option>
+                                </select>
+                            </div>
+
+                            <div id="sale_timeline_metrics_container" class="hidden transition-all duration-200 bg-white p-4 rounded-lg border border-gray-200 space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div id="days_before_live_field_container">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">How many days before listing is live?</label>
+                                        <input type="number" name="days_before_listing_live" class="block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500" placeholder="e.g., 7">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">How many days do expect it to take to get a sale contract?</label>
+                                        <input type="number" name="days_to_get_sale_contract" class="block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500" placeholder="e.g., 30">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">How many days do you expect it to take from contract date to get an Unconditional Contract?</label>
+                                        <input type="number" name="days_to_get_unconditional_contract" class="block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500" placeholder="e.g., 45">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">How many days do you expect it to take from contract date to settle on your existing property?</label>
+                                        <input type="number" id="days_to_settle_existing_property" name="days_to_settle_existing_property" class="block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500" placeholder="e.g., 60">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="under_contract_details_container" class="hidden transition-all duration-200 bg-white p-4 rounded-lg border border-gray-200 space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Is this contract unconditional yet?</label>
+                                    <div class="flex space-x-4">
+                                        <label class="inline-flex items-center"><input type="radio" id="uc_unconditional_yes" name="uc_is_unconditional" value="yes" class="text-slate-900"><span class="ml-2">Yes</span></label>
+                                        <label class="inline-flex items-center"><input type="radio" id="uc_unconditional_no" name="uc_is_unconditional" value="no" class="text-slate-900"><span class="ml-2">No</span></label>
+                                    </div>
+                                </div>
+
+                                <div id="uc_fields_not_unconditional" class="hidden space-y-4 border-t border-gray-100 pt-3">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">What date will the contract become unconditional?</label>
+                                            <input type="date" name="contract_unconditional_date" class="block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">What date will settlement occur?</label>
+                                            <input type="date" id="buyer_sale_settlement_date_no" name="buyer_sale_settlement_date_no" class="block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">What conditions apply to this contract? <span class="text-xs text-gray-500 font-normal">(Select all that apply)</span></label>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border border-gray-100">
+                                            <label class="inline-flex items-center"><input type="checkbox" name="active_conditions" value="finance" class="rounded text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">Subject to Finance</span></label>
+                                            <label class="inline-flex items-center"><input type="checkbox" name="active_conditions" value="building_pest" class="rounded text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">Building & Pest Inspection</span></label>
+                                            <label class="inline-flex items-center"><input type="checkbox" name="active_conditions" value="sale_of_property" class="rounded text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">Sale of Another Property</span></label>
+                                            <label class="inline-flex items-center"><input type="checkbox" id="current_condition_other" name="active_conditions" value="other" class="rounded text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">Other Conditions</span></label>
+                                        </div>
+                                    </div>
+
+                                    <div id="current_condition_elaboration_container" class="hidden transition-all duration-200 bg-white p-3 rounded-lg border border-gray-200 mt-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Please elaborate on the other conditions:</label>
+                                        <textarea name="current_conditions_elaboration" rows="2" class="block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500" placeholder="Specify other conditions here..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div id="uc_fields_is_unconditional" class="hidden border-t border-gray-100 pt-3 space-y-4">
+                                    <div class="max-w-sm">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">What date will settlement occur?</label>
+                                        <input type="date" id="buyer_sale_settlement_date_yes" name="buyer_sale_settlement_date_yes" class="block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">What conditions applied to this contract? <span class="text-xs text-gray-500 font-normal">(Select all that apply)</span></label>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border border-gray-100">
+                                            <label class="inline-flex items-center"><input type="checkbox" name="past_conditions" value="finance" class="rounded text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">Subject to Finance</span></label>
+                                            <label class="inline-flex items-center"><input type="checkbox" name="past_conditions" value="building_pest" class="rounded text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">Building & Pest Inspection</span></label>
+                                            <label class="inline-flex items-center"><input type="checkbox" name="past_conditions" value="sale_of_property" class="rounded text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">Sale of Another Property</span></label>
+                                            <label class="inline-flex items-center"><input type="checkbox" id="past_condition_other" name="past_conditions" value="other" class="rounded text-slate-900 focus:ring-slate-500"><span class="ml-2 text-sm text-gray-700">Other Conditions</span></label>
+                                        </div>
+                                    </div>
+
+                                    <div id="other_condition_elaboration_container" class="hidden transition-all duration-200 bg-white p-3 rounded-lg border border-gray-200 mt-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Please elaborate on the other conditions:</label>
+                                        <textarea name="other_conditions_elaboration" rows="2" class="block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-slate-500 focus:border-slate-500" placeholder="Specify other conditions here..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="free_appraisal_container" class="hidden pt-2 transition-all duration-200">
+                                <label class="block text-sm font-medium text-slate-800 font-semibold mb-2">Would you like My Panda Realty to give you a free Market Appraisal?</label>
+                                <div class="flex space-x-4">
+                                    <label class="inline-flex items-center"><input type="radio" name="free_appraisal" value="yes" class="text-slate-900"><span class="ml-2 font-medium">Yes</span></label>
+                                    <label class="inline-flex items-center"><input type="radio" name="free_appraisal" value="no" checked class="text-slate-900"><span class="ml-2 font-medium">No</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="main_settlement_container" class="bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-2 transition-all duration-200">
+                        <label class="block text-sm font-medium text-gray-700">Preferred Settlement Period or Date</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+                            <input type="text" id="settlement_period_days" name="settlement_period_days" class="block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500 bg-white" placeholder="e.g., 30 Days">
+                            <input type="date" id="settlement_date_picker" name="settlement_date_picker" class="block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500 bg-white">
+                        </div>
+                        <p id="settlement_helper_note" class="text-[12px] text-slate-700 font-medium mt-1">Picking a calendar date will automatically calculate the number of days.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">5. Extra Comments</h2>
+                <textarea name="extra_comments" rows="4" class="block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-slate-500 focus:border-slate-500" placeholder="Add any additional conditions or notes here..."></textarea>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">6. Signatures</h2>
+                <div id="signatures_container" class="grid grid-cols-1 gap-6"></div>
+            </div>
+
+            <div class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button type="button" onclick="window.print()" class="w-full bg-white text-slate-900 border border-slate-300 font-bold py-3 px-4 rounded-xl shadow hover:bg-slate-50 transition duration-150 ease-in-out flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H7a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print Form Layout
+                </button>
+                <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 px-4 rounded-xl shadow hover:bg-slate-800 transition duration-150 ease-in-out">
+                    Submit Offer & Generate PDF
+                </button>
+            </div>
+        </form>
+
+        <div class="bg-slate-100 px-8 py-4 border-t border-gray-200 text-xs text-gray-600 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <strong>Sales Agent:</strong> Maria Koch<br>
+                <strong>Phone:</strong> 0493 635 666 | <strong>Email:</strong> maria@mypandarealty.com.au
+            </div>
+            <div>
+                <strong>Sales Agent:</strong> Richard Falzon<br>
+                <strong>Phone:</strong> 0490 456 959 | <strong>Email:</strong> richard@mypandarealty.com.au
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Dynamic Sequential Buyer Field Processing System
+        let buyerStackCount = 0;
+
+        function addBuyerCard() {
+            buyerStackCount++;
+            const wrapper = document.getElementById('buyers_container');
+            
+            const firstAddressInput = document.querySelector('input[name="buyer_individual_address[]"]');
+            const defaultAddress = firstAddressInput ? firstAddressInput.value : '';
+
+            const card = document.createElement('div');
+            card.id = `buyer_card_stack_${buyerStackCount}`;
+            card.className = "p-4 bg-slate-50 rounded-xl border border-gray-200 relative space-y-4 transition-all duration-150";
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h3 class="text-sm font-bold text-slate-700 tracking-wide buyer-heading">Buyer ${buyerStackCount} Details</h3>
+                    ${buyerStackCount > 1 ? `<button type="button" onclick="removeBuyerCard(${buyerStackCount})" class="text-xs text-red-500 hover:text-red-700 font-semibold transition">Remove</button>` : ''}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600">Full Name (As on licence)</label>
+                        <input type="text" name="buyer_full_name[]" required class="mt-1 block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600">Phone</label>
+                        <input type="tel" name="buyer_individual_phone[]" ${buyerStackCount === 1 ? 'required' : ''} class="mt-1 block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500 bg-white">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600">Email</label>
+                        <input type="email" name="buyer_individual_email[]" ${buyerStackCount === 1 ? 'required' : ''} class="mt-1 block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600">Current Address</label>
+                        <input type="text" name="buyer_individual_address[]" value="${buyerStackCount > 1 ? defaultAddress : ''}" required class="mt-1 block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500 bg-white">
+                    </div>
+                </div>
+                
+                <div class="pt-2 border-t border-gray-200 class-rep-wrapper">
+                    <label class="inline-flex items-center cursor-pointer select-none">
+                        <input type="checkbox" name="buyer_has_representative[]" value="yes" onchange="this.closest('.class-rep-wrapper').querySelector('.class-rep-fields').classList.toggle('hidden', !this.checked)" class="rounded text-slate-900 border-gray-300 focus:ring-slate-500">
+                        <span class="ml-2 text-xs font-semibold text-slate-700">Is this buyer represented by a third party? (e.g. Power of Attorney, Buyer's Agent)</span>
+                    </label>
+                    
+                    <div class="class-rep-fields hidden mt-3 p-4 bg-white rounded-lg border border-gray-200 space-y-4 transition-all duration-200">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600">Representative's Full Name</label>
+                                <input type="text" name="buyer_rep_name[]" class="mt-1 block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600">Representative's Phone</label>
+                                <input type="tel" name="buyer_rep_phone[]" class="mt-1 block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600">Representative's Email</label>
+                                <input type="email" name="buyer_rep_email[]" class="mt-1 block w-full rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500 bg-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Is this representative the preferred contact for this transaction?</label>
+                            <div class="flex space-x-4">
+                                <label class="inline-flex items-center"><input type="radio" name="buyer_rep_is_preferred_${buyerStackCount}" value="yes" checked class="text-slate-900 focus:ring-slate-500"><span class="ml-2 text-xs font-medium text-gray-700">Yes</span></label>
+                                <label class="inline-flex items-center"><input type="radio" name="buyer_rep_is_preferred_${buyerStackCount}" value="no" class="text-slate-900 focus:ring-slate-500"><span class="ml-2 text-xs font-medium text-gray-700">No</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            wrapper.appendChild(card);
+            synchronizeSignaturesPanel();
+        }
+
+        function removeBuyerCard(cardId) {
+            const target = document.getElementById(`buyer_card_stack_${cardId}`);
+            if (target) {
+                target.remove();
+                reindexBuyerLayoutHierarchy();
+            }
+        }
+
+        function reindexBuyerLayoutHierarchy() {
+            const wrapper = document.getElementById('buyers_container');
+            const activeCards = wrapper.children;
+            buyerStackCount = 0;
+            
+            Array.from(activeCards).forEach((card) => {
+                buyerStackCount++;
+                card.id = `buyer_card_stack_${buyerStackCount}`;
+                
+                const heading = card.querySelector('.buyer-heading');
+                if (heading) heading.textContent = `Buyer ${buyerStackCount} Details`;
+                
+                const removeBtn = card.querySelector('button');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeBuyerCard(${buyerStackCount})`);
+                }
+
+                const radios = card.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => {
+                    if (radio.name.startsWith('buyer_rep_is_preferred_')) {
+                        radio.name = `buyer_rep_is_preferred_${buyerStackCount}`;
+                    }
+                });
+            });
+            synchronizeSignaturesPanel();
+        }
+
+        function synchronizeSignaturesPanel() {
+            const signatureContainer = document.getElementById('signatures_container');
+            const wrapper = document.getElementById('buyers_container');
+            const currentBuyerCount = wrapper.children.length;
+            
+            if (currentBuyerCount === 1) {
+                signatureContainer.className = "grid grid-cols-1 gap-6";
+            } else {
+                signatureContainer.className = "grid grid-cols-1 md:grid-cols-2 gap-6";
+            }
+
+            while (signatureContainer.children.length > currentBuyerCount) {
+                signatureContainer.lastElementChild.remove();
+            }
+
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayValueStr = `${yyyy}-${mm}-${dd}`;
+            const todayDisplayStr = today.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            const signatureFontStacks = [
+                "'Brush Script MT', 'Dancing Script', cursive, sans-serif",
+                "'Dancing Script', cursive, sans-serif",
+                "'Great Vibes', cursive, sans-serif",
+                "'Sacramento', cursive, sans-serif",
+                "'Caveat', cursive, sans-serif"
+            ];
+
+            const startingIndex = signatureContainer.children.length + 1;
+            for (let i = startingIndex; i <= currentBuyerCount; i++) {
+                const customFont = signatureFontStacks[(i - 1) % signatureFontStacks.length];
+                
+                const signatureBox = document.createElement('div');
+                signatureBox.className = "p-4 border rounded-xl border-dashed border-gray-300 bg-slate-50 transition-all";
+                signatureBox.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-medium text-gray-700">Buyer ${i} Signature Acknowledgement</label>
+                        <div class="inline-flex rounded-md shadow-sm text-xs bg-white p-0.5 border border-gray-200">
+                            <button type="button" onclick="switchSignatureMode(${i}, 'type')" id="mode_type_btn_${i}" class="px-2 py-1 bg-slate-900 text-white rounded font-medium transition">Type</button>
+                            <button type="button" onclick="switchSignatureMode(${i}, 'draw')" id="mode_draw_btn_${i}" class="px-2 py-1 text-gray-600 rounded font-medium transition">Draw</button>
+                        </div>
+                    </div>
+
+                    <div id="draw_container_buyer_${i}" class="hidden space-y-2">
+                        <div class="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-inner relative">
+                            <canvas id="signature_pad_buyer_${i}" class="w-full h-24 touch-none cursor-crosshair" width="400" height="96"></canvas>
+                            <button type="button" onclick="clearSignatureCanvas(${i})" class="absolute top-1 right-2 text-[10px] bg-slate-100 border text-slate-500 hover:text-slate-800 px-1.5 py-0.5 rounded transition">Clear</button>
+                        </div>
+                    </div>
+
+                    <div id="type_container_buyer_${i}" class="space-y-2">
+                        <input type="text" id="signature_text_input_${i}" oninput="mirrorTypedSignature(${i})" class="block w-full text-sm rounded-md border-gray-300 p-2 border focus:ring-slate-500 focus:border-slate-500" placeholder="Type your full legal name here...">
+                        <div class="border border-gray-200 rounded-lg bg-white shadow-inner h-20 flex items-center justify-center overflow-hidden px-4">
+                            <p id="signature_text_rendering_${i}" class="text-3xl text-slate-800 select-none tracking-wide truncate w-full text-center" style="font-family: ${customFont};"></p>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="signature_data_buyer_${i}" name="buyer_${i}_signature_payload">
+                    <input type="hidden" id="signature_method_buyer_${i}" name="buyer_${i}_signature_method" value="type">
+                    
+                    <div class="mt-3 text-sm text-slate-700 bg-slate-100 p-2.5 rounded-md border border-gray-200 flex justify-between items-center select-none">
+                        <span class="font-medium text-slate-500">Date of Signing:</span>
+                        <span class="font-bold text-slate-900">${todayDisplayStr}</span>
+                    </div>
+                    <input type="hidden" name="buyer_${i}_sign_date" value="${todayValueStr}">
+                `;
+                signatureContainer.appendChild(signatureBox);
+                
+                setTimeout(() => {
+                    initSignatureDrawingEngine(`signature_pad_buyer_${i}`, `signature_data_buyer_${i}`);
+                }, 10);
+            }
+        }
+
+        function switchSignatureMode(index, mode) {
+            const drawWrapper = document.getElementById(`draw_container_buyer_${index}`);
+            const typeWrapper = document.getElementById(`type_container_buyer_${index}`);
+            const drawBtn = document.getElementById(`mode_draw_btn_${index}`);
+            const typeBtn = document.getElementById('mode_type_btn_' + index);
+            const methodInput = document.getElementById('signature_method_buyer_' + index);
+            const payloadInput = document.getElementById('signature_data_buyer_' + index);
+
+            methodInput.value = mode;
+            payloadInput.value = '';
+
+            if (mode === 'draw') {
+                drawWrapper.classList.remove('hidden');
+                typeWrapper.classList.add('hidden');
+                drawBtn.className = "px-2 py-1 bg-slate-900 text-white rounded font-medium transition";
+                typeBtn.className = "px-2 py-1 text-gray-600 rounded font-medium transition";
+                clearSignatureCanvas(index);
+            } else {
+                typeWrapper.classList.remove('hidden');
+                drawWrapper.classList.add('hidden');
+                typeBtn.className = "px-2 py-1 bg-slate-900 text-white rounded font-medium transition";
+                drawBtn.className = "px-2 py-1 text-gray-600 rounded font-medium transition";
+                document.getElementById(`signature_text_input_${index}`).value = '';
+                document.getElementById(`signature_text_rendering_${index}`).textContent = '';
+            }
+        }
+
+        function mirrorTypedSignature(index) {
+            const inputVal = document.getElementById(`signature_text_input_${index}`).value;
+            document.getElementById(`signature_text_rendering_${index}`).textContent = inputVal;
+            document.getElementById(`signature_data_buyer_${index}`).value = inputVal;
+        }
+
+        function initSignatureDrawingEngine(canvasId, hiddenInputId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const hiddenInput = document.getElementById(hiddenInputId);
+            let drawing = false;
+
+            ctx.strokeStyle = '#0f172a'; 
+            ctx.lineWidth = 1.0; 
+            ctx.lineCap = 'round';
+
+            function getCoordinates(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            canvas.addEventListener('mousedown', (e) => {
+                drawing = true;
+                const coords = getCoordinates(e);
+                ctx.beginPath();
+                ctx.moveTo(coords.x, coords.y);
+                e.preventDefault();
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!drawing) return;
+                const coords = getCoordinates(e);
+                ctx.lineTo(coords.x, coords.y);
+                ctx.stroke();
+                e.preventDefault();
+            });
+
+            const stopDrawing = () => {
+                if (!drawing) return;
+                drawing = false;
+                hiddenInput.value = canvas.toDataURL();
+            };
+
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+            
+            canvas.addEventListener('touchstart', (e) => {
+                drawing = true;
+                const coords = getCoordinates(e);
+                ctx.beginPath();
+                ctx.moveTo(coords.x, coords.y);
+                e.preventDefault();
+            }, { passive: false });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                if (!drawing) return;
+                const coords = getCoordinates(e);
+                ctx.lineTo(coords.x, coords.y);
+                ctx.stroke();
+                e.preventDefault();
+            }, { passive: false });
+            
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function clearSignatureCanvas(index) {
+            const canvas = document.getElementById(`signature_pad_buyer_${index}`);
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                document.getElementById(`signature_data_buyer_${index}`).value = '';
+            }
+        }
+
+        document.getElementById('add_buyer_btn').addEventListener('click', addBuyerCard);
+        
+        function extractLocalBounds(dateStr) {
+            if (!dateStr) return null;
+            const [year, month, day] = dateStr.split('-');
+            return new Date(year, month - 1, day);
+        }
+
+        // 2. Settlement Day Counter Logic
+        document.getElementById('settlement_date_picker').addEventListener('change', function() {
+            const selectedDateString = this.value;
+            const daysInput = document.getElementById('settlement_period_days');
+            const helperNote = document.getElementById('settlement_helper_note');
+
+            if (!selectedDateString) {
+                this.setCustomValidity('');
+                daysInput.setCustomValidity('');
+                return;
+            }
+
+            const selectedDate = extractLocalBounds(selectedDateString);
+            selectedDate.setHours(0, 0, 0, 0);
+
+            const dayOfWeekIdx = selectedDate.getDay(); 
+            const dayOfWeek = selectedDate.toLocaleDateString('en-AU', { weekday: 'long' });
+
+            if (dayOfWeekIdx === 0 || dayOfWeekIdx === 6) {
+                this.setCustomValidity('Settlement cannot occur on a weekend (Saturday or Sunday).');
+                daysInput.setCustomValidity('Settlement cannot occur on a weekend (Saturday or Sunday).');
+                this.value = '';
+                daysInput.value = '';
+                helperNote.innerHTML = `<span class="text-red-500 font-bold">⚠️ Error: Settlement cannot occur on a weekend (${dayOfWeek}). Please choose a weekday.</span>`;
+                updateFormVisibility();
+                return;
+            } else {
+                this.setCustomValidity('');
+                daysInput.setCustomValidity('');
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const timeDifference = selectedDate.getTime() - today.getTime();
+            const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+            
+            if (daysDifference > 0) {
+                daysInput.value = daysDifference + ` Days (${dayOfWeek})`;
+                helperNote.innerHTML = `Settlement date lands on a <strong>${dayOfWeek}</strong>.`;
+            } else if (daysDifference === 0) {
+                daysInput.value = `Today (${dayOfWeek})`;
+                helperNote.innerHTML = `Settlement date lands on a <strong>${dayOfWeek}</strong>.`;
+            } else {
+                daysInput.value = Math.abs(daysDifference) + ` Days Ago (${dayOfWeek})`;
+                helperNote.innerHTML = `Settlement date landed on a <strong>${dayOfWeek}</strong>.`;
+            }
+            updateFormVisibility();
+        });
+
+        document.getElementById('settlement_period_days').addEventListener('input', function() {
+            const query = this.value.trim();
+            const datePicker = document.getElementById('settlement_date_picker');
+            const helperNote = document.getElementById('settlement_helper_note');
+            
+            this.setCustomValidity('');
+            datePicker.setCustomValidity('');
+
+            if (!query) {
+                datePicker.value = '';
+                helperNote.textContent = 'Picking a calendar date will automatically calculate the number of days.';
+                updateFormVisibility();
+                return;
+            }
+
+            let targetDate = null;
+
+            if (query.toLowerCase() === 'today') {
+                targetDate = new Date();
+            } else {
+                const match = query.match(/\d+/);
+                if (match) {
+                    const days = parseInt(match[0], 10);
+                    targetDate = new Date();
+                    if (query.toLowerCase().includes('ago')) {
+                        targetDate.setDate(targetDate.getDate() - days);
+                    } else {
+                        targetDate.setDate(targetDate.getDate() + days);
+                    }
+                }
+            }
+
+            if (targetDate) {
+                const dayOfWeekIdx = targetDate.getDay();
+                const dayOfWeek = targetDate.toLocaleDateString('en-AU', { weekday: 'long' });
+
+                if (dayOfWeekIdx === 0 || dayOfWeekIdx === 6) {
+                    this.setCustomValidity('Settlement cannot fall on a weekend.');
+                    datePicker.setCustomValidity('Settlement cannot fall on a weekend.');
+                    datePicker.value = '';
+                    helperNote.innerHTML = `<span class="text-red-500 font-bold">⚠️ Error: Target date lands on a weekend (${dayOfWeek}). Please adjust days to fall on a business day.</span>`;
+                    updateFormVisibility();
+                    return;
+                }
+
+                const yyyy = targetDate.getFullYear();
+                const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(targetDate.getDate()).padStart(2, '0');
+                datePicker.value = `${yyyy}-${mm}-${dd}`;
+                helperNote.innerHTML = `Settlement date lands on a <strong>${dayOfWeek}</strong>.`;
+            }
+            updateFormVisibility();
+        });
+
+        // 3. Conditional Visibility Handlers
+        const cashBuyerYes = document.getElementById('cash_buyer_yes');
+        const cashBuyerNo = document.getElementById('cash_buyer_no');
+        const subjectToSaleContainer = document.getElementById('subject_to_sale_container');
+        const subjectToFinanceContainer = document.getElementById('subject_to_finance_container');
+        
+        const subjectToSaleYes = document.getElementById('subject_to_sale_yes');
+        const subjectToSaleNo = document.getElementById('subject_to_sale_no');
+        const saleDetailsSubContainer = document.getElementById('sale_details_sub_container');
+        
+        const saleStatusDropdown = document.getElementById('sale_status_dropdown');
+        const saleTimelineMetricsContainer = document.getElementById('sale_timeline_metrics_container');
+        const daysBeforeLiveFieldContainer = document.getElementById('days_before_live_field_container');
+        const underContractDetailsContainer = document.getElementById('under_contract_details_container');
+        
+        const ucUnconditionalYes = document.getElementById('uc_unconditional_yes');
+        const ucUnconditionalNo = document.getElementById('uc_unconditional_no');
+        const ucFieldsNotUnconditional = document.getElementById('uc_fields_not_unconditional');
+        const ucFieldsIsUnconditional = document.getElementById('uc_fields_is_unconditional');
+        
+        const subjectToFinanceYes = document.getElementById('subject_to_finance_yes');
+        const subjectToFinanceNo = document.getElementById('subject_to_finance_no');
+        const financeDetailsSubContainer = document.getElementById('finance_details_sub_container');
+        
+        const buildingPestYes = document.getElementById('building_pest_yes');
+        const buildingPestNo = document.getElementById('building_pest_no');
+        const buildingPestDaysContainer = document.getElementById('building_pest_days_container');
+
+        const pastConditionOther = document.getElementById('past_condition_other');
+        const otherConditionElaborationContainer = document.getElementById('other_condition_elaboration_container');
+
+        const currentConditionOther = document.getElementById('current_condition_other');
+        const currentConditionElaborationContainer = document.getElementById('current_condition_elaboration_container');
+        
+        const freeAppraisalContainer = document.getElementById('free_appraisal_container');
+        
+        const mainSettlementContainer = document.getElementById('main_settlement_container');
+        const daysToSettleExistingProperty = document.getElementById('days_to_settle_existing_property');
+        const buyerSaleSettlementDateYes = document.getElementById('buyer_sale_settlement_date_yes');
+        const buyerSaleSettlementDateNo = document.getElementById('buyer_sale_settlement_date_no');
+
+        function updateFormVisibility() {
+            let hideMainSettlement = false;
+
+            if (cashBuyerYes.checked) {
+                subjectToSaleContainer.classList.add('hidden');
+                subjectToFinanceContainer.classList.add('hidden');
+            } else {
+                subjectToSaleContainer.classList.remove('hidden');
+                subjectToFinanceContainer.classList.remove('hidden');
+                
+                if (subjectToFinanceYes.checked) {
+                    financeDetailsSubContainer.classList.remove('hidden');
+                } else {
+                    financeDetailsSubContainer.classList.add('hidden');
+                }
+            }
+
+            if (buildingPestYes.checked) {
+                buildingPestDaysContainer.classList.remove('hidden');
+            } else {
+                buildingPestDaysContainer.classList.add('hidden');
+            }
+
+            if (subjectToSaleYes.checked && !cashBuyerYes.checked) {
+                saleDetailsSubContainer.classList.remove('hidden');
+                
+                if (saleStatusDropdown.value === 'to_be_listed') {
+                    saleTimelineMetricsContainer.classList.remove('hidden');
+                    daysBeforeLiveFieldContainer.classList.remove('hidden');
+                    underContractDetailsContainer.classList.add('hidden');
+                    freeAppraisalContainer.classList.remove('hidden'); 
+                    
+                    if (daysToSettleExistingProperty.value.trim() !== '') hideMainSettlement = true;
+                } else if (saleStatusDropdown.value === 'on_the_market') {
+                    saleTimelineMetricsContainer.classList.remove('hidden');
+                    daysBeforeLiveFieldContainer.classList.add('hidden'); 
+                    underContractDetailsContainer.classList.add('hidden');
+                    freeAppraisalContainer.classList.add('hidden'); 
+                    
+                    if (daysToSettleExistingProperty.value.trim() !== '') hideMainSettlement = true;
+                } else if (saleStatusDropdown.value === 'under_contract') {
+                    saleTimelineMetricsContainer.classList.add('hidden');
+                    underContractDetailsContainer.className = "bg-white p-4 rounded-lg border border-gray-200 space-y-4";
+                    freeAppraisalContainer.classList.add('hidden'); 
+                    
+                    if (ucUnconditionalYes.checked) {
+                        ucFieldsIsUnconditional.classList.remove('hidden');
+                        ucFieldsNotUnconditional.classList.add('hidden');
+                        currentConditionElaborationContainer.classList.add('hidden');
+                        
+                        if (pastConditionOther.checked) {
+                            otherConditionElaborationContainer.classList.remove('hidden');
+                        } else {
+                            otherConditionElaborationContainer.classList.add('hidden');
+                        }
+                        
+                        if (buyerSaleSettlementDateYes.value !== '') hideMainSettlement = true;
+                    } else if (ucUnconditionalNo.checked) {
+                        ucFieldsNotUnconditional.classList.remove('hidden');
+                        ucFieldsIsUnconditional.classList.add('hidden');
+                        otherConditionElaborationContainer.classList.add('hidden');
+                        
+                        if (currentConditionOther.checked) {
+                            currentConditionElaborationContainer.classList.remove('hidden');
+                        } else {
+                            currentConditionElaborationContainer.classList.add('hidden');
+                        }
+                        
+                        if (buyerSaleSettlementDateNo.value !== '') hideMainSettlement = true;
+                    } else {
+                        ucFieldsIsUnconditional.classList.add('hidden');
+                        ucFieldsNotUnconditional.classList.add('hidden');
+                        currentConditionElaborationContainer.classList.add('hidden');
+                        otherConditionElaborationContainer.classList.add('hidden');
+                    }
+                } else {
+                    saleTimelineMetricsContainer.classList.add('hidden');
+                    underContractDetailsContainer.classList.add('hidden');
+                    freeAppraisalContainer.classList.add('hidden'); 
+                }
+            } else {
+                saleDetailsSubContainer.classList.add('hidden');
+                saleTimelineMetricsContainer.classList.add('hidden');
+                underContractDetailsContainer.classList.add('hidden');
+                freeAppraisalContainer.classList.add('hidden'); 
+            }
+
+            if (hideMainSettlement) {
+                mainSettlementContainer.classList.add('hidden');
+            } else {
+                mainSettlementContainer.classList.remove('hidden');
+            }
+        }
+
+        cashBuyerYes.addEventListener('change', updateFormVisibility);
+        cashBuyerNo.addEventListener('change', updateFormVisibility);
+        subjectToSaleYes.addEventListener('change', updateFormVisibility);
+        subjectToSaleNo.addEventListener('change', updateFormVisibility);
+        saleStatusDropdown.addEventListener('change', updateFormVisibility);
+        ucUnconditionalYes.addEventListener('change', updateFormVisibility);
+        ucUnconditionalNo.addEventListener('change', updateFormVisibility);
+        subjectToFinanceYes.addEventListener('change', updateFormVisibility);
+        subjectToFinanceNo.addEventListener('change', updateFormVisibility);
+        buildingPestYes.addEventListener('change', updateFormVisibility);
+        buildingPestNo.addEventListener('change', updateFormVisibility);
+        
+        daysToSettleExistingProperty.addEventListener('input', updateFormVisibility);
+        buyerSaleSettlementDateYes.addEventListener('change', updateFormVisibility);
+        buyerSaleSettlementDateNo.addEventListener('change', updateFormVisibility);
+        pastConditionOther.addEventListener('change', updateFormVisibility);
+        currentConditionOther.addEventListener('change', updateFormVisibility);
+
+        // 4. Live Queensland Address Lookup Engine (With Smart Number Fallback)
+        function initLiveQLDAutocomplete(inputId, suggestionsId) {
+            const addressInput = document.getElementById(inputId);
+            const suggestionsPanel = document.getElementById(suggestionsId);
+            let debounceTimer;
+
+            function executeFetch(searchQuery, originalNumberPrefix = "") {
+                const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&state=Queensland&country=Australia&limit=5`;
+                
+                fetch(apiUrl, {
+                    headers: {
+                        'Accept-Language': 'en-AU',
+                        'User-Agent': 'MyPandaRealtyApp/2026'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        suggestionsPanel.innerHTML = '';
+                        suggestionsPanel.classList.remove('hidden');
+                        
+                        data.forEach(item => {
+                            let cleanAddress = item.display_name.replace(", Australia", "");
+                            
+                            if (originalNumberPrefix && !/^\d/.test(cleanAddress)) {
+                                cleanAddress = `${originalNumberPrefix} ${cleanAddress}`;
+                            }
+
+                            const row = document.createElement('div');
+                            row.className = "px-4 py-2.5 hover:bg-slate-100 cursor-pointer text-sm text-gray-700 border-b border-gray-50 last:border-b-0 transition";
+                            row.textContent = cleanAddress;
+                            
+                            row.addEventListener('click', function() {
+                                addressInput.value = cleanAddress;
+                                suggestionsPanel.classList.add('hidden');
+                            });
+                            suggestionsPanel.appendChild(row);
+                        });
+                    } 
+                    else if (!originalNumberPrefix && /^\d+/.test(searchQuery)) {
+                        const numberMatch = searchQuery.match(/^(\d+\s*)/);
+                        if (numberMatch) {
+                            const prefix = numberMatch[1].trim();
+                            const fallbackQuery = searchQuery.replace(/^\d+\s*/, "").trim();
+                            executeFetch(fallbackQuery, prefix);
+                        }
+                    } 
+                    else if (suggestionsPanel.children.length === 0) {
+                        suggestionsPanel.innerHTML = '';
+                        suggestionsPanel.classList.remove('hidden');
+                        const emptyRow = document.createElement('div');
+                        emptyRow.className = "px-4 py-2.5 text-xs text-gray-400 italic";
+                        emptyRow.textContent = "No strict database match. You can type your exact address details completely manually.";
+                        suggestionsPanel.appendChild(emptyRow);
+                    }
+                })
+                .catch(error => console.error("Error fetching live addresses:", error));
+            }
+
+            addressInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length < 4) {
+                    suggestionsPanel.innerHTML = '';
+                    suggestionsPanel.classList.add('hidden');
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    executeFetch(query);
+                }, 400);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target !== addressInput && e.target !== suggestionsPanel) {
+                    suggestionsPanel.classList.add('hidden');
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            addBuyerCard();
+            updateFormVisibility();
+            initLiveQLDAutocomplete('main_property_address', 'main_address_suggestions');
+            initLiveQLDAutocomplete('property_to_be_sold_address', 'address_suggestions');
+        });
+    </script>
+</body>
+</html>

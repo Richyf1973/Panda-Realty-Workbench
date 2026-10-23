@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Contract S&P Page Viewer</title>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
+<style>
+body { margin: 0; background: #888; }
+.page-wrap { margin: 20px; background: white; display: inline-block; }
+canvas { display: block; }
+h2 { color: white; margin: 10px 20px; font-family: sans-serif; }
+</style>
+</head>
+<body>
+<div id="pages"></div>
+<script type="module">
+import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+
+const url = '/contract-sp-calibration-all.pdf';
+const pageNums = [3, 4, 5, 6];
+const scale = 2.0;
+
+const pdf = await pdfjsLib.getDocument(url).promise;
+const container = document.getElementById('pages');
+
+for (const num of pageNums) {
+  const page = await pdf.getPage(num);
+  const viewport = page.getViewport({ scale });
+  const h2 = document.createElement('h2');
+  h2.textContent = `PAGE ${num}`;
+  container.appendChild(h2);
+  const wrap = document.createElement('div');
+  wrap.className = 'page-wrap';
+  wrap.id = `page-${num}`;
+  const canvas = document.createElement('canvas');
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  wrap.appendChild(canvas);
+  container.appendChild(wrap);
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+}
+document.title = 'READY';
+</script>
+</body>
+</html>

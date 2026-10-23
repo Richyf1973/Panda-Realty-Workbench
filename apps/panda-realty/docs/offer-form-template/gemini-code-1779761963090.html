@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Customer Portal</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --warning: #ea580c;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Login Screen Styling */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .login-card h2 { margin-bottom: 8px; color: var(--text-dark); }
+        .login-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; }
+
+        .login-error { color: #dc2626; font-size: 0.85rem; margin-top: 8px; display: none; }
+        .demo-credentials { margin-top: 20px; background: #f1f5f9; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+
+        /* Main Portal Layout */
+        .portal-container {
+            display: none; /* Hidden until login verified */
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: #111c2e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            float: left;
+            height: 100%;
+        }
+
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; color: #38bdf8; }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn:hover, .nav-btn.active { background-color: var(--primary); color: white; }
+
+        .main-content {
+            margin-left: 260px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container { padding: 40px; flex: 1; overflow-y: auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        h3 { margin-bottom: 16px; color: var(--text-dark); }
+
+        /* Buttons Styling Dashboard */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #e2e8f0; color: #475569; }
+        .btn-secondary:hover { background-color: #cbd5e1; }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover { background-color: var(--danger-hover); }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 14px; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-muted); font-weight: 600; }
+
+        .actions-cell { display: flex; gap: 6px; }
+
+        .upload-zone {
+            border: 2px dashed #cbd5e1;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .upload-zone:hover { border-color: var(--primary); }
+
+        .signature-container { border: 1px solid var(--border); background: #ffffff; max-width: 500px; border-radius: 6px; margin-bottom: 15px; overflow: hidden; }
+        canvas { display: block; background-color: #fafafa; cursor: crosshair; }
+
+        .chat-box { height: 300px; border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-y: auto; background: #f8fafc; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 70%; padding: 10px 14px; border-radius: 8px; line-height: 1.4; }
+        .message.received { background-color: #e2e8f0; align-self: flex-start; color: var(--text-dark); }
+        .message.sent { background-color: var(--primary); color: white; align-self: flex-end; }
+        
+        .chat-input-row { display: flex; gap: 10px; }
+        .chat-input-row input { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 6px; outline: none; }
+
+        /* Document Viewer Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-box {
+            background: white;
+            width: 90%;
+            max-width: 700px;
+            height: 80vh;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .modal-body { padding: 24px; flex: 1; overflow-y: auto; background: #cbd5e1; display: flex; justify-content: center; }
+
+        .mock-pdf-page {
+            background: white;
+            width: 100%;
+            max-width: 550px;
+            min-height: 700px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-overlay" id="loginScreen">
+        <div class="login-card">
+            <h2>Secure Portal Login</h2>
+            <p>Please enter your credentials to access your dashboard.</p>
+            
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+                <div class="login-error" id="loginError">Invalid email or password.</div>
+            </div>
+            
+            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="tryLogin()">Log In</button>
+
+            <div class="demo-credentials">
+                <strong>Demo Accounts For Testing:</strong><br>
+                • <strong>Client View:</strong> client@portal.com / client123<br>
+                • <strong>Admin View (Us):</strong> admin@portal.com / admin123
+            </div>
+        </div>
+    </div>
+
+    <div class="portal-container" id="portalApp">
+        
+        <div class="sidebar">
+            <h2 id="sidebar-logo">Client Portal</h2>
+            <div id="client-nav-links">
+                <button class="nav-btn active" id="btn-docs" onclick="switchTab('docs')">📄 Documents</button>
+                <button class="nav-btn" id="btn-sign" onclick="switchTab('sign')">✍️ Sign Documents</button>
+                <button class="nav-btn" id="btn-messages" onclick="switchTab('messages')">💬 Messages</button>
+            </div>
+            <div id="admin-nav-links" style="display: none;">
+                <button class="nav-btn active" id="btn-admin" onclick="switchTab('admin-dashboard')">👥 Manage System</button>
+            </div>
+            <button class="nav-btn" style="margin-top: auto; background: #223147; color: #f8fafc;" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="main-content">
+            <header>
+                <h1 id="page-title">Documents</h1>
+                <div style="color: var(--text-muted)">Welcome, <strong id="user-display-name">User</strong></div>
+            </header>
+
+            <div class="container">
+                
+                <div id="tab-docs" class="tab-content active">
+                    <div class="card">
+                        <h3>Upload New Document</h3>
+                        
+                        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <label style="font-weight: 500; font-size: 0.9rem; color: var(--text-muted);">Set Status For This File:</label>
+                            <select id="uploadStatusSelect" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: white; outline: none; font-size: 0.9rem; cursor: pointer; font-weight: 600;">
+                                <option value="Uploaded" style="color: var(--success);">Uploaded (Green Badge)</option>
+                                <option value="Requires Signature" style="color: var(--warning);">Requires Signature (Orange Badge)</option>
+                                <option value="Verified" style="color: var(--success);">Verified (Green Badge)</option>
+                            </select>
+                        </div>
+
+                        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                            <p style="color: var(--text-muted)">Click or drag files here to upload (PDF, PNG, JPEG up to 10MB)</p>
+                            <input type="file" id="fileInput" style="display:none" onchange="simulateUpload(event)">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Your Vault</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Date Modified</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="document-table-body">
+                                <tr>
+                                    <td>Tax_Return_2025.pdf</td>
+                                    <td><span style="color: var(--success); font-weight: bold;">Verified</span></td>
+                                    <td>May 14, 2026</td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="btn btn-secondary btn-sm" onclick="openDocumentViewer('Tax_Return_2025.pdf', 'Verified System Audit Assets')">View</button>
+                                            <button class="btn btn-secondary btn-sm" onclick="alert('Printing document...')">Print</button>
+                                            <button class="btn btn-secondary btn-sm" onclick="alert('Downloading document...')">Download</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Rental_Agreement_Draft.pdf</td>
+                                    <td><span style="color: var(--warning); font-weight: bold;">Requires Signature</span></td>
+                                    <td>May 25, 2026</td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="btn btn-secondary btn-sm" onclick="openDocumentViewer('Rental_Agreement_Draft.pdf', 'Requires Executed Legal Framework Signatures')">View</button>
+                                            <button class="btn btn-secondary btn-sm" onclick="switchTab('sign')">View & Sign</button>
+                                            <button class="btn btn-secondary btn-sm" onclick="alert('Downloading document...')">Download</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-sign" class="tab-content">
+                    <div class="card">
+                        <h3>Review & Sign Pending Document</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 15px;">Document Target: <strong id="signing-doc-name">Rental_Agreement_Draft.pdf</strong></p>
+                        
+                        <div style="border: 1px solid var(--border); padding: 15px; margin-bottom: 20px; background: #fff; height: 120px; overflow-y: scroll; font-size: 0.9rem; border-radius: 6px;">
+                            <strong>ELECTRONIC RECORD AND SIGNATURE DISCLOSURE</strong><br>
+                            By providing your handwritten signature on this digital viewport canvas matrix, you acknowledge intent to formalize execution parameters regarding the underlying asset configuration files linked herewith.
+                        </div>
+
+                        <h3>Draw Your Signature Below</h3>
+                        <div class="signature-container">
+                            <canvas id="sig-canvas" width="500" height="150"></canvas>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn" onclick="applySignature()">Apply Signature</button>
+                            <button class="btn btn-secondary" onclick="clearSignature()">Clear Pad</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-messages" class="tab-content">
+                    <div class="card">
+                        <h3>Secure Support Channel</h3>
+                        <div class="chat-box" id="chat-box">
+                            <div class="message received">Welcome back! Let us know if you have questions regarding any newly modified or pending asset uploads.</div>
+                        </div>
+                        <div class="chat-input-row">
+                            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+                            <button class="btn" onclick="sendMessage()">Send</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-admin-dashboard" class="tab-content">
+                    <div class="card">
+                        <h3>Invite a New Client</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 15px;">Generate token hashes and send invitation access routes to client profiles.</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="email" id="inviteEmail" placeholder="client-email@example.com" style="padding: 10px; border: 1px solid var(--border); border-radius: 6px; flex: 1; outline: none;">
+                            <button class="btn" onclick="sendInvite()">Send Access Invitation</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Active Supervised Client Vaults</h3>
+                        <table>
+                            <thead><tr><th>Client Account Profile</th><th>System Tracking Status</th><th>Operational Control</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td>client@portal.com (John Doe)</td>
+                                    <td><span style="color: var(--success); font-weight: 500;">● Logged In / Online</span></td>
+                                    <td><button class="btn btn-secondary btn-sm" onclick="alert('Opening secure monitoring viewport...')">View Audits</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modalFileTitle" style="margin: 0;">Document Preview</h3>
+                <button class="btn btn-secondary btn-sm" onclick="closeDocumentViewer()">✕ Close</button>
+            </div>
+            <div class="modal-body">
+                <div class="mock-pdf-page">
+                    <h1 style="text-align: center; margin-bottom: 30px; font-size: 2rem; border-bottom: 2px solid #000; padding-bottom: 10px;">OFFICIAL RECORD METADATA</h1>
+                    <p style="margin-bottom: 15px;"><strong>Date:</strong> May 26, 2026</p>
+                    <p style="margin-bottom: 15px;"><strong>File Target Context:</strong> <span id="modalFileContext">System Parameters</span></p>
+                    <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #000;">
+                    <p style="text-align: justify; margin-bottom: 20px;">This panel acts as an in-browser layout sandbox container previewing document profiles securely. Upon linking backend server file configurations, this interface element will reliably mount target document components using explicit rendering frames.</p>
+                    <p style="text-align: justify;">All tracking states, metadata structures, and access hashes remain completely private under secure row-level access parameters.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = '';
+
+        // Verification Routine System
+        function tryLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+            const err = document.getElementById('loginError');
+
+            if (email === 'admin@portal.com' && pass === 'admin123') {
+                launchPortal('System Administrator', 'admin');
+            } else if (email === 'client@portal.com' && pass === 'client123') {
+                launchPortal('John Doe', 'client');
+            } else {
+                err.style.display = 'block';
+            }
+        }
+
+        function launchPortal(name, role) {
+            currentRole = role;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('portalApp').style.display = 'block';
+            document.getElementById('user-display-name').innerText = name;
+
+            if (role === 'admin') {
+                document.getElementById('client-nav-links').style.display = 'none';
+                document.getElementById('admin-nav-links').style.display = 'block';
+                document.getElementById('sidebar-logo').innerText = "Admin Console";
+                switchTab('admin-dashboard');
+            } else {
+                document.getElementById('client-nav-links').style.display = 'block';
+                document.getElementById('admin-nav-links').style.display = 'none';
+                document.getElementById('sidebar-logo').innerText = "Client Portal";
+                switchTab('docs');
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('portalApp').style.display = 'none';
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        // Dashboard Navigation Matrix Layout Router
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            if(tabId === 'admin-dashboard') document.getElementById('btn-admin').classList.add('active');
+            else document.getElementById(`btn-${tabId}`).classList.add('active');
+
+            const titles = { 'docs': 'Documents', 'sign': 'Sign Documents', 'messages': 'Messages', 'admin-dashboard': 'Admin Command Center' };
+            document.getElementById('page-title').innerText = titles[tabId] || 'Portal';
+
+            if(tabId === 'sign') initSignaturePad();
+        }
+
+        // Modal Controls for the Document Viewer
+        function openDocumentViewer(fileName, contextText) {
+            document.getElementById('modalFileTitle').innerText = `Viewing: ${fileName}`;
+            document.getElementById('modalFileContext').innerText = contextText;
+            document.getElementById('previewModal').style.display = 'flex';
+        }
+
+        function closeDocumentViewer() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        // Document Row Removal Engine Handler
+        function deleteRow(buttonElement) {
+            if (confirm("Are you sure you want to permanently delete this document?")) {
+                const targetedRow = buttonElement.closest('tr');
+                targetedRow.remove();
+            }
+        }
+
+        // Smart Dynamic Status Uploader Functional Logic Module
+        function simulateUpload(event) {
+            const file = event.target.files[0];
+            const chosenStatus = document.getElementById('uploadStatusSelect').value;
+            
+            if (file) {
+                const tbody = document.getElementById('document-table-body');
+                const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${file.name}</td>
+                    <td style="color: blue; font-weight: bold;">Processing...</td>
+                    <td>${today}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-secondary btn-sm" disabled>Processing</button>
+                    </td>
+                `;
+                tbody.prepend(newRow);
+
+                setTimeout(() => {
+                    let statusHTML = '';
+                    let actionHTML = '';
+
+                    // Evaluates inputs to inject matching action buttons including the View and Delete actions
+                    if (chosenStatus === 'Requires Signature') {
+                        statusHTML = '<span style="color: var(--warning); font-weight: bold;">Requires Signature</span>';
+                        actionHTML = `
+                            <button class="btn btn-secondary btn-sm" onclick="openDocumentViewer('${file.name}', 'User Uploaded Actionable Document Target Framework')">View</button>
+                            <button class="btn btn-secondary btn-sm" onclick="prepareSignatureTarget('${file.name}')">View & Sign</button>
+                            <button class="btn btn-secondary btn-sm" onclick="alert('Downloading file...')">Download</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">Delete</button>
+                        `;
+                    } else if (chosenStatus === 'Verified') {
+                        statusHTML = '<span style="color: var(--success); font-weight: bold;">Verified</span>';
+                        actionHTML = `
+                            <button class="btn btn-secondary btn-sm" onclick="openDocumentViewer('${file.name}', 'User Uploaded Secure Asset Record Archive')">View</button>
+                            <button class="btn btn-secondary btn-sm" onclick="alert('Opening print panel...')">Print</button>
+                            <button class="btn btn-secondary btn-sm" onclick="alert('Downloading file...')">Download</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">Delete</button>
+                        `;
+                    } else {
+                        statusHTML = '<span style="color: var(--success); font-weight: bold;">Uploaded</span>';
+                        actionHTML = `
+                            <button class="btn btn-secondary btn-sm" onclick="openDocumentViewer('${file.name}', 'User Uploaded Standard Archive Log File')">View</button>
+                            <button class="btn btn-secondary btn-sm" onclick="alert('Opening print panel...')">Print</button>
+                            <button class="btn btn-secondary btn-sm" onclick="alert('Downloading file...')">Download</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">Delete</button>
+                        `;
+                    }
+
+                    newRow.cells[1].innerHTML = statusHTML;
+                    newRow.cells[3].innerHTML = `<div class="actions-cell">${actionHTML}</div>`;
+                }, 1200);
+            }
+        }
+
+        function prepareSignatureTarget(fileName) {
+            document.getElementById('signing-doc-name').innerText = fileName;
+            switchTab('sign');
+        }
+
+        // Live Drawing Vector Engine Canvas
+        let canvas, ctx, drawing = false;
+        function initSignaturePad() {
+            canvas = document.getElementById('sig-canvas');
+            if(!canvas) return;
+            ctx = canvas.getContext('2d');
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2.5;
+
+            canvas.addEventListener('mousedown', () => { drawing = true; ctx.beginPath(); });
+            canvas.addEventListener('mouseup', () => drawing = false);
+            canvas.addEventListener('mousemove', (e) => {
+                if (!drawing) return;
+                const r = canvas.getBoundingClientRect();
+                ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+                ctx.stroke();
+            });
+        }
+        function clearSignature() { if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height); }
+        function applySignature() {
+            alert('Signature token string has been generated and validated!');
+            clearSignature();
+            switchTab('docs');
+        }
+        
+        // Messaging simulation
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            if(!input.value.trim()) return;
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `<div class="message sent">${input.value}</div>`;
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+            setTimeout(() => {
+                box.innerHTML += `<div class="message received">Acknowledged. Your message details have been cataloged in our support thread.</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 1000);
+        }
+
+        function sendInvite() {
+            const email = document.getElementById('inviteEmail').value;
+            if(email) {
+                alert(`Access confirmation generation code processed for targeted client identity: ${email}`);
+                document.getElementById('inviteEmail').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
