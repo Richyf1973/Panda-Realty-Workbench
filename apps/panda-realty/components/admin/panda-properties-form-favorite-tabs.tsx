@@ -18,6 +18,7 @@ import { LatestBuyerOffersSection } from "./panda-properties-buyer-offers-sectio
 import { PandaPropertiesFormFilesTab } from "./panda-properties-form-files-tab"
 import { PandaPropertiesFormFormsTab } from "./panda-properties-form-forms-tab"
 import { PandaPropertiesFormNotesTab } from "./panda-properties-form-notes-tab"
+import { PandaPropertiesFormTimelineTab } from "./panda-properties-form-timeline-tab"
 import type { BuyerOffer, FormLike } from "./panda-properties-dialog-form-types"
 
 function selectPropertyAddress(state: { values: Record<string, unknown> }): string {
@@ -63,7 +64,7 @@ export function PandaPropertiesFormFavoriteTabs({
         adminEntityBooleanFormChecked(isFavorite) ? (
           <Tabs
             key={acceptedOffer ? "with-offer" : "no-offer"}
-            defaultValue={acceptedOffer ? "sales" : "buyers"}
+            defaultValue={acceptedOffer ? "sales" : "timeline"}
             className="flex shrink-0 flex-col min-w-0"
             data-testid="panda-properties-form-bottom-tabs"
           >
@@ -77,6 +78,13 @@ export function PandaPropertiesFormFavoriteTabs({
                   Sales Information
                 </TabsTrigger>
               )}
+              <TabsTrigger
+                value="timeline"
+                className="shrink-0 min-h-[44px] sm:min-h-0"
+                data-testid="panda-properties-form-tab-trigger--timeline"
+              >
+                Timeline
+              </TabsTrigger>
               <TabsTrigger
                 value="buyers"
                 className="shrink-0 min-h-[44px] sm:min-h-0"
@@ -168,6 +176,14 @@ export function PandaPropertiesFormFavoriteTabs({
                 </form.Subscribe>
               </div>
             </TabsContent>}
+
+            <TabsContent
+              value="timeline"
+              className="flex flex-col"
+              data-testid="panda-properties-form-tab--timeline"
+            >
+              <PandaPropertiesFormTimelineTab propertyListId={entityRowId} />
+            </TabsContent>
 
             <TabsContent
               value="buyers"
