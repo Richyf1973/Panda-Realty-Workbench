@@ -6,7 +6,9 @@ import postgres from "postgres"
 import * as schema from "./schema"
 
 function requireDatabaseUrl(): string {
-  const url = process.env.DATABASE_URL?.trim()
+  // DATABASE_URL (set by hand) wins; POSTGRES_URL is what the Supabase → Vercel
+  // integration sets automatically, so the workbench works with either.
+  const url = (process.env.DATABASE_URL ?? process.env.POSTGRES_URL)?.trim()
   if (!url) {
     throw new Error(
       "DATABASE_URL is missing. Add the Postgres connection URI from Supabase (Project Settings → Database) to .env.local.",
